@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  roleName String @unique
+
+  users User[]
+}
+
+//Candidate(or just Guest), Employee
+
+model Job {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  code        String   @unique
+  name        String
+  description String?
+  testExamIds String[] @db.ObjectId
+
+  appications Application[]
+  testExams   TestExam[]    @relation(fields: [testExamIds], references: [id])
+  jobDetails  JobDetails[]
+}
+
+//ví dụ: 
+// Fr_FE_DEV, Fresher Frontend Developer, Lập trình viên FE.
+// Ju_BE_DEV, Junior Backend Developer, Lập trình viên BE.
+// Se_BA, Senior Business Analyst, Phân tích nghiệp vụ.
+
+model User {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  roleId   String  @db.ObjectId
+  clerkId  String  @unique
+  email    String  @unique
+  fullName String?
+  gender   Gender?
+  bornYear Int?
+  phone    String?
+
+  role      Role       @relation(fields: [roleId], references: [id])
+  candidate Candidate?
+  employee  Employee?
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+model Employee {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Candidate {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+
+  user         User          @relation(fields: [userId], references: [id])
+  applications Application[]
+}
+
+model Application {
+  id                 String            @id @default(auto()) @map("_id") @db.ObjectId
+  candidateId        String            @db.ObjectId
+  jobId              String            @db.ObjectId
+  recruitmentRoundId String            @db.ObjectId
+  status             ApplicationStatus @default(Processing)
+  receiveJobDate     DateTime?
+
+  job              Job               @relation(fields: [jobId], references: [id])
+  candidate        Candidate         @relation(fields: [candidateId], references: [id])
+  recruitmentRound RecruitmentRound  @relation(fields: [recruitmentRoundId], references: [id])
+  testSession      TestSession?
+  interviewSession InterviewSession?
+  receiveJobWish   ReceiveJobWish?
+
+  @@unique([jobId, recruitmentRoundId, candidateId])
+}
+
+model InterviewSession {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  applicationId   String          @unique @db.ObjectId
+  interviewDate   DateTime
+  interviewResult InterviewResult @default(Processing)
+  method          InterviewMethod @default(Offline)
+
+  application          Application           @relation(fields: [applicationId], references: [id])
+  interviewSessionWish InterviewSessionWish?
+}
+
+enum InterviewMethod {
+  Online
+  Offline
+}
+
+model ReceiveJobWish {
+  id            String             @id @default(auto()) @map("_id") @db.ObjectId
+  applicationId String             @unique @db.ObjectId
+  content       String?
+  status        WishStatus
+  wishTime      DateTime?
+  type          ReceiveJobWishType
+
+  application Application @relation(fields: [applicationId], references: [id])
+}
+
+enum ReceiveJobWishType {
+  RejectJob
+  ChanegReceiJonTime
+}
+
+enum InterviewResult {
+  Processing
+  Fail
+  Pass
+}
+
+model TestSession {
+  id            String            @id @default(auto()) @map("_id") @db.ObjectId
+  applicationId String            @unique @db.ObjectId
+  testExamId    String            @db.ObjectId
+  point         Int?
+  status        TestSessionStatus @default(Processing)
+  startDate     DateTime
+
+  application     Application      @relation(fields: [applicationId], references: [id])
+  testExam        TestExam         @relation(fields: [testExamId], references: [id])
+  testSessionWish TestSessionWish?
+}
+
+model InterviewSessionWish {
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  interviewSessionId String          @unique @db.ObjectId
+  content            String
+  status             WishStatus
+  wishTime           DateTime
+  wishMethod         InterviewMethod
+
+  interviewSession InterviewSession @relation(fields: [interviewSessionId], references: [id])
+}
+
+model TestSessionWish {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  testSessionId  String     @unique @db.ObjectId
+  content        String?
+  wishedTestTime DateTime
+  status         WishStatus @default(Processing)
+
+  testSession TestSession @relation(fields: [testSessionId], references: [id])
+}
+
+enum WishStatus {
+  Processing
+  Approve
+  Reject
+}
+
+enum TestSessionStatus {
+  Processing
+  Fail
+  Pass
+}
+
+enum ApplicationStatus {
+  Processing //Khi ứng viên đang tham gia vào đợt ứng tuyển hiện tại
+  Saved // Khi ứng viên chưa vượt qua được bài test của đợt ứng tuyển gần nhất hoặc kết quả phỏng vấn chưa đạt yêu cầu 
+  Approve //Khi ứng viên có kết quả phỏng vấn đạt yêu cầu và xác nhận làm việc tại công ty
+  Reject //Khi ứng viên có kết quả phỏng vấn đạt yêu cầu và xác nhận không làm việc tại công ty
+}
+
+model TestExam {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  duration       Int //minutes unit , min 0
+  description    String?
+  conditionPoint Float //max 10, min 0
+  jobIds         String[] @db.ObjectId
+
+  testSessions TestSession[]
+  questions    Question[] // không giới hạn số lượng câu hỏi
+  jobs         Job[]         @relation(fields: [jobIds], references: [id])
+}
+
+model Question {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  testExamId String @db.ObjectId
+  title      String
+
+  options  QuestionOption[] //length 4, and only 1 correct choice
+  testExam TestExam         @relation(fields: [testExamId], references: [id])
+}
+
+type QuestionOption {
+  content String
+  correct Boolean
+}
+
+model RecruitmentRound {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  startDate   DateTime
+  endDate     DateTime
+  description String
+
+  jobDetails   JobDetails[]
+  applications Application[]
+}
+
+model JobDetails {
+  id                 String @id @default(auto()) @map("_id") @db.ObjectId
+  recruitmentRoundId String @db.ObjectId
+  jobId              String @db.ObjectId
+  quantity           Int
+
+  recruitmentRound RecruitmentRound @relation(fields: [recruitmentRoundId], references: [id])
+  job              Job              @relation(fields: [jobId], references: [id])
+
+  @@unique([jobId, recruitmentRoundId])
+}
