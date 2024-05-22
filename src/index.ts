@@ -4,9 +4,9 @@ import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import errorHandlingMiddleware from './middleware/error-handling.middleware'
-import clerkRoute from './clerk/clerk.route'
-import { container } from './inversify.config'
-import { UserController } from './user/user.controller'
+import clerkRoute from '~/clerk/clerk.route'
+import { container } from '~/inversify.config'
+import { UserController } from '~/user/user.controller'
 
 const app = express()
 const userController = container.get(UserController)
