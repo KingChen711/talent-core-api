@@ -3,8 +3,8 @@ import 'dotenv/config'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
-// import errorHandlingMiddleware from '~/middleware/error-handling.middleware'
-import clerkRoute from '~/clerk/clerk.route'
+import errorHandlingMiddleware from './middleware/error-handling.middleware'
+import clerkRoute from './clerk/clerk.route'
 import { container } from './inversify.config'
 import { UserController } from './user/user.controller'
 
@@ -21,7 +21,7 @@ app.get('/', (req, res) => {
   return res.status(200).json({ message: 'hello world' })
 })
 
-// app.use(errorHandlingMiddleware)
+app.use(errorHandlingMiddleware)
 
 const PORT = process.env.PORT || 6000
 app.listen(PORT, () => {

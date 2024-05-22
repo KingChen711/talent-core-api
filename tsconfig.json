@@ -10,9 +10,9 @@
     "baseUrl": ".", // Đường dẫn base cho các import
     "experimentalDecorators": true, //cấu hình để sử dụng decorator
     "emitDecoratorMetadata": true, //cấu hình để sử dụng decorator
-    "paths": {
-      "~/*": ["src/*"] // Đường dẫn tương đối cho các import (alias)
-    }
+    // "paths": {
+    //   "~/*": ["src/*"] // Đường dẫn tương đối cho các import (alias)
+    // }
   },
   "ts-node": {
     "require": ["tsconfig-paths/register"]

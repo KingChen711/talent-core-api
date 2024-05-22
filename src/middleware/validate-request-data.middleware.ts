@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { AnyZodObject } from 'zod'
-import ApiError from '~/helpers/api-error'
+import ApiError from '../helpers/api-error'
 
 const validateRequestData = (schema: AnyZodObject) => async (req: Request, res: Response, next: NextFunction) => {
   try {

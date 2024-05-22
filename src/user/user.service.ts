@@ -1,6 +1,6 @@
 import { Prisma, User } from '@prisma/client'
 import { inject, injectable } from 'inversify'
-import { PrismaService } from '~/prisma.service'
+import { PrismaService } from '../prisma.service'
 
 @injectable()
 export class UserService {

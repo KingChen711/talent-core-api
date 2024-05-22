@@ -1,6 +1,6 @@
 import { Container } from 'inversify'
-import { PrismaService } from '~/prisma.service'
-import { UserService } from '~/user/user.service'
+import { PrismaService } from './prisma.service'
+import { UserService } from './user/user.service'
 import { UserController } from './user/user.controller'
 import { ClerkController } from './clerk/clerk.controller'
 
