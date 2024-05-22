@@ -66,7 +66,7 @@ export class ClerkController {
             avatar: image_url,
             role: {
               connect: {
-                roleName: Role.Candidate.toString()
+                roleName: Role[Role.Candidate]
               }
             }
           })
