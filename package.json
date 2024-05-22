@@ -31,6 +31,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.8",
     "@prisma/client": "5.14.0",
     "@types/body-parser": "^1.19.5",
     "@types/cors": "^2.8.17",

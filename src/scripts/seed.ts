@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+import { db } from '~/lib/db'
+
 async function main() {
-  await prisma.role.upsert({
+  await db.role.upsert({
     where: { roleName: 'Candidate' },
     update: {},
     create: {
@@ -9,7 +9,7 @@ async function main() {
     }
   })
 
-  await prisma.role.upsert({
+  await db.role.upsert({
     where: { roleName: 'Employee' },
     update: {},
     create: {
@@ -20,10 +20,10 @@ async function main() {
 
 main()
   .then(async () => {
-    await prisma.$disconnect()
+    await db.$disconnect()
   })
   .catch(async (e) => {
     console.error(e)
-    await prisma.$disconnect()
+    await db.$disconnect()
     process.exit(1)
   })
