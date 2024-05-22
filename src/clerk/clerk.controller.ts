@@ -58,23 +58,29 @@ export class ClerkController {
       if (eventType === 'user.created') {
         const { id, email_addresses, image_url, first_name, last_name } = evt.data
 
-        try {
-          const user = await this.userService.createUser({
-            clerkId: id,
-            email: email_addresses[0].email_address,
-            fullName: `${first_name}${last_name ? ` ${last_name}` : ''}`,
-            avatar: image_url,
-            role: {
-              connect: {
-                roleName: Role[Role.Candidate]
-              }
+        const user = await this.userService.createUser({
+          clerkId: id,
+          email: email_addresses[0].email_address,
+          fullName: `${first_name}${last_name ? ` ${last_name}` : ''}`,
+          avatar: image_url,
+          role: {
+            connect: {
+              roleName: Role[Role.Candidate]
             }
-          })
-          return res.status(StatusCodes.CREATED).json(user)
-        } catch (error: any) {
-          console.log('Prisma error: ', error.message)
-          throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
-        }
+          }
+        })
+        return res.status(StatusCodes.CREATED).json(user)
+      }
+
+      if (eventType === 'user.updated') {
+        const { id: clerkId, email_addresses, image_url, first_name, last_name } = evt.data
+
+        const user = await this.userService.updateUser(clerkId, {
+          email: email_addresses[0].email_address,
+          fullName: `${first_name}${last_name ? ` ${last_name}` : ''}`,
+          avatar: image_url
+        })
+        return res.status(StatusCodes.CREATED).json(user)
       }
 
       return res.status(StatusCodes.OK).json({

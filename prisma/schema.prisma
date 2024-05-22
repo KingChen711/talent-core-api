@@ -38,7 +38,7 @@ model User {
   roleId   String  @db.ObjectId
   clerkId  String  @unique
   email    String  @unique
-  fullName String?
+  fullName String
   gender   Gender?
   bornYear Int?
   phone    String?
