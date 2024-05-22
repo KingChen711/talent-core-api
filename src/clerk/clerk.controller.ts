@@ -42,9 +42,6 @@ export class ClerkController {
 
       let evt: WebhookEvent
 
-      console.log({payload});
-      
-
       try {
         evt = wh.verify(payload, {
           'svix-id': svix_id,
@@ -56,28 +53,28 @@ export class ClerkController {
         throw new ApiError(StatusCodes.BAD_REQUEST, err.message)
       }
 
-      const { id } = evt.data
       const eventType = evt.type
-
-      console.log(`Webhook with an ID of ${id} and type of ${eventType}`)
-      console.log('Webhook body:', evt.data)
 
       if (eventType === 'user.created') {
         const { id, email_addresses, image_url, first_name, last_name } = evt.data
 
-        const user = await this.userService.createUser({
-          clerkId: id,
-          email: email_addresses[0].email_address,
-          fullName: `${first_name}${last_name ? ` ${last_name}` : ''}`,
-          avatar: image_url,
-          role: {
-            connect: {
-              roleName: Role.Candidate.toString()
+        try {
+          const user = await this.userService.createUser({
+            clerkId: id,
+            email: email_addresses[0].email_address,
+            fullName: `${first_name}${last_name ? ` ${last_name}` : ''}`,
+            avatar: image_url,
+            role: {
+              connect: {
+                roleName: Role.Candidate.toString()
+              }
             }
-          }
-        })
-
-        return res.status(StatusCodes.CREATED).json(user)
+          })
+          return res.status(StatusCodes.CREATED).json(user)
+        } catch (error: any) {
+          console.log('Prisma error: ', error.message)
+          throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, error.message)
+        }
       }
 
       return res.status(StatusCodes.OK).json({
