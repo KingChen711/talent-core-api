@@ -9,7 +9,7 @@ export class UserController {
 
   getUserById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = await this.userService.getUserById('')
+      const user = await this.userService.getUserById()
       return res.status(StatusCodes.OK).json(user)
     } catch (error) {
       next(error)

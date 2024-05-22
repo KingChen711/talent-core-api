@@ -14,13 +14,13 @@ export class UserService {
   //   })
   // }
 
-  // getUserById = async (id: string): Promise<User | null> => {
-  //   return await this.prismaService.client.user.findUnique({
-  //     where: {
-  //       id: '664ddf0c796aadfc97448ab3'
-  //     }
-  //   })
-  // }
+  getUserById = async (): Promise<User | null> => {
+    return await this.prismaService.client.user.findUnique({
+      where: {
+        id: '664ddf0c796aadfc97448ab3'
+      }
+    })
+  }
 
   createUser = async (user: Prisma.UserCreateInput): Promise<User> => {
     return await this.prismaService.client.user.create({
