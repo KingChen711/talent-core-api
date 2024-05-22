@@ -1,23 +1,26 @@
-import { NextFunction, Request, Response } from 'express'
-import * as dotenv from 'dotenv'
-import { StatusCodes } from 'http-status-codes'
-import ApiError from '~/helpers/api-error'
-import { Role } from '~/types'
-import { WithAuthProp } from '@clerk/clerk-sdk-node'
-dotenv.config()
+// import { NextFunction, Request, Response } from 'express'
+// import * as dotenv from 'dotenv'
+// import { StatusCodes } from 'http-status-codes'
+// import ApiError from '~/helpers/api-error'
+// import { Role } from '~/types'
+// import { WithAuthProp } from '@clerk/clerk-sdk-node'
+// import { container } from '~/container'
+// dotenv.config()
 
-const authorize = (roles?: Role[]) => (req: WithAuthProp<Request>, res: Response, next: NextFunction) => {
-  if (!req.auth.sessionId) next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid Token'))
+// const authorize = (roles?: Role[]) => (req: WithAuthProp<Request>, res: Response, next: NextFunction) => {
+//   if (!req.auth.sessionId) next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid Token'))
 
-  if (!roles) next()
+//   if (!roles) next()
 
-  const clerkId = req.auth.userId
+//   const clerkId = req.auth.userId
 
-  // if (!res.locals.user?.role || !roles.map((role) => role.toString()).includes(res.locals.user.role)) {
-  //   next(new ApiError(StatusCodes.FORBIDDEN, 'No Permission'))
-  // }
+//   const userService = container.get('UserService')
 
-  next()
-}
+//   // if (!res.locals.user?.role || !roles.map((role) => role.toString()).includes(res.locals.user.role)) {
+//   //   next(new ApiError(StatusCodes.FORBIDDEN, 'No Permission'))
+//   // }
 
-export default authorize
+//   next()
+// }
+
+// export default authorize

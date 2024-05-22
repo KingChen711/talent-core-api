@@ -42,6 +42,7 @@ model User {
   gender   Gender?
   bornYear Int?
   phone    String?
+  avatar   String  @default("/images/default-avatar.png")
 
   role      Role       @relation(fields: [roleId], references: [id])
   candidate Candidate?
