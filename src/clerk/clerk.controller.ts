@@ -42,6 +42,9 @@ export class ClerkController {
 
       let evt: WebhookEvent
 
+      console.log({payload});
+      
+
       try {
         evt = wh.verify(payload, {
           'svix-id': svix_id,
@@ -86,3 +89,5 @@ export class ClerkController {
     }
   }
 }
+
+//TODO:add favicon

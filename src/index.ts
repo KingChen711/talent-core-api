@@ -11,10 +11,11 @@ import { UserController } from './user/user.controller'
 const app = express()
 const userController = container.get(UserController)
 
+app.use('/api/webhook/clerk', clerkRoute)
+
 app.use(bodyParser.json())
 app.use(cors())
 
-app.use('/api/webhook/clerk', clerkRoute)
 app.get('/api/user', userController.getUserById)
 
 app.get('/', (req, res) => {
