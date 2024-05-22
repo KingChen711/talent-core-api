@@ -1,8 +1,8 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '~/helpers/api-error'
 
-const errorHandlingMiddleware = (err: ApiError, _: Request, res: Response) => {
+const errorHandlingMiddleware = (err: ApiError, _: Request, res: Response, next: NextFunction) => {
   if (!err?.statusCode) err.statusCode = StatusCodes.INTERNAL_SERVER_ERROR
 
   const responseError = {
