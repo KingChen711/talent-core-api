@@ -65,7 +65,7 @@ export class ClerkController {
           avatar: image_url,
           role: {
             connect: {
-              roleName: Role[Role.Candidate]
+              roleName: Role.CANDIDATE
             }
           }
         })

@@ -1,4 +1,13 @@
+import { User } from '@prisma/client'
+import { Response } from 'express'
+
 export enum Role {
-  Employee,
-  Candidate
+  EMPLOYEE = 'Employee',
+  CANDIDATE = 'Candidate'
+}
+
+export type ResponseWithUser = Response & {
+  locals: {
+    user: User & { role: Role }
+  }
 }

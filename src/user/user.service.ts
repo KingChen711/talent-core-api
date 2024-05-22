@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client'
+import { Prisma, Role, User } from '@prisma/client'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma.service'
 
@@ -6,13 +6,16 @@ import { PrismaService } from '../prisma.service'
 export class UserService {
   constructor(@inject(PrismaService) private readonly prismaService: PrismaService) {}
 
-  // getUserByClerkId = async (clerkId: string): Promise<User | null> => {
-  //   return await this.prismaService.user.findUnique({
-  //     where: {
-  //       clerkId
-  //     }
-  //   })
-  // }
+  getUserByClerkIdWithRole = async (clerkId: string): Promise<(User & { role: Role }) | null> => {
+    return await this.prismaService.client.user.findUnique({
+      where: {
+        clerkId
+      },
+      include: {
+        role: true
+      }
+    })
+  }
 
   getUserById = async (): Promise<User | null> => {
     return await this.prismaService.client.user.findUnique({

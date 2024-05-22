@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '../helpers/api-error'
 
-const errorHandlingMiddleware = (err: ApiError, _: Request, res: Response, next: NextFunction) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const errorHandlingMiddleware = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   if (!err?.statusCode) err.statusCode = StatusCodes.INTERNAL_SERVER_ERROR
 
   const responseError = {
