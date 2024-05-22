@@ -15,8 +15,7 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.4.5",
-    "vercel-build": "echo hello"
+    "typescript": "^5.4.5"
   },
   "scripts": {
     "dev": "nodemon src/index.ts",
@@ -26,7 +25,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --check .",
-    "prettier:fix": "prettier --write ."
+    "prettier:fix": "prettier --write .",
+    "vercel-build": "echo hello"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
