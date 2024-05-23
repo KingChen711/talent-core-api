@@ -1,7 +1,7 @@
+import 'dotenv/config'
 import cors from 'cors'
 
-//TODO: Thêm các url vào env
-const allowedOrigins = ['http://localhost:3000', 'https://talent-core.vercel.app']
+const allowedOrigins = process.env.ALLOWED_ORIGINS!.split(',')
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {

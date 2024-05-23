@@ -92,5 +92,3 @@ export class ClerkController {
     }
   }
 }
-
-//TODO:add favicon
