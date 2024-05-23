@@ -209,8 +209,12 @@ model RecruitmentRound {
   startDate   DateTime
   endDate     DateTime
   description String
+  isOpening   Boolean
+  createdAt   DateTime @default(now())
 
   jobDetails JobDetail[]
+
+  @@index([isOpening, createdAt(sort: Desc)])
 }
 
 model JobDetail {
@@ -225,4 +229,5 @@ model JobDetail {
   applications     Application[]
 
   @@unique([jobId, recruitmentRoundId])
+  @@index([createdAt(sort: Desc)])
 }

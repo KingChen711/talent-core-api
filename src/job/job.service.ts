@@ -13,7 +13,7 @@ export class JobService {
       query: { pageNumber, pageSize, search }
     } = schema
 
-    const query: Prisma.JobCountArgs = {}
+    const query: Prisma.JobFindManyArgs = {}
 
     if (search) {
       query.where = {
@@ -37,13 +37,35 @@ export class JobService {
       }
     }
 
-    const totalCount = await this.prismaService.client.job.count(query)
+    const totalCount = await this.prismaService.client.job.count(query as Prisma.JobCountArgs)
 
     query.skip = pageSize * (pageNumber - 1)
     query.take = pageSize
 
-    const jobs = await this.prismaService.client.job.findMany(query as Prisma.JobFindManyArgs)
+    //TODO: chưa xác nhận phần isOpening có hoạt đúng hay không
+    const jobs = await this.prismaService.client.job.findMany({
+      ...query,
+      include: {
+        jobDetails: {
+          select: {
+            createdAt: true,
+            recruitmentRound: {
+              select: {
+                isOpening: true,
+                createdAt: true
+              }
+            }
+          }
+        }
+      }
+    })
 
-    return new PagedList<Job>(jobs, totalCount, pageNumber, pageSize)
+    const mappedJobs = jobs.map((job) => ({
+      ...job,
+      isOpening: job.jobDetails.some((jd) => jd.recruitmentRound.isOpening),
+      jobDetails: undefined // key have undefined value will be remove from the return json
+    }))
+
+    return new PagedList<Job>(mappedJobs, totalCount, pageNumber, pageSize)
   }
 }
