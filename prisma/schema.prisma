@@ -14,18 +14,17 @@ model Role {
   users User[]
 }
 
-//Candidate(or just Guest), Employee
-
 model Job {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   code        String   @unique
   name        String
   description String?
   testExamIds String[] @db.ObjectId
+  color       String   @default("#29c5ee") //just a field for present job color to make UI better
+  icon        String   @default("/icons/suitcase.png") //just a field for present job icon to make UI better
 
-  appications Application[]
-  testExams   TestExam[]    @relation(fields: [testExamIds], references: [id])
-  jobDetails  JobDetails[]
+  testExams  TestExam[]  @relation(fields: [testExamIds], references: [id])
+  jobDetails JobDetail[]
 }
 
 //ví dụ: 
@@ -71,21 +70,19 @@ model Candidate {
 }
 
 model Application {
-  id                 String            @id @default(auto()) @map("_id") @db.ObjectId
-  candidateId        String            @db.ObjectId
-  jobId              String            @db.ObjectId
-  recruitmentRoundId String            @db.ObjectId
-  status             ApplicationStatus @default(Processing)
-  receiveJobDate     DateTime?
+  id             String            @id @default(auto()) @map("_id") @db.ObjectId
+  candidateId    String            @db.ObjectId
+  jobDetailId    String            @db.ObjectId
+  status         ApplicationStatus @default(Processing)
+  receiveJobDate DateTime?
 
-  job              Job               @relation(fields: [jobId], references: [id])
   candidate        Candidate         @relation(fields: [candidateId], references: [id])
-  recruitmentRound RecruitmentRound  @relation(fields: [recruitmentRoundId], references: [id])
+  jobDetail        JobDetail         @relation(fields: [jobDetailId], references: [id])
   testSession      TestSession?
   interviewSession InterviewSession?
   receiveJobWish   ReceiveJobWish?
 
-  @@unique([jobId, recruitmentRoundId, candidateId])
+  @@unique([candidateId, jobDetailId])
 }
 
 model InterviewSession {
@@ -213,18 +210,19 @@ model RecruitmentRound {
   endDate     DateTime
   description String
 
-  jobDetails   JobDetails[]
-  applications Application[]
+  jobDetails JobDetail[]
 }
 
-model JobDetails {
-  id                 String @id @default(auto()) @map("_id") @db.ObjectId
-  recruitmentRoundId String @db.ObjectId
-  jobId              String @db.ObjectId
+model JobDetail {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  recruitmentRoundId String   @db.ObjectId
+  jobId              String   @db.ObjectId
   quantity           Int
+  createdAt          DateTime @default(now())
 
   recruitmentRound RecruitmentRound @relation(fields: [recruitmentRoundId], references: [id])
   job              Job              @relation(fields: [jobId], references: [id])
+  applications     Application[]
 
   @@unique([jobId, recruitmentRoundId])
 }
