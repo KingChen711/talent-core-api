@@ -2,11 +2,11 @@ import 'dotenv/config'
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { inject, injectable } from 'inversify'
-import ApiError from '../helpers/api-error'
+import ApiError from '../../helpers/api-error'
 import { Webhook } from 'svix'
 import { WebhookEvent } from '@clerk/clerk-sdk-node'
 import { UserService } from '../user/user.service'
-import { Role } from '../types'
+import { Role } from '../../types'
 
 @injectable()
 export class ClerkController {

@@ -2,8 +2,8 @@ import { inject, injectable } from 'inversify'
 import { UserService } from './user.service'
 import { StatusCodes } from 'http-status-codes'
 import { NextFunction, Request, Response } from 'express'
-import { ResponseWithUser } from '../types'
-import ApiError from '../helpers/api-error'
+import { ResponseWithUser } from '../../types'
+import ApiError from '../../helpers/api-error'
 
 @injectable()
 export class UserController {

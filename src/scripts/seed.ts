@@ -27,7 +27,7 @@ async function main() {
           name: 'Fresher React Developer',
           description: 'Lập trình viên React Fresher',
           color: '#00dffd',
-          icon: '/icons/react.png'
+          icon: '/icons/jobs/react.png'
         },
 
         {
@@ -35,28 +35,28 @@ async function main() {
           name: 'Junior .NET Developer',
           description: 'Lập trình viên .NET Junior',
           color: '#5c2d91',
-          icon: '/icons/dotnet.png'
+          icon: '/icons/jobs/dotnet.png'
         },
         {
           code: 'Fin_Ana',
           name: 'Financial Analyst',
           description: 'Phân tích tài chính ',
           color: '#eab04d',
-          icon: '/icons/coin.png'
+          icon: '/icons/jobs/coin.png'
         },
         {
           code: 'Se_UIUX_Des',
           name: 'UI/UX Designer',
           description: 'Thiết kế UI/UX Senior',
           color: '#29c5ee',
-          icon: '/icons/figma.png'
+          icon: '/icons/jobs/figma.png'
         },
         {
           code: 'Se_Cy_Sec',
           name: 'Senior Cyber Security',
           description: 'An Ninh Mạng Senior',
           color: '#19c8a7',
-          icon: '/icons/security.png'
+          icon: '/icons/jobs/security.png'
         },
         {
           code: 'Se_BA',
@@ -69,7 +69,7 @@ async function main() {
           name: 'Senior Angular Developer',
           description: 'Lập trình viên FE Senior',
           color: '#c3002e',
-          icon: '/icons/angular.png'
+          icon: '/icons/jobs/angular.png'
         }
       ]
     })

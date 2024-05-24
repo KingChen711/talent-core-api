@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify'
-import { PrismaService } from '../prisma.service'
+import { PrismaService } from '../prisma/prisma.service'
 import { TGetJobsSchema } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
-import { PagedList } from '../types'
+import { PagedList } from '../../types'
 
 @injectable()
 export class JobService {

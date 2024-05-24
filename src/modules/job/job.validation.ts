@@ -7,7 +7,9 @@ export const getJobsSchema = z.object({
       .number()
       .default(10)
       .transform((data) => Math.min(data, 50)),
-    search: z.coerce.string().trim().optional()
+    search: z.coerce.string().trim().optional(),
+    status: z.enum(['all', 'opening', 'closed']).catch('all'),
+    sort: z.enum(['code', '-code', 'name', '-name']).optional()
   })
 })
 

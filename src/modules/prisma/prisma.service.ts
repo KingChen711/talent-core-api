@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client'
 // Do container của inversify không hoạt động không hiệu quả
 // nên constructor bị gọi nhiều lần
 const prisma = new PrismaClient()
-console.log('Prisma')
 
 @injectable()
 export class PrismaService {

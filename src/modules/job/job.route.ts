@@ -1,9 +1,9 @@
 import 'dotenv/config' // To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
 
 import express from 'express'
-import { container } from '../inversify.config'
+import { container } from '../../config/inversify.config'
 import { JobController } from './job.controller'
-import { validateRequestData } from '../middleware/validate-request-data.middleware'
+import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import { getJobsSchema } from './job.validation'
 
 const router = express.Router()

@@ -13,7 +13,9 @@ const corsOptions: cors.CorsOptions = {
     } else {
       callback(new Error('Not allowed by CORS'))
     }
-  }
+  },
+  allowedHeaders: '*',
+  exposedHeaders: 'X-Pagination'
 }
 
 const corsMiddleware = cors(corsOptions)

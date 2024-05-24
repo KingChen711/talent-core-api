@@ -21,7 +21,7 @@ model Job {
   description String?
   testExamIds String[] @db.ObjectId
   color       String   @default("#29c5ee") //just a field for present job color to make UI better
-  icon        String   @default("/icons/suitcase.png") //just a field for present job icon to make UI better
+  icon        String   @default("/icons/jobs/suitcase.png") //just a field for present job icon to make UI better
 
   testExams  TestExam[]  @relation(fields: [testExamIds], references: [id])
   jobDetails JobDetail[]

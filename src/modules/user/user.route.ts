@@ -1,9 +1,9 @@
 import 'dotenv/config' // To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
 import express from 'express'
-import { container } from '../inversify.config'
+import { container } from '../../config/inversify.config'
 import { UserController } from './user.controller'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
-import { authorize } from '../middleware/authorize.middleware'
+import { authorize } from '../../middleware/authorize.middleware'
 
 const router = express.Router()
 

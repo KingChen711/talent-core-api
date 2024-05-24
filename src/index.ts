@@ -7,12 +7,19 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 
 import errorHandlingMiddleware from './middleware/error-handling.middleware'
-import clerkRoute from './clerk/clerk.route'
-import userRoute from './user/user.route'
-import jobRoute from './job/job.route'
+import clerkRoute from './modules/clerk/clerk.route'
+import userRoute from './modules/user/user.route'
+import jobRoute from './modules/job/job.route'
 import corsMiddleware from './middleware/cors.middleware'
 
+//TODO:for development
+const DELAY = 0
+
 const app = express()
+
+app.use((req, res, next) => {
+  setTimeout(next, DELAY)
+})
 
 app.use(helmet())
 app.use(morgan('dev'))
