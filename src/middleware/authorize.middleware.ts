@@ -1,12 +1,11 @@
+import 'dotenv/config'
 import { NextFunction, Request, Response } from 'express'
-import * as dotenv from 'dotenv'
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '../helpers/api-error'
 import { Role } from '../types'
 import { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { container } from '../inversify.config'
 import { UserService } from 'src/user/user.service'
-dotenv.config()
 
 const authorize = (roles?: Role[]) => async (req: WithAuthProp<Request>, res: Response, next: NextFunction) => {
   if (!req.auth.sessionId) return next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid Token'))
@@ -32,4 +31,4 @@ const authorize = (roles?: Role[]) => async (req: WithAuthProp<Request>, res: Re
   next()
 }
 
-export default authorize
+export { authorize }
