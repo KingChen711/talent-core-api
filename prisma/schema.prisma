@@ -25,6 +25,8 @@ model Job {
 
   testExams  TestExam[]  @relation(fields: [testExamIds], references: [id])
   jobDetails JobDetail[]
+
+  @@index([code, name, description])
 }
 
 //ví dụ: 
@@ -214,7 +216,7 @@ model RecruitmentRound {
 
   jobDetails JobDetail[]
 
-  @@index([isOpening, createdAt(sort: Desc)])
+  @@index([isOpening(sort: Desc), createdAt(sort: Desc)])
 }
 
 model JobDetail {
@@ -229,5 +231,5 @@ model JobDetail {
   applications     Application[]
 
   @@unique([jobId, recruitmentRoundId])
-  @@index([createdAt(sort: Desc)])
+  @@index([recruitmentRoundId, createdAt(sort: Desc)])
 }

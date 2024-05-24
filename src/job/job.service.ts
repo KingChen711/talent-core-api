@@ -48,11 +48,9 @@ export class JobService {
       include: {
         jobDetails: {
           select: {
-            createdAt: true,
             recruitmentRound: {
               select: {
-                isOpening: true,
-                createdAt: true
+                isOpening: true
               }
             }
           }
