@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { StatusCodes } from 'http-status-codes'
-import { isZodError } from 'src/helpers/utils'
+import { isZodError } from '../helpers/utils'
 import { AnyZodObject } from 'zod'
 
 const validateRequestData = (schema: AnyZodObject) => async (req: Request, res: Response, next: NextFunction) => {

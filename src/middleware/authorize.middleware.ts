@@ -5,7 +5,7 @@ import ApiError from '../helpers/api-error'
 import { Role } from '../types'
 import { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { container } from '../inversify.config'
-import { UserService } from 'src/user/user.service'
+import { UserService } from '../user/user.service'
 
 const authorize = (roles?: Role[]) => async (req: WithAuthProp<Request>, res: Response, next: NextFunction) => {
   if (!req.auth.sessionId) return next(new ApiError(StatusCodes.FORBIDDEN, 'Invalid Token'))
