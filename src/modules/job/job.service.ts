@@ -4,45 +4,85 @@ import { TGetJobsSchema } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
 import { PagedList } from '../../types'
 
+const sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
+  code: { code: 'asc' },
+  name: { name: 'asc' },
+  '-code': { code: 'desc' },
+  '-name': { name: 'desc' }
+}
+
 @injectable()
 export class JobService {
   constructor(@inject(PrismaService) private readonly prismaService: PrismaService) {}
 
   getJobs = async (schema: TGetJobsSchema): Promise<PagedList<Job>> => {
     const {
-      query: { pageNumber, pageSize, search }
+      query: { pageNumber, pageSize, search, status, sort }
     } = schema
 
-    const query: Prisma.JobFindManyArgs = {}
-
-    if (search) {
-      query.where = {
-        OR: [
-          {
-            code: {
-              contains: search
+    const where = {
+      AND: [
+        status === 'opening'
+          ? {
+              jobDetails: {
+                some: {
+                  recruitmentRound: {
+                    isOpening: true
+                  }
+                }
+              }
             }
-          },
-          {
-            description: {
-              contains: search
+          : undefined,
+        status === 'closed'
+          ? {
+              jobDetails: {
+                every: {
+                  recruitmentRound: {
+                    isOpening: false
+                  }
+                }
+              }
             }
-          },
-          {
-            name: {
-              contains: search
+          : undefined,
+        search
+          ? {
+              OR: [
+                {
+                  code: {
+                    contains: search,
+                    mode: 'insensitive'
+                  }
+                },
+                {
+                  description: {
+                    contains: search,
+                    mode: 'insensitive'
+                  }
+                },
+                {
+                  name: {
+                    contains: search,
+                    mode: 'insensitive'
+                  }
+                }
+              ]
             }
-          }
-        ]
-      }
+          : undefined
+      ].filter((i) => i !== undefined) as Prisma.JobWhereInput
     }
 
+    const query: Prisma.JobFindManyArgs = { where }
+
     const totalCount = await this.prismaService.client.job.count(query as Prisma.JobCountArgs)
+
+    if (sort && sort in sortMapping) {
+      query.orderBy = sortMapping[sort]
+    }
 
     query.skip = pageSize * (pageNumber - 1)
     query.take = pageSize
 
-    //TODO: chưa xác nhận phần isOpening có hoạt đúng hay không
+    // //TODO: chưa xác nhận phần isOpening có hoạt đúng hay không
     const jobs = await this.prismaService.client.job.findMany({
       ...query,
       include: {
