@@ -3,7 +3,7 @@ import express from 'express'
 import { container } from '../inversify.config'
 import { UserController } from './user.controller'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
-import { authorize } from 'src/middleware/authorize.middleware'
+import { authorize } from '../middleware/authorize.middleware'
 
 const router = express.Router()
 
