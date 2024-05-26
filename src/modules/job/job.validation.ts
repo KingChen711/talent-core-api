@@ -1,5 +1,13 @@
 import z from 'zod'
 
+export const getJobSchema = z.object({
+  params: z.object({
+    jobId: z.string()
+  })
+})
+
+export type TGetJobSchema = z.infer<typeof getJobSchema>
+
 export const getJobsSchema = z.object({
   query: z.object({
     pageNumber: z.coerce.number().default(1),

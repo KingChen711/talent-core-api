@@ -1,10 +1,10 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TCreateJobSchema, TGetJobsSchema } from './job.validation'
+import { TCreateJobSchema, TGetJobSchema, TGetJobsSchema } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
 import { PagedList } from '../../types'
-import { ImageService } from 'src/aws-s3/image.service'
+import { ImageService } from '../../aws-s3/image.service'
 import { defaultImageName } from '../../constants/index'
 
 const sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
@@ -20,6 +20,42 @@ export class JobService {
     @inject(PrismaService) private readonly prismaService: PrismaService,
     @inject(ImageService) private readonly imageService: ImageService
   ) {}
+
+  getJob = async (schema: TGetJobSchema) => {
+    const {
+      params: { jobId }
+    } = schema
+
+    const job = await this.prismaService.client.job.findUnique({
+      where: { id: jobId },
+      include: {
+        testExams: true,
+        jobDetails: {
+          select: {
+            recruitmentRound: {
+              select: {
+                isOpening: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (!job) return null
+
+    const imageUrl = await this.imageService.getImageUrl(job.icon)
+
+    const mappedJob = {
+      ...job,
+      isOpening: job.jobDetails.some((jd) => jd.recruitmentRound.isOpening),
+      icon: imageUrl,
+      jobDetails: undefined,
+      testExamIds: undefined
+    }
+
+    return mappedJob
+  }
 
   getJobs = async (schema: TGetJobsSchema): Promise<PagedList<Job>> => {
     const {

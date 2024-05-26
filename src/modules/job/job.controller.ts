@@ -7,6 +7,15 @@ import { NextFunction, Request, Response } from 'express'
 export class JobController {
   constructor(@inject(JobService) private readonly jobService: JobService) {}
 
+  getJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const job = await this.jobService.getJob(res.locals.reqParams)
+      return res.status(StatusCodes.OK).json(job)
+    } catch (error) {
+      next(error)
+    }
+  }
+
   getJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const jobs = await this.jobService.getJobs(res.locals.reqParams)
