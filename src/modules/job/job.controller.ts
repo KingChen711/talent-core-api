@@ -16,6 +16,15 @@ export class JobController {
     }
   }
 
+  deleteJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.jobService.deleteJob(res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      next(error)
+    }
+  }
+
   getJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const jobs = await this.jobService.getJobs(res.locals.reqParams)

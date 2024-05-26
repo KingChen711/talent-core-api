@@ -4,7 +4,7 @@ import express from 'express'
 import { container } from '../../config/inversify.config'
 import { JobController } from './job.controller'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
-import { createJobSchema, getJobSchema, getJobsSchema, updateJobSchema } from './job.validation'
+import { createJobSchema, deleteJobSchema, getJobSchema, getJobsSchema, updateJobSchema } from './job.validation'
 import multerMiddleware from '../../middleware/multer.middleware'
 import { authorize } from '../../middleware/authorize.middleware'
 import { Role } from '../../types'
@@ -20,6 +20,14 @@ router.get(
   authorize([Role.EMPLOYEE]),
   validateRequestData(getJobSchema),
   jobController.getJob
+)
+
+router.delete(
+  '/:jobId',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(deleteJobSchema),
+  jobController.deleteJob
 )
 
 router.put(

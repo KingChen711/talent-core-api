@@ -227,7 +227,7 @@ model JobDetail {
   createdAt          DateTime @default(now())
 
   recruitmentRound RecruitmentRound @relation(fields: [recruitmentRoundId], references: [id])
-  job              Job              @relation(fields: [jobId], references: [id])
+  job              Job              @relation(fields: [jobId], references: [id], onDelete: Restrict)
   applications     Application[]
 
   @@unique([jobId, recruitmentRoundId])

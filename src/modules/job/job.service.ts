@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TCreateJobSchema, TGetJobSchema, TGetJobsSchema, TUpdateJobSchema } from './job.validation'
+import { TCreateJobSchema, TDeleteJobSchema, TGetJobSchema, TGetJobsSchema, TUpdateJobSchema } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
 import { PagedList } from '../../types'
 import { ImageService } from '../../aws-s3/image.service'
@@ -24,7 +24,16 @@ export class JobService {
   ) {}
 
   getJobById = async (jobId: string, required = false) => {
-    const job = await this.prismaService.client.job.findUnique({ where: { id: jobId } })
+    const job = await this.prismaService.client.job.findUnique({
+      where: { id: jobId },
+      include: {
+        _count: {
+          select: {
+            jobDetails: true
+          }
+        }
+      }
+    })
 
     if (!job && required) {
       throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with id: ${jobId}`)
@@ -219,7 +228,26 @@ export class JobService {
       },
       data: { code, color, icon: imageName, name, description, testExamIds }
     })
+    //TODO: kiểm tra testExamIds có valid không
   }
 
-  //TODO: kiểm tra testExamIds có valid không
+  deleteJob = async (schema: TDeleteJobSchema) => {
+    const {
+      params: { jobId }
+    } = schema
+
+    //check exist
+    const job = await this.getJobById(jobId, true)!
+
+    //TODO: chưa xác nhận cái này chạy được không
+    if (job!._count.jobDetails > 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'This jobs have already belong to some recruitment rounds')
+    }
+
+    await this.prismaService.client.job.delete({
+      where: {
+        id: jobId
+      }
+    })
+  }
 }

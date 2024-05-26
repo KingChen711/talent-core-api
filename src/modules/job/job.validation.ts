@@ -8,6 +8,14 @@ export const getJobSchema = z.object({
 
 export type TGetJobSchema = z.infer<typeof getJobSchema>
 
+export const deleteJobSchema = z.object({
+  params: z.object({
+    jobId: z.string()
+  })
+})
+
+export type TDeleteJobSchema = z.infer<typeof deleteJobSchema>
+
 export const getJobsSchema = z.object({
   query: z.object({
     pageNumber: z.coerce.number().default(1),
