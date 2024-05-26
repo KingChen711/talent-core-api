@@ -23,6 +23,7 @@ async function main() {
     await prisma.job.createMany({
       data: [
         {
+          createdAt: getRandomPastDate(),
           code: 'Fr_React_DEV',
           name: 'Fresher React Developer',
           description: 'Lập trình viên React Fresher',
@@ -31,6 +32,7 @@ async function main() {
         },
 
         {
+          createdAt: getRandomPastDate(),
           code: 'Ju_NET_DEV',
           name: 'Junior .NET Developer',
           description: 'Lập trình viên .NET Junior',
@@ -38,6 +40,7 @@ async function main() {
           icon: 'dotnet.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Fin_Ana',
           name: 'Financial Analyst',
           description: 'Phân tích tài chính ',
@@ -45,6 +48,7 @@ async function main() {
           icon: 'coin.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_UIUX_Des',
           name: 'UI/UX Designer',
           description: 'Thiết kế UI/UX Senior',
@@ -52,6 +56,7 @@ async function main() {
           icon: 'figma.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_Cy_Sec',
           name: 'Senior Cyber Security',
           description: 'An Ninh Mạng Senior',
@@ -59,12 +64,14 @@ async function main() {
           icon: 'security.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_BA',
           name: 'Senior Business Analyst',
           description: 'Phân tích nghiệp vụ Senior',
           color: '#cf1a2c'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_Angular_DEV',
           name: 'Senior Angular Developer',
           description: 'Lập trình viên FE Senior',
@@ -72,6 +79,7 @@ async function main() {
           icon: 'angular.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Fr_React_DEV1',
           name: 'Fresher React Developer',
           description: 'Lập trình viên React Fresher',
@@ -80,6 +88,7 @@ async function main() {
         },
 
         {
+          createdAt: getRandomPastDate(),
           code: 'Ju_NET_DEV1',
           name: 'Junior .NET Developer',
           description: 'Lập trình viên .NET Junior',
@@ -87,6 +96,7 @@ async function main() {
           icon: 'dotnet.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Fin_Ana1',
           name: 'Financial Analyst',
           description: 'Phân tích tài chính ',
@@ -94,6 +104,7 @@ async function main() {
           icon: 'coin.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_UIUX_Des1',
           name: 'UI/UX Designer',
           description: 'Thiết kế UI/UX Senior',
@@ -101,6 +112,7 @@ async function main() {
           icon: 'figma.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_Cy_Sec1',
           name: 'Senior Cyber Security',
           description: 'An Ninh Mạng Senior',
@@ -108,12 +120,14 @@ async function main() {
           icon: 'security.png'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_BA1',
           name: 'Senior Business Analyst',
           description: 'Phân tích nghiệp vụ Senior',
           color: '#cf1a2c'
         },
         {
+          createdAt: getRandomPastDate(),
           code: 'Se_Angular_DEV1',
           name: 'Senior Angular Developer',
           description: 'Lập trình viên FE Senior',
@@ -135,3 +149,10 @@ main()
     process.exit(1)
   })
   .finally(() => console.log('Done'))
+
+function getRandomPastDate(): Date {
+  const today = new Date()
+  const pastDays = Math.floor(Math.random() * 30)
+  today.setDate(today.getDate() - pastDays)
+  return today
+}

@@ -26,6 +26,8 @@ model Job {
   testExams  TestExam[]  @relation(fields: [testExamIds], references: [id])
   jobDetails JobDetail[]
 
+  createdAt DateTime @default(now())
+
   @@index([code, name, description])
 }
 

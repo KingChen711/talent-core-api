@@ -11,9 +11,11 @@ import { StatusCodes } from 'http-status-codes'
 
 const sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
   code: { code: 'asc' },
-  name: { name: 'asc' },
   '-code': { code: 'desc' },
-  '-name': { name: 'desc' }
+  name: { name: 'asc' },
+  '-name': { name: 'desc' },
+  createdAt: { createdAt: 'asc' },
+  '-createdAt': { createdAt: 'desc' }
 }
 
 @injectable()
