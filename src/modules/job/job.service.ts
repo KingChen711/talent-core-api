@@ -42,6 +42,25 @@ export class JobService {
     return job
   }
 
+  getJobByCode = async (code: string, required = false) => {
+    const job = await this.prismaService.client.job.findUnique({
+      where: { code },
+      include: {
+        _count: {
+          select: {
+            jobDetails: true
+          }
+        }
+      }
+    })
+
+    if (!job && required) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${code}`)
+    }
+
+    return job
+  }
+
   getJob = async (schema: TGetJobSchema) => {
     const {
       params: { jobId }
@@ -185,6 +204,14 @@ export class JobService {
       }
     } = schema
 
+    if (await this.getJobByCode(code)) {
+      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+        errors: {
+          code: 'This code is already used'
+        }
+      })
+    }
+
     let imageName: string
     if (file) {
       imageName = await this.imageService.upLoadImage(file, 240, 240)
@@ -206,19 +233,37 @@ export class JobService {
       body: { code, color, name, testExamIds, description }
     } = schema
 
-    const job = await this.getJobById(jobId, true)!
+    const jobByCode = await this.getJobByCode(code)
+
+    if (jobByCode && jobByCode.id !== jobId) {
+      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+        errors: {
+          code: 'This code is already used'
+        }
+      })
+    }
+
+    const job = jobByCode || (await this.getJobById(jobId, true)!)
 
     let imageName: string
+
+    console.log(file)
+
     if (file) {
+      console.log('Have file')
+
       if (systemImageJobs.includes(job!.icon)) {
+        console.log('create new image object')
         //create new image object
         imageName = await this.imageService.upLoadImage(file, 240, 240)
       } else {
+        console.log('put available image object')
         //put available image object
         imageName = job!.icon
         await this.imageService.upLoadImage(file, 240, 240, imageName)
       }
     } else {
+      console.log('Not file')
       imageName = job!.icon
     }
 

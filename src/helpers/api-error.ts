@@ -1,10 +1,16 @@
 class ApiError extends Error {
   statusCode: number
+  data: { errors: Record<string, string> } | undefined
 
-  constructor(statusCode: number, message: string) {
+  constructor(statusCode: number, data: string | { errors: Record<string, string> }) {
     // Call the constructor of the Error class (parent class) to use 'this' (basic OOP knowledge)
     // The parent class (Error) already has the 'message' property, so call it using 'super' to keep it concise
-    super(message)
+    if (typeof data === 'string') {
+      super(data)
+    } else {
+      super('UNPROCESSABLE_ENTITY')
+      this.data = data
+    }
 
     // Set the name of this custom Error; if not set, it will default to "Error"
     this.name = 'ApiError'

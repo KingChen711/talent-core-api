@@ -6,13 +6,15 @@ import ApiError from '../helpers/api-error'
 const errorHandlingMiddleware = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   if (!err?.statusCode) err.statusCode = StatusCodes.INTERNAL_SERVER_ERROR
 
-  const responseError = {
+  console.log(err.data)
+
+  const responseError = err.data || {
     statusCode: err.statusCode,
     message: err.message || StatusCodes[err.statusCode],
     stack: err.stack
   }
 
-  res.status(responseError.statusCode).json(responseError)
+  res.status(err.statusCode).json(responseError)
 }
 
 export default errorHandlingMiddleware
