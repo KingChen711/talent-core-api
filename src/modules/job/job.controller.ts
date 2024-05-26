@@ -16,4 +16,14 @@ export class JobController {
       next(error)
     }
   }
+
+  createJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const job = await this.jobService.createJob(req.file, res.locals.reqParams)
+      return res.status(StatusCodes.CREATED).json(job)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }

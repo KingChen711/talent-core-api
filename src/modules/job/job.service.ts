@@ -1,8 +1,11 @@
+import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TGetJobsSchema } from './job.validation'
+import { TCreateJobSchema, TGetJobsSchema } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
 import { PagedList } from '../../types'
+import { ImageService } from 'src/aws-s3/image.service'
+import { defaultImageName } from '../../constants/index'
 
 const sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
   code: { code: 'asc' },
@@ -13,7 +16,10 @@ const sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
 
 @injectable()
 export class JobService {
-  constructor(@inject(PrismaService) private readonly prismaService: PrismaService) {}
+  constructor(
+    @inject(PrismaService) private readonly prismaService: PrismaService,
+    @inject(ImageService) private readonly imageService: ImageService
+  ) {}
 
   getJobs = async (schema: TGetJobsSchema): Promise<PagedList<Job>> => {
     const {
@@ -82,7 +88,7 @@ export class JobService {
     query.skip = pageSize * (pageNumber - 1)
     query.take = pageSize
 
-    // //TODO: chưa xác nhận phần isOpening có hoạt đúng hay không
+    // //TODO: chưa xác nhận phần isOpening có hoạt động đúng hay không
     const jobs = await this.prismaService.client.job.findMany({
       ...query,
       include: {
@@ -98,12 +104,43 @@ export class JobService {
       }
     })
 
-    const mappedJobs = jobs.map((job) => ({
+    const imageUrls = await Promise.all(jobs.map((job) => this.imageService.getImageUrl(job.icon)))
+
+    const mappedJobs = jobs.map((job, i) => ({
       ...job,
       isOpening: job.jobDetails.some((jd) => jd.recruitmentRound.isOpening),
-      jobDetails: undefined // key have undefined value will be remove from the return json
+      icon: imageUrls[i],
+      jobDetails: undefined // key have undefined value will be remove from the returned json
     }))
 
     return new PagedList<Job>(mappedJobs, totalCount, pageNumber, pageSize)
+  }
+
+  createJob = async (file: Express.Multer.File | undefined, schema: TCreateJobSchema) => {
+    const {
+      body: {
+        code,
+        color,
+        name,
+        // openInCurrentRecruitment,
+        testExamIds,
+        description
+        // quantityInCurrentRecruitment
+      }
+    } = schema
+
+    let imageName: string
+    if (file) {
+      imageName = await this.imageService.upLoadImage(file, 240, 240)
+    }
+    imageName ||= defaultImageName
+
+    const job = await this.prismaService.client.job.create({
+      data: { code, color, icon: imageName, name, description, testExamIds }
+    })
+
+    //TODO:handle add to description
+
+    return job
   }
 }

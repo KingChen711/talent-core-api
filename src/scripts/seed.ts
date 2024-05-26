@@ -27,7 +27,7 @@ async function main() {
           name: 'Fresher React Developer',
           description: 'Lập trình viên React Fresher',
           color: '#00dffd',
-          icon: '/icons/jobs/react.png'
+          icon: 'react.png'
         },
 
         {
@@ -35,28 +35,28 @@ async function main() {
           name: 'Junior .NET Developer',
           description: 'Lập trình viên .NET Junior',
           color: '#5c2d91',
-          icon: '/icons/jobs/dotnet.png'
+          icon: 'dotnet.png'
         },
         {
           code: 'Fin_Ana',
           name: 'Financial Analyst',
           description: 'Phân tích tài chính ',
           color: '#eab04d',
-          icon: '/icons/jobs/coin.png'
+          icon: 'coin.png'
         },
         {
           code: 'Se_UIUX_Des',
           name: 'UI/UX Designer',
           description: 'Thiết kế UI/UX Senior',
           color: '#29c5ee',
-          icon: '/icons/jobs/figma.png'
+          icon: 'figma.png'
         },
         {
           code: 'Se_Cy_Sec',
           name: 'Senior Cyber Security',
           description: 'An Ninh Mạng Senior',
           color: '#19c8a7',
-          icon: '/icons/jobs/security.png'
+          icon: 'security.png'
         },
         {
           code: 'Se_BA',
@@ -69,7 +69,56 @@ async function main() {
           name: 'Senior Angular Developer',
           description: 'Lập trình viên FE Senior',
           color: '#c3002e',
-          icon: '/icons/jobs/angular.png'
+          icon: 'angular.png'
+        },
+        {
+          code: 'Fr_React_DEV1',
+          name: 'Fresher React Developer',
+          description: 'Lập trình viên React Fresher',
+          color: '#00dffd',
+          icon: 'react.png'
+        },
+
+        {
+          code: 'Ju_NET_DEV1',
+          name: 'Junior .NET Developer',
+          description: 'Lập trình viên .NET Junior',
+          color: '#5c2d91',
+          icon: 'dotnet.png'
+        },
+        {
+          code: 'Fin_Ana1',
+          name: 'Financial Analyst',
+          description: 'Phân tích tài chính ',
+          color: '#eab04d',
+          icon: 'coin.png'
+        },
+        {
+          code: 'Se_UIUX_Des1',
+          name: 'UI/UX Designer',
+          description: 'Thiết kế UI/UX Senior',
+          color: '#29c5ee',
+          icon: 'figma.png'
+        },
+        {
+          code: 'Se_Cy_Sec1',
+          name: 'Senior Cyber Security',
+          description: 'An Ninh Mạng Senior',
+          color: '#19c8a7',
+          icon: 'security.png'
+        },
+        {
+          code: 'Se_BA1',
+          name: 'Senior Business Analyst',
+          description: 'Phân tích nghiệp vụ Senior',
+          color: '#cf1a2c'
+        },
+        {
+          code: 'Se_Angular_DEV1',
+          name: 'Senior Angular Developer',
+          description: 'Lập trình viên FE Senior',
+          color: '#c3002e',
+          icon: 'angular.png'
         }
       ]
     })
