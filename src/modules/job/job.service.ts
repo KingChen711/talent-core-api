@@ -1,11 +1,13 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TCreateJobSchema, TGetJobSchema, TGetJobsSchema } from './job.validation'
+import { TCreateJobSchema, TGetJobSchema, TGetJobsSchema, TUpdateJobSchema } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
 import { PagedList } from '../../types'
 import { ImageService } from '../../aws-s3/image.service'
-import { defaultImageName } from '../../constants/index'
+import { defaultImageName, systemImageJobs } from '../../constants/index'
+import ApiError from 'src/helpers/api-error'
+import { StatusCodes } from 'http-status-codes'
 
 const sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
   code: { code: 'asc' },
@@ -20,6 +22,16 @@ export class JobService {
     @inject(PrismaService) private readonly prismaService: PrismaService,
     @inject(ImageService) private readonly imageService: ImageService
   ) {}
+
+  getJobById = async (jobId: string, required = false) => {
+    const job = await this.prismaService.client.job.findUnique({ where: { id: jobId } })
+
+    if (!job && required) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with id: ${jobId}`)
+    }
+
+    return job
+  }
 
   getJob = async (schema: TGetJobSchema) => {
     const {
@@ -159,7 +171,6 @@ export class JobService {
         color,
         name,
         // openInCurrentRecruitment,
-        testExamIds,
         description
         // quantityInCurrentRecruitment
       }
@@ -172,11 +183,43 @@ export class JobService {
     imageName ||= defaultImageName
 
     const job = await this.prismaService.client.job.create({
-      data: { code, color, icon: imageName, name, description, testExamIds }
+      data: { code, color, icon: imageName, name, description }
     })
 
-    //TODO:handle add to description
+    //TODO:handle add to CurrentRecruitment
 
     return job
   }
+
+  updateJob = async (file: Express.Multer.File | undefined, schema: TUpdateJobSchema) => {
+    const {
+      params: { jobId },
+      body: { code, color, name, testExamIds, description }
+    } = schema
+
+    const job = await this.getJobById(jobId, true)!
+
+    let imageName: string
+    if (file) {
+      if (systemImageJobs.includes(job!.icon)) {
+        //create new image object
+        imageName = await this.imageService.upLoadImage(file, 240, 240)
+      } else {
+        //put available image object
+        imageName = job!.icon
+        await this.imageService.upLoadImage(file, 240, 240, imageName)
+      }
+    } else {
+      imageName = job!.icon
+    }
+
+    await this.prismaService.client.job.update({
+      where: {
+        id: jobId
+      },
+      data: { code, color, icon: imageName, name, description, testExamIds }
+    })
+  }
+
+  //TODO: kiểm tra testExamIds có valid không
 }

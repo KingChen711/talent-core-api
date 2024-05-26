@@ -35,4 +35,14 @@ export class JobController {
       next(error)
     }
   }
+
+  updateJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.jobService.updateJob(req.file, res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }
