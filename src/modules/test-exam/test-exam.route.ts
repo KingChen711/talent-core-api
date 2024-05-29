@@ -7,11 +7,19 @@ import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
 import { authorize } from 'src/middleware/authorize.middleware'
 import { Role } from 'src/types'
 import { validateRequestData } from 'src/middleware/validate-request-data.middleware'
-import { getTestExamsSchema } from './test-exam.validation'
+import { deleteTestExamSchema, getTestExamsSchema } from './test-exam.validation'
 
 const router = express.Router()
 
 const testExamController = container.get(TestExamController)
+
+router.delete(
+  '/:testExamId',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(deleteTestExamSchema),
+  testExamController.deleteTestExam
+)
 
 router.get(
   '/',

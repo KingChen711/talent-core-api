@@ -16,14 +16,14 @@ export class JobService {
     @inject(ImageService) private readonly imageService: ImageService
   ) {}
 
-  private sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
+  private sortMapping = {
     code: { code: 'asc' },
     '-code': { code: 'desc' },
     name: { name: 'asc' },
     '-name': { name: 'desc' },
     createdAt: { createdAt: 'asc' },
     '-createdAt': { createdAt: 'desc' }
-  }
+  } as const
 
   public getJobById = async (jobId: string, required = false) => {
     const job = await this.prismaService.client.job.findUnique({

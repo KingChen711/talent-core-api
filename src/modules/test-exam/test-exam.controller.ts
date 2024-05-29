@@ -16,4 +16,13 @@ export class TestExamController {
       next(error)
     }
   }
+
+  public deleteTestExam = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.testExamService.deleteTestExam(res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      next(error)
+    }
+  }
 }
