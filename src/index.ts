@@ -10,9 +10,10 @@ import errorHandlingMiddleware from './middleware/error-handling.middleware'
 import clerkRoute from './modules/clerk/clerk.route'
 import userRoute from './modules/user/user.route'
 import jobRoute from './modules/job/job.route'
+import testExamRoute from './modules/test-exam/test-exam.route'
 import corsMiddleware from './middleware/cors.middleware'
 
-//TODO:for development
+//!Just for development
 const DELAY = 0
 
 const app = express()
@@ -32,6 +33,7 @@ app.use(corsMiddleware)
 
 app.use('/api/users', userRoute)
 app.use('/api/jobs', jobRoute)
+app.use('/api/test-exams', testExamRoute)
 
 app.get('/', (req, res) => {
   return res.status(200).json({ message: 'hello world' })
@@ -45,5 +47,3 @@ app.listen(PORT, () => {
 })
 
 export default app
-
-//TODO:Created At Created By

@@ -182,6 +182,7 @@ enum ApplicationStatus {
 
 model TestExam {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  code           String   @unique
   name           String
   duration       Int //minutes unit , min 0
   description    String?
@@ -191,6 +192,8 @@ model TestExam {
   testSessions TestSession[]
   questions    Question[] // không giới hạn số lượng câu hỏi
   jobs         Job[]         @relation(fields: [jobIds], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 model Question {

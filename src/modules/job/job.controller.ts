@@ -7,7 +7,7 @@ import { NextFunction, Request, Response } from 'express'
 export class JobController {
   constructor(@inject(JobService) private readonly jobService: JobService) {}
 
-  getJob = async (req: Request, res: Response, next: NextFunction) => {
+  public getJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const job = await this.jobService.getJob(res.locals.reqParams)
       return res.status(StatusCodes.OK).json(job)
@@ -16,7 +16,7 @@ export class JobController {
     }
   }
 
-  deleteJob = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.jobService.deleteJob(res.locals.reqParams)
       return res.status(StatusCodes.NO_CONTENT).json()
@@ -25,7 +25,7 @@ export class JobController {
     }
   }
 
-  getJobs = async (req: Request, res: Response, next: NextFunction) => {
+  public getJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const jobs = await this.jobService.getJobs(res.locals.reqParams)
       res.setHeader('X-Pagination', JSON.stringify(jobs.metaData))
@@ -35,7 +35,7 @@ export class JobController {
     }
   }
 
-  createJob = async (req: Request, res: Response, next: NextFunction) => {
+  public createJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const job = await this.jobService.createJob(req.file, res.locals.reqParams)
       return res.status(StatusCodes.CREATED).json(job)
@@ -45,7 +45,7 @@ export class JobController {
     }
   }
 
-  updateJob = async (req: Request, res: Response, next: NextFunction) => {
+  public updateJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.jobService.updateJob(req.file, res.locals.reqParams)
       return res.status(StatusCodes.NO_CONTENT).json()

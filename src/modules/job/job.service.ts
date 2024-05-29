@@ -9,15 +9,6 @@ import { defaultImageName, systemImageJobs } from '../../constants/index'
 import ApiError from 'src/helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 
-const sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
-  code: { code: 'asc' },
-  '-code': { code: 'desc' },
-  name: { name: 'asc' },
-  '-name': { name: 'desc' },
-  createdAt: { createdAt: 'asc' },
-  '-createdAt': { createdAt: 'desc' }
-}
-
 @injectable()
 export class JobService {
   constructor(
@@ -25,7 +16,16 @@ export class JobService {
     @inject(ImageService) private readonly imageService: ImageService
   ) {}
 
-  getJobById = async (jobId: string, required = false) => {
+  private sortMapping: { [key: string]: { [key: string]: 'asc' | 'desc' } } = {
+    code: { code: 'asc' },
+    '-code': { code: 'desc' },
+    name: { name: 'asc' },
+    '-name': { name: 'desc' },
+    createdAt: { createdAt: 'asc' },
+    '-createdAt': { createdAt: 'desc' }
+  }
+
+  public getJobById = async (jobId: string, required = false) => {
     const job = await this.prismaService.client.job.findUnique({
       where: { id: jobId },
       include: {
@@ -44,7 +44,7 @@ export class JobService {
     return job
   }
 
-  getJobByCode = async (code: string, required = false) => {
+  public getJobByCode = async (code: string, required = false) => {
     const job = await this.prismaService.client.job.findUnique({
       where: { code },
       include: {
@@ -63,7 +63,7 @@ export class JobService {
     return job
   }
 
-  getJob = async (schema: TGetJobSchema) => {
+  public getJob = async (schema: TGetJobSchema) => {
     const {
       params: { jobId }
     } = schema
@@ -99,7 +99,7 @@ export class JobService {
     return mappedJob
   }
 
-  getJobs = async (schema: TGetJobsSchema): Promise<PagedList<Job>> => {
+  public getJobs = async (schema: TGetJobsSchema): Promise<PagedList<Job>> => {
     const {
       query: { pageNumber, pageSize, search, status, sort }
     } = schema
@@ -159,8 +159,8 @@ export class JobService {
 
     const totalCount = await this.prismaService.client.job.count(query as Prisma.JobCountArgs)
 
-    if (sort && sort in sortMapping) {
-      query.orderBy = sortMapping[sort]
+    if (sort && sort in this.sortMapping) {
+      query.orderBy = this.sortMapping[sort]
     }
 
     query.skip = pageSize * (pageNumber - 1)
@@ -194,7 +194,7 @@ export class JobService {
     return new PagedList<Job>(mappedJobs, totalCount, pageNumber, pageSize)
   }
 
-  createJob = async (file: Express.Multer.File | undefined, schema: TCreateJobSchema) => {
+  public createJob = async (file: Express.Multer.File | undefined, schema: TCreateJobSchema) => {
     const {
       body: {
         code,
@@ -229,7 +229,7 @@ export class JobService {
     return job
   }
 
-  updateJob = async (file: Express.Multer.File | undefined, schema: TUpdateJobSchema) => {
+  public updateJob = async (file: Express.Multer.File | undefined, schema: TUpdateJobSchema) => {
     const {
       params: { jobId },
       body: { code, color, name, testExamIds, description }
@@ -278,7 +278,7 @@ export class JobService {
     //TODO: kiểm tra testExamIds có valid không
   }
 
-  deleteJob = async (schema: TDeleteJobSchema) => {
+  public deleteJob = async (schema: TDeleteJobSchema) => {
     const {
       params: { jobId }
     } = schema
