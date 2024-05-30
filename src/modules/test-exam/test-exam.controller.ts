@@ -7,6 +7,15 @@ import { StatusCodes } from 'http-status-codes'
 export class TestExamController {
   constructor(@inject(TestExamService) private readonly testExamService: TestExamService) {}
 
+  public getTestExam = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const testExam = await this.testExamService.getTestExam(res.locals.reqParams)
+      return res.status(StatusCodes.OK).json(testExam)
+    } catch (error) {
+      next(error)
+    }
+  }
+
   public getTestExams = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const testExams = await this.testExamService.getTestExams(res.locals.reqParams)
@@ -32,6 +41,16 @@ export class TestExamController {
       await this.testExamService.deleteTestExam(res.locals.reqParams)
       return res.status(StatusCodes.NO_CONTENT).json()
     } catch (error) {
+      next(error)
+    }
+  }
+
+  public updateTestExam = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.testExamService.updateTestExam(req.file, res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      console.log(error)
       next(error)
     }
   }

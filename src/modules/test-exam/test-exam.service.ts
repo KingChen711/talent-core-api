@@ -3,7 +3,13 @@ import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import { PagedList } from 'src/types'
 import { Prisma, TestExam } from '@prisma/client'
-import { TCreateTestExamSchema, TDeleteTestExamSchema, TGetTestExamsSchema } from './test-exam.validation'
+import {
+  TCreateTestExamSchema,
+  TDeleteTestExamSchema,
+  TGetTestExamSchema,
+  TGetTestExamsSchema,
+  TUpdateTestExamSchema
+} from './test-exam.validation'
 import ApiError from 'src/helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 
@@ -23,6 +29,21 @@ export class TestExamService {
     duration: { duration: 'asc' },
     '-duration': { duration: 'desc' }
   } as const
+
+  public getTestExam = async (schema: TGetTestExamSchema) => {
+    const {
+      params: { testExamId }
+    } = schema
+
+    const testExam = await this.prismaService.client.testExam.findUnique({
+      where: { id: testExamId },
+      include: {
+        questions: true
+      }
+    })
+
+    return testExam
+  }
 
   public getTestExamById = async (testExamId: string, required = false) => {
     const testExam = await this.prismaService.client.testExam.findUnique({
@@ -60,9 +81,7 @@ export class TestExamService {
       query: { pageNumber, pageSize, search, sort }
     } = schema
 
-    const query: Prisma.TestExamFindManyArgs = {
-      where: {}
-    }
+    const query: Prisma.TestExamFindManyArgs = {}
 
     if (search) {
       query.where = {
@@ -151,8 +170,45 @@ export class TestExamService {
       }
     })
 
-    //TODO:handle add to CurrentRecruitment
-
     return testExam
+  }
+
+  public updateTestExam = async (file: Express.Multer.File | undefined, schema: TUpdateTestExamSchema) => {
+    const {
+      params: { testExamId },
+      body: { code, description, conditionPoint, duration, name, questions }
+    } = schema
+
+    const testExamByCode = await this.getTestExamByCode(code)
+
+    if (testExamByCode && testExamByCode.id !== testExamId) {
+      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+        errors: {
+          code: 'This code is already used'
+        }
+      })
+    }
+
+    const testExam = testExamByCode || (await this.getTestExamById(testExamId, true))!
+
+    await this.prismaService.client.question.deleteMany({
+      where: { testExamId: testExam.id }
+    })
+
+    await this.prismaService.client.testExam.update({
+      where: { id: testExam.id },
+      data: {
+        code,
+        description,
+        conditionPoint,
+        duration,
+        name,
+        questions: {
+          createMany: {
+            data: questions
+          }
+        }
+      }
+    })
   }
 }

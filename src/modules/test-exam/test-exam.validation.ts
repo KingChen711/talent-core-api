@@ -73,20 +73,30 @@ export const createTestExamSchema = z.object({
 
 export type TCreateTestExamSchema = z.infer<typeof createTestExamSchema>
 
-// export const mutationTestExamSchema = z.object({
-//   code: z.string().min(2).max(50),
-//   name: z.string().min(2).max(50),
-//   conditionPoint: z
-//     .number()
-//     .min(0)
-//     .max(10)
-//     .transform((data) => {
-//       data.toFixed(2)
-//     }),
-//   duration: z.number().int().min(0),
-//   description: z.string().optional(),
-//   jobIds: z.array(z.string()).catch([]),
-//   questions: z.array(questionSchema).catch([])
-// })
+export const updateTestExamSchema = z.object({
+  params: z.object({
+    testExamId: z.string()
+  }),
+  body: z.object({
+    code: z.string().min(2).max(50),
+    name: z.string().min(2).max(50),
+    conditionPoint: z
+      .number()
+      .min(0)
+      .max(10)
+      .transform((data) => Number(data.toFixed(2))),
+    duration: z.number().int().min(0),
+    description: z.string().optional(),
+    questions: z.array(questionSchema).catch([])
+  })
+})
 
-// export type TMutationTestExamSchema = z.infer<typeof mutationTestExamSchema>
+export type TUpdateTestExamSchema = z.infer<typeof updateTestExamSchema>
+
+export const getTestExamSchema = z.object({
+  params: z.object({
+    testExamId: z.string()
+  })
+})
+
+export type TGetTestExamSchema = z.infer<typeof getTestExamSchema>
