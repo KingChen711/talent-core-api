@@ -35,3 +35,58 @@ export const deleteTestExamSchema = z.object({
 })
 
 export type TDeleteTestExamSchema = z.infer<typeof deleteTestExamSchema>
+
+const questionOptionSchema = z.object({
+  content: z.string().min(1),
+  correct: z.boolean()
+})
+
+const questionSchema = z
+  .object({
+    content: z.string().min(1),
+    options: z.array(questionOptionSchema).length(4)
+  })
+  .refine(
+    (data) => {
+      const count = data.options.reduce((acc, num) => (num.correct ? acc + 1 : acc), 0)
+      return count === 1
+    },
+    {
+      message: 'Question need one and only one correct option'
+    }
+  )
+
+export const createTestExamSchema = z.object({
+  body: z.object({
+    code: z.string().min(2).max(50),
+    name: z.string().min(2).max(50),
+    conditionPoint: z
+      .number()
+      .min(0)
+      .max(10)
+      .transform((data) => Number(data.toFixed(2))),
+    duration: z.number().int().min(0),
+    description: z.string().optional(),
+    questions: z.array(questionSchema).catch([])
+  })
+})
+
+export type TCreateTestExamSchema = z.infer<typeof createTestExamSchema>
+
+// export const mutationTestExamSchema = z.object({
+//   code: z.string().min(2).max(50),
+//   name: z.string().min(2).max(50),
+//   conditionPoint: z
+//     .number()
+//     .min(0)
+//     .max(10)
+//     .transform((data) => {
+//       data.toFixed(2)
+//     }),
+//   duration: z.number().int().min(0),
+//   description: z.string().optional(),
+//   jobIds: z.array(z.string()).catch([]),
+//   questions: z.array(questionSchema).catch([])
+// })
+
+// export type TMutationTestExamSchema = z.infer<typeof mutationTestExamSchema>

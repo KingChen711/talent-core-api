@@ -3,7 +3,7 @@ import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import { PagedList } from 'src/types'
 import { Prisma, TestExam } from '@prisma/client'
-import { TDeleteTestExamSchema, TGetTestExamsSchema } from './test-exam.validation'
+import { TCreateTestExamSchema, TDeleteTestExamSchema, TGetTestExamsSchema } from './test-exam.validation'
 import ApiError from 'src/helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 
@@ -38,6 +38,18 @@ export class TestExamService {
 
     if (!testExam && required) {
       throw new ApiError(StatusCodes.NOT_FOUND, `Not found testExam with id: ${testExamId}`)
+    }
+
+    return testExam
+  }
+
+  public getTestExamByCode = async (code: string, required = false) => {
+    const testExam = await this.prismaService.client.testExam.findUnique({
+      where: { code }
+    })
+
+    if (!testExam && required) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found testExam with code: ${code}`)
     }
 
     return testExam
@@ -109,5 +121,38 @@ export class TestExamService {
         id: testExamId
       }
     })
+  }
+
+  public createTestExam = async (schema: TCreateTestExamSchema) => {
+    const {
+      body: { code, duration, name, questions, conditionPoint, description }
+    } = schema
+
+    if (await this.getTestExamByCode(code)) {
+      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+        errors: {
+          code: 'This code is already used'
+        }
+      })
+    }
+
+    const testExam = await this.prismaService.client.testExam.create({
+      data: {
+        code,
+        duration,
+        name,
+        questions: {
+          createMany: {
+            data: questions
+          }
+        },
+        conditionPoint,
+        description
+      }
+    })
+
+    //TODO:handle add to CurrentRecruitment
+
+    return testExam
   }
 }

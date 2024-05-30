@@ -17,6 +17,16 @@ export class TestExamController {
     }
   }
 
+  public createTestExam = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const testExam = await this.testExamService.createTestExam(res.locals.reqParams)
+      return res.status(StatusCodes.CREATED).json(testExam)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
   public deleteTestExam = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.testExamService.deleteTestExam(res.locals.reqParams)

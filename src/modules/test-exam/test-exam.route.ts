@@ -7,7 +7,7 @@ import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
 import { authorize } from 'src/middleware/authorize.middleware'
 import { Role } from 'src/types'
 import { validateRequestData } from 'src/middleware/validate-request-data.middleware'
-import { deleteTestExamSchema, getTestExamsSchema } from './test-exam.validation'
+import { deleteTestExamSchema, getTestExamsSchema, createTestExamSchema } from './test-exam.validation'
 
 const router = express.Router()
 
@@ -27,6 +27,14 @@ router.get(
   authorize([Role.EMPLOYEE]),
   validateRequestData(getTestExamsSchema),
   testExamController.getTestExams
+)
+
+router.post(
+  '/',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(createTestExamSchema),
+  testExamController.createTestExam
 )
 
 export default router

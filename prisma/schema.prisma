@@ -199,7 +199,7 @@ model TestExam {
 model Question {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
   testExamId String @db.ObjectId
-  title      String
+  content    String
 
   options  QuestionOption[] //length 4, and only 1 correct choice
   testExam TestExam         @relation(fields: [testExamId], references: [id], onDelete: Cascade)
