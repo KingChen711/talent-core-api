@@ -2,10 +2,15 @@ import { inject, injectable } from 'inversify'
 import { TestExamService } from './test-exam.service'
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
+import { JobService } from '../job/job.service'
+import { TGetTestExamAddableJobsSchema } from './test-exam.validation'
 
 @injectable()
 export class TestExamController {
-  constructor(@inject(TestExamService) private readonly testExamService: TestExamService) {}
+  constructor(
+    @inject(TestExamService) private readonly testExamService: TestExamService,
+    @inject(JobService) private readonly jobService: JobService
+  ) {}
 
   public getTestExam = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -55,12 +60,29 @@ export class TestExamController {
     }
   }
 
-  public getTestExamAddableJobs = async (req: Request, res: Response, next: NextFunction) => {
+  public testExamAddJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const addableTestExams = await this.testExamService.getTestExamAddableJobs(res.locals.reqParams)
-      // res.setHeader('X-Pagination', JSON.stringify(addableTestExams.metaData))
-      // return res.status(StatusCodes.OK).json(addableTestExams)
-      return res.json()
+      await this.testExamService.testExamAddJobs(res.locals.reqParams)
+      return res.status(StatusCodes.CREATED).json()
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
+  public getTestExamAddableJobs = async (req: Request, res: Response, next: NextFunction) => {
+    //because circular dependency problem, can not do all works in one service method
+    try {
+      const {
+        params: { testExamCode },
+        query
+      } = res.locals.reqParams as TGetTestExamAddableJobsSchema
+
+      const testExam = (await this.testExamService.getTestExamByCode(testExamCode, true))!
+
+      const addableJobs = await this.jobService.getJobs({ query }, testExam.jobIds)
+      res.setHeader('X-Pagination', JSON.stringify(addableJobs.metaData))
+      return res.status(StatusCodes.OK).json(addableJobs)
     } catch (error) {
       console.log(error)
       next(error)

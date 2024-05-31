@@ -1,20 +1,18 @@
 import 'dotenv/config'
-import { LazyServiceIdentifier, inject, injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import { PagedList } from 'src/types'
 import { Prisma, TestExam } from '@prisma/client'
 import {
   TCreateTestExamSchema,
   TDeleteTestExamSchema,
-  TGetTestExamAddableJobsSchema,
   TGetTestExamSchema,
   TGetTestExamsSchema,
+  TTestExamAddOrRemoveJobsSchema,
   TUpdateTestExamSchema
 } from './test-exam.validation'
 import ApiError from 'src/helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
-import { JobService } from '../job/job.service'
-import { container } from '../../config/inversify.config'
 
 @injectable()
 export class TestExamService {
@@ -231,22 +229,46 @@ export class TestExamService {
     })
   }
 
-  public getTestExamAddableJobs = async (schema: TGetTestExamAddableJobsSchema) => {
+  public testExamAddJobs = async (schema: TTestExamAddOrRemoveJobsSchema) => {
     const {
-      params: { jobCode },
-      query
+      params: { testExamCode },
+      body: { jobIds }
     } = schema
 
-    // const job = await this.prismaService.client.job.findUnique({
-    //   where: { code: jobCode }
-    // })
+    const testExam = await this.prismaService.client.testExam.findUnique({
+      where: { code: testExamCode }
+    })
 
-    // if (!job) {
-    //   throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
-    // }
+    if (!testExam) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found test exam with code: ${testExamCode}`)
+    }
 
-    // const addableTestExams = await this.testExamService.getTestExams({ query }, job.testExamIds)
+    const jobs = await this.prismaService.client.job.findMany({
+      where: {
+        id: {
+          in: jobIds
+        }
+      }
+    })
 
-    // return addableTestExams
+    if (jobs.length !== jobIds.length) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Some jobs are not found`)
+    }
+
+    const hasSomeJobsAlreadyAdded =
+      new Set([...jobIds, ...testExam.jobIds]).size < jobIds.length + testExam.jobIds.length
+
+    if (hasSomeJobsAlreadyAdded) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Some jobs have already added`)
+    }
+
+    await this.prismaService.client.testExam.update({
+      where: { code: testExamCode },
+      data: {
+        jobIds: {
+          push: jobIds
+        }
+      }
+    })
   }
 }

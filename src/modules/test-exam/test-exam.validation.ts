@@ -2,7 +2,7 @@ import z from 'zod'
 
 export const getTestExamAddableJobsSchema = z.object({
   params: z.object({
-    jobCode: z.string()
+    testExamCode: z.string()
   }),
   query: z.object({
     pageNumber: z.coerce.number().default(1),
@@ -11,21 +11,8 @@ export const getTestExamAddableJobsSchema = z.object({
       .default(10)
       .transform((data) => Math.min(data, 50)),
     search: z.coerce.string().trim().optional(),
-    sort: z
-      .enum([
-        'code',
-        '-code',
-        'name',
-        '-name',
-        'createdAt',
-        '-createdAt',
-        'conditionPoint',
-        '-conditionPoint',
-        'duration',
-        '-duration'
-      ])
-      .optional()
-      .default('createdAt')
+    status: z.enum(['all', 'opening', 'closed']).catch('all'),
+    sort: z.enum(['code', '-code', 'name', '-name', 'createdAt', '-createdAt']).optional().default('createdAt')
   })
 })
 
@@ -131,3 +118,14 @@ export const getTestExamSchema = z.object({
 })
 
 export type TGetTestExamSchema = z.infer<typeof getTestExamSchema>
+
+export const testExamAddOrRemoveJobsSchema = z.object({
+  params: z.object({
+    testExamCode: z.string()
+  }),
+  body: z.object({
+    jobIds: z.array(z.string()).catch([])
+  })
+})
+
+export type TTestExamAddOrRemoveJobsSchema = z.infer<typeof testExamAddOrRemoveJobsSchema>

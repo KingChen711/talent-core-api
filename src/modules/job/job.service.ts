@@ -109,13 +109,22 @@ export class JobService {
     return mappedJob
   }
 
-  public getJobs = async (schema: TGetJobsSchema): Promise<PagedList<Job>> => {
+  public getJobs = async (schema: TGetJobsSchema, exceptIds: string[] = []): Promise<PagedList<Job>> => {
     const {
       query: { pageNumber, pageSize, search, status, sort }
     } = schema
 
     const where = {
       AND: [
+        exceptIds.length > 0
+          ? {
+              NOT: {
+                id: {
+                  in: exceptIds
+                }
+              }
+            }
+          : undefined,
         status === 'opening'
           ? {
               jobDetails: {
@@ -373,14 +382,8 @@ export class JobService {
       throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams are not found`)
     }
 
-    console.log({
-      input: testExamIds,
-      exist: job.testExamIds,
-      setLength: new Set([...testExamIds, ...job.testExamIds]).size
-    })
-
     const hasSomeTestExamAlreadyAdded =
-      new Set([...testExamIds, ...job.testExamIds]).size !== testExamIds.length + job.testExamIds.length
+      new Set([...testExamIds, ...job.testExamIds]).size < testExamIds.length + job.testExamIds.length
 
     if (hasSomeTestExamAlreadyAdded) {
       throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams have already added`)
