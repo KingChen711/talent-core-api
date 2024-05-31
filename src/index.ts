@@ -11,6 +11,7 @@ import clerkRoute from './modules/clerk/clerk.route'
 import userRoute from './modules/user/user.route'
 import jobRoute from './modules/job/job.route'
 import testExamRoute from './modules/test-exam/test-exam.route'
+import recruitmentDriveRoute from './modules/recruitment-drive/recruitment-drive.route'
 import corsMiddleware from './middleware/cors.middleware'
 
 //!Just for development
@@ -34,6 +35,7 @@ app.use(corsMiddleware)
 app.use('/api/users', userRoute)
 app.use('/api/jobs', jobRoute)
 app.use('/api/test-exams', testExamRoute)
+app.use('/api/recruitment-drives', recruitmentDriveRoute)
 
 app.get('/', (req, res) => {
   return res.status(200).json({ message: 'hello world' })
