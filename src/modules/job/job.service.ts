@@ -15,7 +15,7 @@ import { Job, Prisma } from '@prisma/client'
 import { PagedList } from '../../types'
 import { ImageService } from '../../aws-s3/image.service'
 import { defaultImageName, systemImageJobs } from '../../constants/index'
-import ApiError from 'src/helpers/api-error'
+import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { TestExamService } from '../test-exam/test-exam.service'
 

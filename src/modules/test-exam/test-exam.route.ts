@@ -4,9 +4,9 @@ import express from 'express'
 import { container } from '../../config/inversify.config'
 import { TestExamController } from './test-exam.controller'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
-import { authorize } from 'src/middleware/authorize.middleware'
-import { Role } from 'src/types'
-import { validateRequestData } from 'src/middleware/validate-request-data.middleware'
+import { authorize } from '../../middleware/authorize.middleware'
+import { Role } from '../../types'
+import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import {
   deleteTestExamSchema,
   getTestExamsSchema,
@@ -14,7 +14,8 @@ import {
   getTestExamSchema,
   updateTestExamSchema,
   getTestExamAddableJobsSchema,
-  testExamAddOrRemoveJobsSchema
+  testExamAddOrRemoveJobsSchema,
+  getTestExamJobsSchema
 } from './test-exam.validation'
 
 const router = express.Router()
@@ -27,6 +28,22 @@ router.get(
   authorize([Role.EMPLOYEE]),
   validateRequestData(getTestExamAddableJobsSchema),
   testExamController.getTestExamAddableJobs
+)
+
+router.patch(
+  '/:testExamCode/jobs',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(testExamAddOrRemoveJobsSchema),
+  testExamController.testExamRemoveJobs
+)
+
+router.get(
+  '/:testExamCode/jobs',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(getTestExamJobsSchema),
+  testExamController.getTestExamJobs
 )
 
 router.post(

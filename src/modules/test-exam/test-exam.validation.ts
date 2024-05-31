@@ -129,3 +129,11 @@ export const testExamAddOrRemoveJobsSchema = z.object({
 })
 
 export type TTestExamAddOrRemoveJobsSchema = z.infer<typeof testExamAddOrRemoveJobsSchema>
+
+export const getTestExamJobsSchema = z.object({
+  params: z.object({
+    testExamCode: z.string()
+  })
+})
+
+export type TGetTestExamJobsSchema = z.infer<typeof getTestExamJobsSchema>

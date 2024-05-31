@@ -88,4 +88,24 @@ export class TestExamController {
       next(error)
     }
   }
+
+  public getTestExamJobs = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const testExams = await this.testExamService.getTestExamJobs(res.locals.reqParams)
+      return res.status(StatusCodes.OK).json(testExams)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
+  public testExamRemoveJobs = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.testExamService.testExamRemoveJobs(res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }

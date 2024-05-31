@@ -1,22 +1,27 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { PagedList } from 'src/types'
+import { PagedList } from '../../types'
 import { Prisma, TestExam } from '@prisma/client'
 import {
   TCreateTestExamSchema,
   TDeleteTestExamSchema,
+  TGetTestExamJobsSchema,
   TGetTestExamSchema,
   TGetTestExamsSchema,
   TTestExamAddOrRemoveJobsSchema,
   TUpdateTestExamSchema
 } from './test-exam.validation'
-import ApiError from 'src/helpers/api-error'
+import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
+import { ImageService } from '../../aws-s3/image.service'
 
 @injectable()
 export class TestExamService {
-  constructor(@inject(PrismaService) private readonly prismaService: PrismaService) {}
+  constructor(
+    @inject(PrismaService) private readonly prismaService: PrismaService,
+    @inject(ImageService) private readonly imageService: ImageService
+  ) {}
 
   private sortMapping = {
     code: { code: 'asc' },
@@ -267,6 +272,63 @@ export class TestExamService {
       data: {
         jobIds: {
           push: jobIds
+        }
+      }
+    })
+  }
+
+  public getTestExamJobs = async (schema: TGetTestExamJobsSchema) => {
+    const {
+      params: { testExamCode }
+    } = schema
+
+    const testExam = await this.prismaService.client.testExam.findUnique({
+      where: { code: testExamCode },
+      include: {
+        jobs: true
+      }
+    })
+
+    if (!testExam) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found test exam with code: ${testExamCode}`)
+    }
+
+    const imageUrls = await Promise.all(testExam.jobs.map((job) => this.imageService.getImageUrl(job.icon)))
+
+    const mappedJobs = testExam.jobs.map((job, i) => ({
+      ...job,
+      icon: imageUrls[i]
+    }))
+
+    //A test exam will not have to to much jobs, no need to pagination, search, sort
+    return mappedJobs
+  }
+
+  public testExamRemoveJobs = async (schema: TTestExamAddOrRemoveJobsSchema) => {
+    const {
+      params: { testExamCode },
+      body: { jobIds }
+    } = schema
+
+    const testExam = await this.prismaService.client.testExam.findUnique({
+      where: { code: testExamCode }
+    })
+
+    if (!testExam) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found test exam with code: ${testExamCode}`)
+    }
+
+    const hasSomeJobsNotExistInTestExam = new Set([...jobIds, ...testExam.jobIds]).size > testExam.jobIds.length
+
+    if (hasSomeJobsNotExistInTestExam) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Some jobs do not exist in this test exam`)
+    }
+
+    await this.prismaService.client.testExam.update({
+      where: { code: testExamCode },
+      data: {
+        jobIds: {
+          set: testExam.jobIds.filter((id) => !jobIds.includes(id))
         }
       }
     })
