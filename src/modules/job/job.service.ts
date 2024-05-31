@@ -84,7 +84,7 @@ export class JobService {
       include: {
         jobDetails: {
           select: {
-            recruitmentRound: {
+            recruitmentDrive: {
               select: {
                 isOpening: true
               }
@@ -100,7 +100,7 @@ export class JobService {
 
     const mappedJob = {
       ...job,
-      isOpening: job.jobDetails.some((jd) => jd.recruitmentRound.isOpening),
+      isOpening: job.jobDetails.some((jd) => jd.recruitmentDrive.isOpening),
       icon: imageUrl,
       jobDetails: undefined,
       testExamIds: undefined
@@ -129,7 +129,7 @@ export class JobService {
           ? {
               jobDetails: {
                 some: {
-                  recruitmentRound: {
+                  recruitmentDrive: {
                     isOpening: true
                   }
                 }
@@ -140,7 +140,7 @@ export class JobService {
           ? {
               jobDetails: {
                 every: {
-                  recruitmentRound: {
+                  recruitmentDrive: {
                     isOpening: false
                   }
                 }
@@ -191,7 +191,7 @@ export class JobService {
       include: {
         jobDetails: {
           select: {
-            recruitmentRound: {
+            recruitmentDrive: {
               select: {
                 isOpening: true
               }
@@ -205,7 +205,7 @@ export class JobService {
 
     const mappedJobs = jobs.map((job, i) => ({
       ...job,
-      isOpening: job.jobDetails.some((jd) => jd.recruitmentRound.isOpening),
+      isOpening: job.jobDetails.some((jd) => jd.recruitmentDrive.isOpening),
       icon: imageUrls[i],
       jobDetails: undefined // key have undefined value will be remove from the returned json
     }))
@@ -307,7 +307,7 @@ export class JobService {
 
     //TODO: chưa xác nhận cái này chạy được không
     if (job!._count.jobDetails > 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'This jobs have already belong to some recruitment rounds')
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'This jobs have already belong to some recruit ment drives')
     }
 
     await this.prismaService.client.job.delete({

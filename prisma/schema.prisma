@@ -39,7 +39,7 @@ model Job {
 model User {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   roleId   String  @db.ObjectId
-  clerkId  String? @unique
+  clerkId  String? @unique //user data có thể có trước khi người dùng tạo tài khoản trên hệ thống
   email    String  @unique
   fullName String
   gender   Gender?
@@ -210,7 +210,7 @@ type QuestionOption {
   correct Boolean
 }
 
-model RecruitmentRound {
+model RecruitmentDrive {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   startDate   DateTime
@@ -226,15 +226,15 @@ model RecruitmentRound {
 
 model JobDetail {
   id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  recruitmentRoundId String   @db.ObjectId
+  recruitmentDriveId String   @db.ObjectId
   jobId              String   @db.ObjectId
   quantity           Int
   createdAt          DateTime @default(now())
 
-  recruitmentRound RecruitmentRound @relation(fields: [recruitmentRoundId], references: [id])
+  recruitmentDrive RecruitmentDrive @relation(fields: [recruitmentDriveId], references: [id])
   job              Job              @relation(fields: [jobId], references: [id], onDelete: Restrict)
   applications     Application[]
 
-  @@unique([jobId, recruitmentRoundId])
-  @@index([recruitmentRoundId, createdAt(sort: Desc)])
+  @@unique([jobId, recruitmentDriveId])
+  @@index([recruitmentDriveId, createdAt(sort: Desc)])
 }

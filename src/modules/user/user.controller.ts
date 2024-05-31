@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { UserService } from './user.service'
 import { StatusCodes } from 'http-status-codes'
-import { NextFunction, Request, Response } from 'express'
+import { NextFunction, Request } from 'express'
 import { ResponseWithUser } from '../../types'
 import ApiError from '../../helpers/api-error'
 
@@ -17,15 +17,6 @@ export class UserController {
         throw new ApiError(StatusCodes.UNAUTHORIZED, 'UNAUTHORIZED')
       }
 
-      return res.status(StatusCodes.OK).json(user)
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  getUserById = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const user = await this.userService.getUserById()
       return res.status(StatusCodes.OK).json(user)
     } catch (error) {
       next(error)
