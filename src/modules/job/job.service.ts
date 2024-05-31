@@ -389,14 +389,20 @@ export class JobService {
       throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams have already added`)
     }
 
-    await this.prismaService.client.job.update({
-      where: { code: jobCode },
-      data: {
-        testExamIds: {
-          push: testExamIds
+    const updateJobPromises = testExamIds.map((testExamId) =>
+      this.prismaService.client.job.update({
+        where: { code: jobCode },
+        data: {
+          testExams: {
+            connect: {
+              id: testExamId
+            }
+          }
         }
-      }
-    })
+      })
+    )
+
+    await Promise.all(updateJobPromises)
   }
 
   public jobRemoveTestExams = async (schema: TJobAddOrRemoveTestExamsSchema) => {
@@ -419,13 +425,19 @@ export class JobService {
       throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams do not exist in this job`)
     }
 
-    await this.prismaService.client.job.update({
-      where: { code: jobCode },
-      data: {
-        testExamIds: {
-          set: job.testExamIds.filter((id) => !testExamIds.includes(id))
+    const updateJobPromises = testExamIds.map((testExamId) =>
+      this.prismaService.client.job.update({
+        where: { code: jobCode },
+        data: {
+          testExams: {
+            disconnect: {
+              id: testExamId
+            }
+          }
         }
-      }
-    })
+      })
+    )
+
+    await Promise.all(updateJobPromises)
   }
 }
