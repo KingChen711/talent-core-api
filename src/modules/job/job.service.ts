@@ -1,19 +1,30 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TCreateJobSchema, TDeleteJobSchema, TGetJobSchema, TGetJobsSchema, TUpdateJobSchema } from './job.validation'
+import {
+  TCreateJobSchema,
+  TDeleteJobSchema,
+  TGetJobAddableTestExamsSchema,
+  TGetJobSchema,
+  TGetJobTestExamsSchema,
+  TGetJobsSchema,
+  TJobAddTestExamsSchema,
+  TUpdateJobSchema
+} from './job.validation'
 import { Job, Prisma } from '@prisma/client'
 import { PagedList } from '../../types'
 import { ImageService } from '../../aws-s3/image.service'
 import { defaultImageName, systemImageJobs } from '../../constants/index'
 import ApiError from 'src/helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
+import { TestExamService } from '../test-exam/test-exam.service'
 
 @injectable()
 export class JobService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
-    @inject(ImageService) private readonly imageService: ImageService
+    @inject(ImageService) private readonly imageService: ImageService,
+    @inject(TestExamService) private readonly testExamService: TestExamService
   ) {}
 
   private sortMapping = {
@@ -71,7 +82,6 @@ export class JobService {
     const job = await this.prismaService.client.job.findUnique({
       where: { id: jobId },
       include: {
-        testExams: true,
         jobDetails: {
           select: {
             recruitmentRound: {
@@ -294,6 +304,93 @@ export class JobService {
     await this.prismaService.client.job.delete({
       where: {
         id: jobId
+      }
+    })
+  }
+
+  public getJobTestExams = async (schema: TGetJobTestExamsSchema) => {
+    const {
+      params: { jobCode }
+    } = schema
+
+    const job = await this.prismaService.client.job.findUnique({
+      where: { code: jobCode },
+      include: {
+        testExams: true
+      }
+    })
+
+    if (!job) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+    }
+
+    return job.testExams
+  }
+
+  public getJobAddableTestExams = async (schema: TGetJobAddableTestExamsSchema) => {
+    const {
+      params: { jobCode },
+      query
+    } = schema
+
+    const job = await this.prismaService.client.job.findUnique({
+      where: { code: jobCode }
+    })
+
+    if (!job) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+    }
+
+    const addableTestExams = await this.testExamService.getTestExams({ query }, job.testExamIds)
+
+    return addableTestExams
+  }
+
+  public jobAddTestExams = async (schema: TJobAddTestExamsSchema) => {
+    const {
+      params: { jobCode },
+      body: { testExamIds }
+    } = schema
+
+    const job = await this.prismaService.client.job.findUnique({
+      where: { code: jobCode }
+    })
+
+    if (!job) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+    }
+
+    const testExams = await this.prismaService.client.testExam.findMany({
+      where: {
+        id: {
+          in: testExamIds
+        }
+      }
+    })
+
+    if (testExams.length !== testExamIds.length) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams are not found`)
+    }
+
+    console.log({
+      input: testExamIds,
+      exist: job.testExamIds,
+      setLength: new Set([...testExamIds, ...job.testExamIds]).size
+    })
+
+    const hasSomeTestExamAlreadyAdded =
+      new Set([...testExamIds, ...job.testExamIds]).size !== testExamIds.length + job.testExamIds.length
+
+    if (hasSomeTestExamAlreadyAdded) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams have already added`)
+    }
+
+    await this.prismaService.client.job.update({
+      where: { code: jobCode },
+      data: {
+        testExamIds: {
+          push: testExamIds
+        }
       }
     })
   }

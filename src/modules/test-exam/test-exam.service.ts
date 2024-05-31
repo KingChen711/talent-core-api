@@ -76,15 +76,14 @@ export class TestExamService {
     return testExam
   }
 
-  public getTestExams = async (schema: TGetTestExamsSchema): Promise<PagedList<TestExam>> => {
+  public getTestExams = async (schema: TGetTestExamsSchema, exceptIds: string[] = []): Promise<PagedList<TestExam>> => {
     const {
       query: { pageNumber, pageSize, search, sort }
     } = schema
 
-    const query: Prisma.TestExamFindManyArgs = {}
-
+    let searchQuery: Prisma.TestExamWhereInput = {}
     if (search) {
-      query.where = {
+      searchQuery = {
         OR: [
           {
             code: {
@@ -105,6 +104,23 @@ export class TestExamService {
             }
           }
         ]
+      }
+    }
+
+    let exceptsQuery: Prisma.TestExamWhereInput = {}
+    if (exceptIds.length > 0) {
+      exceptsQuery = {
+        NOT: {
+          id: {
+            in: exceptIds
+          }
+        }
+      }
+    }
+
+    const query: Prisma.TestExamFindManyArgs = {
+      where: {
+        AND: [searchQuery, exceptsQuery]
       }
     }
 

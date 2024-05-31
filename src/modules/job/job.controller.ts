@@ -54,4 +54,36 @@ export class JobController {
       next(error)
     }
   }
+
+  public getJobTestExams = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const testExams = await this.jobService.getJobTestExams(res.locals.reqParams)
+
+      return res.status(StatusCodes.OK).json(testExams)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
+  public getJobAddableTestExams = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const addableTestExams = await this.jobService.getJobAddableTestExams(res.locals.reqParams)
+      res.setHeader('X-Pagination', JSON.stringify(addableTestExams.metaData))
+      return res.status(StatusCodes.OK).json(addableTestExams)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
+  public jobAddTestExams = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.jobService.jobAddTestExams(res.locals.reqParams)
+      return res.status(StatusCodes.CREATED).json()
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }

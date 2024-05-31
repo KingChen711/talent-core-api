@@ -8,6 +8,56 @@ export const getJobSchema = z.object({
 
 export type TGetJobSchema = z.infer<typeof getJobSchema>
 
+export const jobAddTestExamsSchema = z.object({
+  params: z.object({
+    jobCode: z.string()
+  }),
+  body: z.object({
+    testExamIds: z.array(z.string()).catch([])
+  })
+})
+
+export type TJobAddTestExamsSchema = z.infer<typeof jobAddTestExamsSchema>
+
+export const getJobTestExamsSchema = z.object({
+  params: z.object({
+    jobCode: z.string()
+  })
+})
+
+export type TGetJobTestExamsSchema = z.infer<typeof getJobTestExamsSchema>
+
+export const getJobAddableTestExamsSchema = z.object({
+  params: z.object({
+    jobCode: z.string()
+  }),
+  query: z.object({
+    pageNumber: z.coerce.number().default(1),
+    pageSize: z.coerce
+      .number()
+      .default(10)
+      .transform((data) => Math.min(data, 50)),
+    search: z.coerce.string().trim().optional(),
+    sort: z
+      .enum([
+        'code',
+        '-code',
+        'name',
+        '-name',
+        'createdAt',
+        '-createdAt',
+        'conditionPoint',
+        '-conditionPoint',
+        'duration',
+        '-duration'
+      ])
+      .optional()
+      .default('createdAt')
+  })
+})
+
+export type TGetJobAddableTestExamsSchema = z.infer<typeof getJobAddableTestExamsSchema>
+
 export const deleteJobSchema = z.object({
   params: z.object({
     jobId: z.string()
