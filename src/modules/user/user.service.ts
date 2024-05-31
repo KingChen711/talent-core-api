@@ -17,10 +17,10 @@ export class UserService {
     })
   }
 
-  getUserById = async (): Promise<User | null> => {
+  getUserEmail = async (email: string): Promise<User | null> => {
     return await this.prismaService.client.user.findUnique({
       where: {
-        id: '664ddf0c796aadfc97448ab3'
+        email
       }
     })
   }
@@ -31,9 +31,16 @@ export class UserService {
     })
   }
 
-  updateUser = async (clerkId: string, user: Prisma.UserUpdateInput): Promise<User> => {
+  updateUserByClerkId = async (clerkId: string, user: Prisma.UserUpdateInput): Promise<User> => {
     return await this.prismaService.client.user.update({
       where: { clerkId },
+      data: user
+    })
+  }
+
+  updateUserByEmail = async (email: string, user: Prisma.UserUpdateInput): Promise<User> => {
+    return await this.prismaService.client.user.update({
+      where: { email },
       data: user
     })
   }

@@ -58,6 +58,16 @@ export class ClerkController {
       if (eventType === 'user.created') {
         const { id, email_addresses, image_url, first_name, last_name } = evt.data
 
+        const userByEmail = await this.userService.getUserEmail(email_addresses[0].email_address)
+
+        if (userByEmail) {
+          const user = await this.userService.updateUserByEmail(userByEmail.email, {
+            clerkId: id,
+            avatar: image_url
+          })
+          return res.status(StatusCodes.CREATED).json(user)
+        }
+
         const user = await this.userService.createUser({
           clerkId: id,
           email: email_addresses[0].email_address,
@@ -78,7 +88,7 @@ export class ClerkController {
       if (eventType === 'user.updated') {
         const { id: clerkId, email_addresses, image_url, first_name, last_name } = evt.data
 
-        const user = await this.userService.updateUser(clerkId, {
+        const user = await this.userService.updateUserByClerkId(clerkId, {
           email: email_addresses[0].email_address,
           fullName: `${first_name}${last_name ? ` ${last_name}` : ''}`,
           avatar: image_url
