@@ -8,6 +8,8 @@ import { JobController } from '../modules/job/job.controller'
 import { ImageService } from '../aws-s3/image.service'
 import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { TestExamController } from '../modules/test-exam/test-exam.controller'
+import { RecruitmentDriveService } from '../modules/recruitment-drive/recruitment-drive.service'
+import { RecruitmentDriveController } from '../modules/recruitment-drive/recruitment-drive.controller'
 
 const container = new Container()
 
@@ -24,5 +26,8 @@ container.bind(JobController).toSelf().inRequestScope()
 
 container.bind(TestExamService).toSelf().inRequestScope()
 container.bind(TestExamController).toSelf().inRequestScope()
+
+container.bind(RecruitmentDriveService).toSelf().inRequestScope()
+container.bind(RecruitmentDriveController).toSelf().inRequestScope()
 
 export { container }
