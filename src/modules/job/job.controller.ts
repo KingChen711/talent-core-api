@@ -86,4 +86,14 @@ export class JobController {
       next(error)
     }
   }
+
+  public jobRemoveTestExams = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.jobService.jobRemoveTestExams(res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }

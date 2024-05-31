@@ -54,4 +54,16 @@ export class TestExamController {
       next(error)
     }
   }
+
+  public getTestExamAddableJobs = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // const addableTestExams = await this.testExamService.getTestExamAddableJobs(res.locals.reqParams)
+      // res.setHeader('X-Pagination', JSON.stringify(addableTestExams.metaData))
+      // return res.status(StatusCodes.OK).json(addableTestExams)
+      return res.json()
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }

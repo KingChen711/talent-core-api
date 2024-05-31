@@ -8,7 +8,7 @@ import {
   TGetJobSchema,
   TGetJobTestExamsSchema,
   TGetJobsSchema,
-  TJobAddTestExamsSchema,
+  TJobAddOrRemoveTestExamsSchema,
   TUpdateJobSchema
 } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
@@ -324,6 +324,7 @@ export class JobService {
       throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
     }
 
+    //A job will not have to to much test exam, no need to pagination, search, sort
     return job.testExams
   }
 
@@ -346,7 +347,7 @@ export class JobService {
     return addableTestExams
   }
 
-  public jobAddTestExams = async (schema: TJobAddTestExamsSchema) => {
+  public jobAddTestExams = async (schema: TJobAddOrRemoveTestExamsSchema) => {
     const {
       params: { jobCode },
       body: { testExamIds }
@@ -390,6 +391,36 @@ export class JobService {
       data: {
         testExamIds: {
           push: testExamIds
+        }
+      }
+    })
+  }
+
+  public jobRemoveTestExams = async (schema: TJobAddOrRemoveTestExamsSchema) => {
+    const {
+      params: { jobCode },
+      body: { testExamIds }
+    } = schema
+
+    const job = await this.prismaService.client.job.findUnique({
+      where: { code: jobCode }
+    })
+
+    if (!job) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+    }
+
+    const hasSomeTestExamNotExistInJob = new Set([...testExamIds, ...job.testExamIds]).size > job.testExamIds.length
+
+    if (hasSomeTestExamNotExistInJob) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams do not exist in this job`)
+    }
+
+    await this.prismaService.client.job.update({
+      where: { code: jobCode },
+      data: {
+        testExamIds: {
+          set: job.testExamIds.filter((id) => !testExamIds.includes(id))
         }
       }
     })

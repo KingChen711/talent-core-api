@@ -12,12 +12,21 @@ import {
   getTestExamsSchema,
   createTestExamSchema,
   getTestExamSchema,
-  updateTestExamSchema
+  updateTestExamSchema,
+  getTestExamAddableJobsSchema
 } from './test-exam.validation'
 
 const router = express.Router()
 
 const testExamController = container.get(TestExamController)
+
+router.get(
+  '/:testExamCode/addable-jobs',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(getTestExamAddableJobsSchema),
+  testExamController.getTestExamAddableJobs
+)
 
 router.delete(
   '/:testExamId',

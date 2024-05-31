@@ -1,5 +1,36 @@
 import z from 'zod'
 
+export const getTestExamAddableJobsSchema = z.object({
+  params: z.object({
+    jobCode: z.string()
+  }),
+  query: z.object({
+    pageNumber: z.coerce.number().default(1),
+    pageSize: z.coerce
+      .number()
+      .default(10)
+      .transform((data) => Math.min(data, 50)),
+    search: z.coerce.string().trim().optional(),
+    sort: z
+      .enum([
+        'code',
+        '-code',
+        'name',
+        '-name',
+        'createdAt',
+        '-createdAt',
+        'conditionPoint',
+        '-conditionPoint',
+        'duration',
+        '-duration'
+      ])
+      .optional()
+      .default('createdAt')
+  })
+})
+
+export type TGetTestExamAddableJobsSchema = z.infer<typeof getTestExamAddableJobsSchema>
+
 export const getTestExamsSchema = z.object({
   query: z.object({
     pageNumber: z.coerce.number().default(1),

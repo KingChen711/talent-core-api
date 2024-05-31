@@ -1,17 +1,20 @@
 import 'dotenv/config'
-import { inject, injectable } from 'inversify'
+import { LazyServiceIdentifier, inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import { PagedList } from 'src/types'
 import { Prisma, TestExam } from '@prisma/client'
 import {
   TCreateTestExamSchema,
   TDeleteTestExamSchema,
+  TGetTestExamAddableJobsSchema,
   TGetTestExamSchema,
   TGetTestExamsSchema,
   TUpdateTestExamSchema
 } from './test-exam.validation'
 import ApiError from 'src/helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
+import { JobService } from '../job/job.service'
+import { container } from '../../config/inversify.config'
 
 @injectable()
 export class TestExamService {
@@ -226,5 +229,24 @@ export class TestExamService {
         }
       }
     })
+  }
+
+  public getTestExamAddableJobs = async (schema: TGetTestExamAddableJobsSchema) => {
+    const {
+      params: { jobCode },
+      query
+    } = schema
+
+    // const job = await this.prismaService.client.job.findUnique({
+    //   where: { code: jobCode }
+    // })
+
+    // if (!job) {
+    //   throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+    // }
+
+    // const addableTestExams = await this.testExamService.getTestExams({ query }, job.testExamIds)
+
+    // return addableTestExams
   }
 }
