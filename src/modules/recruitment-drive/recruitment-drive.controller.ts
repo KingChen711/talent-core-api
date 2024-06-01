@@ -16,4 +16,14 @@ export class RecruitmentDriveController {
       next(error)
     }
   }
+
+  public createRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const recruitmentDrive = await this.recruitmentDriveService.createRecruitmentDrive(res.locals.reqParams)
+      return res.status(StatusCodes.CREATED).json(recruitmentDrive)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }

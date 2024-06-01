@@ -7,7 +7,7 @@ import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
 import { authorize } from '../../middleware/authorize.middleware'
 import { Role } from '../../types'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
-import { getRecruitmentDrivesSchema } from './recruitment-drive.validation'
+import { createRecruitmentDriveSchema, getRecruitmentDrivesSchema } from './recruitment-drive.validation'
 
 const router = express.Router()
 
@@ -19,6 +19,14 @@ router.get(
   authorize([Role.EMPLOYEE]),
   validateRequestData(getRecruitmentDrivesSchema),
   recruitmentDriveController.getRecruitmentDrives
+)
+
+router.post(
+  '/',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(createRecruitmentDriveSchema),
+  recruitmentDriveController.createRecruitmentDrive
 )
 
 export default router

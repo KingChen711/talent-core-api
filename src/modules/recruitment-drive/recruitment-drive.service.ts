@@ -1,9 +1,11 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TGetRecruitmentDrivesSchema } from './recruitment-drive.validation'
+import { TCreateRecruitmentDriveSchema, TGetRecruitmentDrivesSchema } from './recruitment-drive.validation'
 import { PagedList } from 'src/types'
 import { Prisma, RecruitmentDrive } from '@prisma/client'
+import ApiError from 'src/helpers/api-error'
+import { StatusCodes } from 'http-status-codes'
 
 @injectable()
 export class RecruitmentDriveService {
@@ -19,6 +21,44 @@ export class RecruitmentDriveService {
     createdAt: { createdAt: 'asc' },
     '-createdAt': { createdAt: 'desc' }
   } as const
+
+  public getCurrentRecruitmentDrive = async () => {
+    return await this.prismaService.client.recruitmentDrive.findFirst({
+      where: {
+        isOpening: true
+      }
+    })
+  }
+
+  public createRecruitmentDrive = async (schema: TCreateRecruitmentDriveSchema) => {
+    const {
+      body: { endDate, isOpening, name, startDate, description }
+    } = schema
+
+    const recruitmentByName = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { name }
+    })
+
+    if (recruitmentByName) {
+      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+        errors: {
+          name: 'This name is already used'
+        }
+      })
+    }
+
+    if (isOpening && (await this.getCurrentRecruitmentDrive())) {
+      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+        errors: {
+          isOpening: 'Cannot open a recruitment drive while there is another recruitment drive is opening'
+        }
+      })
+    }
+
+    return await this.prismaService.client.recruitmentDrive.create({
+      data: { endDate, isOpening, name, startDate, description }
+    })
+  }
 
   public getRecruitmentDrives = async (schema: TGetRecruitmentDrivesSchema): Promise<PagedList<RecruitmentDrive>> => {
     const {

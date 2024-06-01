@@ -17,3 +17,36 @@ export const getRecruitmentDrivesSchema = z.object({
 })
 
 export type TGetRecruitmentDrivesSchema = z.infer<typeof getRecruitmentDrivesSchema>
+
+export const createRecruitmentDriveSchema = z.object({
+  body: z
+    .object({
+      name: z.string().min(2).max(50),
+      startDate: z.date(),
+      endDate: z.date(),
+      description: z.string().optional(),
+      isOpening: z.boolean()
+    })
+    .refine(
+      (data) => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        return data.startDate.getTime() >= today.getTime()
+      },
+      {
+        message: 'Start Date must be today or after',
+        path: ['startDate']
+      }
+    )
+    .refine(
+      (data) => {
+        return data.endDate > data.startDate
+      },
+      {
+        message: 'End Date must be after Start Date',
+        path: ['startDate', 'endDate']
+      }
+    )
+})
+
+export type TCreateRecruitmentDriveSchema = z.infer<typeof createRecruitmentDriveSchema>
