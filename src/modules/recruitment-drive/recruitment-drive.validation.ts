@@ -10,7 +10,18 @@ export const getRecruitmentDrivesSchema = z.object({
     search: z.coerce.string().trim().optional(),
     status: z.enum(['all', 'opening', 'closed']).catch('all'),
     sort: z
-      .enum(['startDate', '-startDate', 'endDate', '-endDate', 'name', '-name', 'createdAt', '-createdAt'])
+      .enum([
+        'startDate',
+        '-startDate',
+        'endDate',
+        '-endDate',
+        'name',
+        '-name',
+        'code',
+        '-code',
+        'createdAt',
+        '-createdAt'
+      ])
       .optional()
       .default('-createdAt')
   })
@@ -21,6 +32,13 @@ export type TGetRecruitmentDrivesSchema = z.infer<typeof getRecruitmentDrivesSch
 export const createRecruitmentDriveSchema = z.object({
   body: z
     .object({
+      code: z
+        .string()
+        .min(2)
+        .max(50)
+        .refine((value) => !/\s/.test(value), {
+          message: 'Code must not contain any whitespace'
+        }),
       name: z.string().min(2).max(50),
       startDate: z.coerce.date(),
       endDate: z.coerce.date(),
@@ -57,6 +75,13 @@ export const updateRecruitmentDriveSchema = z.object({
   }),
   body: z
     .object({
+      code: z
+        .string()
+        .min(2)
+        .max(50)
+        .refine((value) => !/\s/.test(value), {
+          message: 'Code must not contain any whitespace'
+        }),
       name: z.string().min(2).max(50),
       startDate: z.coerce.date(),
       endDate: z.coerce.date(),

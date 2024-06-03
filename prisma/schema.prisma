@@ -212,7 +212,8 @@ type QuestionOption {
 
 model RecruitmentDrive {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   @unique
+  code        String   @unique
+  name        String
   startDate   DateTime
   endDate     DateTime
   description String?

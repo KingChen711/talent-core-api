@@ -84,7 +84,13 @@ export type TGetJobsSchema = z.infer<typeof getJobsSchema>
 export const createJobSchema = z.object({
   body: z
     .object({
-      code: z.string().min(2).max(50),
+      code: z
+        .string()
+        .min(2)
+        .max(50)
+        .refine((value) => !/\s/.test(value), {
+          message: 'Code must not contain any whitespace'
+        }),
       name: z.string().min(2).max(50),
       description: z.string().optional(),
       color: z
@@ -124,7 +130,13 @@ export const updateJobSchema = z.object({
     jobId: z.string()
   }),
   body: z.object({
-    code: z.string().min(2).max(50),
+    code: z
+      .string()
+      .min(2)
+      .max(50)
+      .refine((value) => !/\s/.test(value), {
+        message: 'Code must not contain any whitespace'
+      }),
     name: z.string().min(2).max(50),
     description: z.string().optional(),
     color: z

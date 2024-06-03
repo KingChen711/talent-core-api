@@ -24,7 +24,9 @@ export class RecruitmentDriveService {
     name: { name: 'asc' },
     '-name': { name: 'desc' },
     createdAt: { createdAt: 'asc' },
-    '-createdAt': { createdAt: 'desc' }
+    '-createdAt': { createdAt: 'desc' },
+    code: { code: 'asc' },
+    '-code': { code: 'desc' }
   } as const
 
   public getRecruitmentDriveById = async (recruitmentDriveId: string, required = false) => {
@@ -49,17 +51,17 @@ export class RecruitmentDriveService {
 
   public createRecruitmentDrive = async (schema: TCreateRecruitmentDriveSchema) => {
     const {
-      body: { endDate, isOpening, name, startDate, description }
+      body: { endDate, isOpening, name, startDate, description, code }
     } = schema
 
-    const recruitmentDriveByName = await this.prismaService.client.recruitmentDrive.findUnique({
-      where: { name }
+    const recruitmentDriveByCode = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { code }
     })
 
-    if (recruitmentDriveByName) {
+    if (recruitmentDriveByCode) {
       throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
         errors: {
-          name: 'This name is already used'
+          code: 'This code is already used'
         }
       })
     }
@@ -73,29 +75,29 @@ export class RecruitmentDriveService {
     }
 
     return await this.prismaService.client.recruitmentDrive.create({
-      data: { endDate, isOpening, name, startDate, description }
+      data: { endDate, isOpening, name, startDate, description, code }
     })
   }
 
   public updateRecruitmentDrive = async (schema: TUpdateRecruitmentDriveSchema) => {
     const {
       params: { recruitmentDriveId },
-      body: { endDate, isOpening, name, startDate, description }
+      body: { endDate, isOpening, name, startDate, description, code }
     } = schema
 
-    const recruitmentDriveByName = await this.prismaService.client.recruitmentDrive.findUnique({
-      where: { name }
+    const recruitmentDriveByCode = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { code }
     })
 
-    if (recruitmentDriveByName && recruitmentDriveByName.id !== recruitmentDriveId) {
+    if (recruitmentDriveByCode && recruitmentDriveByCode.id !== recruitmentDriveId) {
       throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
         errors: {
-          name: 'This name is already used'
+          code: 'This code is already used'
         }
       })
     }
 
-    const recruitmentDrive = recruitmentDriveByName || (await this.getRecruitmentDriveById(recruitmentDriveId, true))!
+    const recruitmentDrive = recruitmentDriveByCode || (await this.getRecruitmentDriveById(recruitmentDriveId, true))!
 
     if (isOpening) {
       const currentRecruitmentDrive = await this.getCurrentRecruitmentDrive()
@@ -112,7 +114,7 @@ export class RecruitmentDriveService {
       where: {
         id: recruitmentDriveId
       },
-      data: { endDate, isOpening, name, startDate, description }
+      data: { endDate, isOpening, name, code, startDate, description }
     })
   }
 
@@ -144,6 +146,12 @@ export class RecruitmentDriveService {
     if (search) {
       searchQuery = {
         OR: [
+          {
+            code: {
+              contains: search,
+              mode: 'insensitive'
+            }
+          },
           {
             name: {
               contains: search,

@@ -76,7 +76,13 @@ const questionSchema = z
 
 export const createTestExamSchema = z.object({
   body: z.object({
-    code: z.string().min(2).max(50),
+    code: z
+      .string()
+      .min(2)
+      .max(50)
+      .refine((value) => !/\s/.test(value), {
+        message: 'Code must not contain any whitespace'
+      }),
     name: z.string().min(2).max(50),
     conditionPoint: z
       .number()
@@ -96,7 +102,13 @@ export const updateTestExamSchema = z.object({
     testExamId: z.string()
   }),
   body: z.object({
-    code: z.string().min(2).max(50),
+    code: z
+      .string()
+      .min(2)
+      .max(50)
+      .refine((value) => !/\s/.test(value), {
+        message: 'Code must not contain any whitespace'
+      }),
     name: z.string().min(2).max(50),
     conditionPoint: z
       .number()
