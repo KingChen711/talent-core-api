@@ -9,6 +9,7 @@ import { Role } from '../../types'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import {
   createRecruitmentDriveSchema,
+  deleteRecruitmentDriveSchema,
   getRecruitmentDriveSchema,
   getRecruitmentDrivesSchema,
   updateRecruitmentDriveSchema
@@ -32,6 +33,14 @@ router.put(
   authorize([Role.EMPLOYEE]),
   validateRequestData(updateRecruitmentDriveSchema),
   recruitmentDriveController.updateRecruitmentDrive
+)
+
+router.delete(
+  '/:recruitmentDriveId',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(deleteRecruitmentDriveSchema),
+  recruitmentDriveController.deleteRecruitmentDrive
 )
 
 router.get(

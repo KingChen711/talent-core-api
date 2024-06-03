@@ -307,7 +307,7 @@ export class JobService {
 
     //TODO: chưa xác nhận cái này chạy được không
     if (job!._count.jobDetails > 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'This jobs have already belong to some recruit ment drives')
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'This jobs have already belong to some recruitment drives')
     }
 
     await this.prismaService.client.job.delete({

@@ -3,6 +3,7 @@ import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import {
   TCreateRecruitmentDriveSchema,
+  TDeleteRecruitmentDriveSchema,
   TGetRecruitmentDriveSchema,
   TGetRecruitmentDrivesSchema,
   TUpdateRecruitmentDriveSchema
@@ -198,5 +199,44 @@ export class RecruitmentDriveService {
     })
 
     return recruitmentDrive
+  }
+
+  public deleteRecruitmentDrive = async (schema: TDeleteRecruitmentDriveSchema) => {
+    const {
+      params: { recruitmentDriveId }
+    } = schema
+
+    //check exist
+    const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { id: recruitmentDriveId },
+      include: {
+        jobDetails: {
+          select: {
+            _count: {
+              select: {
+                applications: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (!recruitmentDrive) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with id: ${recruitmentDriveId}`)
+    }
+
+    const countApplications = recruitmentDrive.jobDetails.reduce((total, jd) => total + jd._count.applications, 0)
+
+    //TODO: chưa xác nhận cái này chạy được không
+    if (countApplications > 0) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Cannot delete a recruitment drive already having some applications')
+    }
+
+    await this.prismaService.client.recruitmentDrive.delete({
+      where: {
+        id: recruitmentDriveId
+      }
+    })
   }
 }

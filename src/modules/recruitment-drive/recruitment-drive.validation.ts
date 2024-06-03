@@ -108,3 +108,11 @@ export const getRecruitmentDriveSchema = z.object({
 })
 
 export type TGetRecruitmentDriveSchema = z.infer<typeof getRecruitmentDriveSchema>
+
+export const deleteRecruitmentDriveSchema = z.object({
+  params: z.object({
+    recruitmentDriveId: z.string()
+  })
+})
+
+export type TDeleteRecruitmentDriveSchema = z.infer<typeof deleteRecruitmentDriveSchema>

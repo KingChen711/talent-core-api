@@ -45,4 +45,13 @@ export class RecruitmentDriveController {
       next(error)
     }
   }
+
+  public deleteRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.recruitmentDriveService.deleteRecruitmentDrive(res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      next(error)
+    }
+  }
 }

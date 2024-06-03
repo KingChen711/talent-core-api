@@ -80,8 +80,8 @@ model Application {
   status         ApplicationStatus @default(Processing)
   receiveJobDate DateTime?
 
-  candidate        Candidate         @relation(fields: [candidateId], references: [id])
-  jobDetail        JobDetail         @relation(fields: [jobDetailId], references: [id])
+  candidate        Candidate         @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  jobDetail        JobDetail         @relation(fields: [jobDetailId], references: [id], onDelete: Restrict)
   testSession      TestSession?
   interviewSession InterviewSession?
   receiveJobWish   ReceiveJobWish?
@@ -136,7 +136,7 @@ model TestSession {
   startDate     DateTime
 
   application     Application      @relation(fields: [applicationId], references: [id])
-  testExam        TestExam         @relation(fields: [testExamId], references: [id])
+  testExam        TestExam         @relation(fields: [testExamId], references: [id], onDelete: Restrict)
   testSessionWish TestSessionWish?
 }
 
@@ -232,7 +232,7 @@ model JobDetail {
   quantity           Int
   createdAt          DateTime @default(now())
 
-  recruitmentDrive RecruitmentDrive @relation(fields: [recruitmentDriveId], references: [id])
+  recruitmentDrive RecruitmentDrive @relation(fields: [recruitmentDriveId], references: [id], onDelete: Cascade)
   job              Job              @relation(fields: [jobId], references: [id], onDelete: Restrict)
   applications     Application[]
 
