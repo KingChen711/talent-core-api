@@ -185,7 +185,6 @@ export class JobService {
     query.skip = pageSize * (pageNumber - 1)
     query.take = pageSize
 
-    // //TODO: chưa xác nhận phần isOpening có hoạt động đúng hay không
     const jobs = await this.prismaService.client.job.findMany({
       ...query,
       include: {
@@ -268,23 +267,16 @@ export class JobService {
 
     let imageName: string
 
-    console.log(file)
-
     if (file) {
-      console.log('Have file')
-
       if (systemImageJobs.includes(job!.icon)) {
-        console.log('create new image object')
         //create new image object
         imageName = await this.imageService.upLoadImage(file, 240, 240)
       } else {
-        console.log('put available image object')
         //put available image object
         imageName = job!.icon
         await this.imageService.upLoadImage(file, 240, 240, imageName)
       }
     } else {
-      console.log('Not file')
       imageName = job!.icon
     }
 
@@ -294,7 +286,6 @@ export class JobService {
       },
       data: { code, color, icon: imageName, name, description, testExamIds }
     })
-    //TODO: kiểm tra testExamIds có valid không
   }
 
   public deleteJob = async (schema: TDeleteJobSchema) => {
@@ -305,7 +296,6 @@ export class JobService {
     //check exist
     const job = await this.getJobById(jobId, true)!
 
-    //TODO: chưa xác nhận cái này chạy được không
     if (job!._count.jobDetails > 0) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'This jobs have already belong to some recruitment drives')
     }

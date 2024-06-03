@@ -2,6 +2,7 @@ import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import {
+  TAddJobToCurrentRecruitmentDriveSchema,
   TCreateRecruitmentDriveSchema,
   TDeleteRecruitmentDriveSchema,
   TGetRecruitmentDriveAddableJobsSchema,
@@ -47,12 +48,21 @@ export class RecruitmentDriveService {
     return recruitmentDrive
   }
 
-  public getCurrentRecruitmentDrive = async () => {
-    return await this.prismaService.client.recruitmentDrive.findFirst({
+  public getCurrentRecruitmentDrive = async (required = false) => {
+    const currentRecruitmentDrive = await this.prismaService.client.recruitmentDrive.findFirst({
       where: {
         isOpening: true
+      },
+      include: {
+        jobDetails: true
       }
     })
+
+    if (!currentRecruitmentDrive && required) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive is opening`)
+    }
+
+    return currentRecruitmentDrive
   }
 
   public createRecruitmentDrive = async (schema: TCreateRecruitmentDriveSchema) => {
@@ -255,6 +265,26 @@ export class RecruitmentDriveService {
     }
 
     return recruitmentDrive
+  }
+
+  public addJobToCurrentRecruitmentDrive = async (schema: TAddJobToCurrentRecruitmentDriveSchema) => {
+    const {
+      body: { jobId, quantity }
+    } = schema
+
+    const currentRecruitmentDrive = (await this.getCurrentRecruitmentDrive(true))!
+
+    if (currentRecruitmentDrive.jobDetails.some((jd) => jd.jobId === jobId)) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `This job is already open in current recruitment drive`)
+    }
+
+    return await this.prismaService.client.jobDetail.create({
+      data: {
+        jobId,
+        recruitmentDriveId: currentRecruitmentDrive.id,
+        quantity
+      }
+    })
   }
 
   public getRecruitmentDriveAddableJobs = async (schema: TGetRecruitmentDriveAddableJobsSchema) => {

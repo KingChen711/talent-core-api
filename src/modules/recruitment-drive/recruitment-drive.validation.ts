@@ -134,3 +134,12 @@ export const getRecruitmentDriveAddableJobsSchema = z.object({
 })
 
 export type TGetRecruitmentDriveAddableJobsSchema = z.infer<typeof getRecruitmentDriveAddableJobsSchema>
+
+export const addJobToCurrentRecruitmentDriveSchema = z.object({
+  body: z.object({
+    jobId: z.string(),
+    quantity: z.coerce.number().int().min(1)
+  })
+})
+
+export type TAddJobToCurrentRecruitmentDriveSchema = z.infer<typeof addJobToCurrentRecruitmentDriveSchema>

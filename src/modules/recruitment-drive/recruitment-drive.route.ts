@@ -8,6 +8,7 @@ import { authorize } from '../../middleware/authorize.middleware'
 import { Role } from '../../types'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import {
+  addJobToCurrentRecruitmentDriveSchema,
   createRecruitmentDriveSchema,
   deleteRecruitmentDriveSchema,
   getRecruitmentDriveAddableJobsSchema,
@@ -50,6 +51,14 @@ router.delete(
   authorize([Role.EMPLOYEE]),
   validateRequestData(deleteRecruitmentDriveSchema),
   recruitmentDriveController.deleteRecruitmentDrive
+)
+
+router.post(
+  '/add-job-to-current-drive',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(addJobToCurrentRecruitmentDriveSchema),
+  recruitmentDriveController.addJobToCurrentRecruitmentDrive
 )
 
 router.get(

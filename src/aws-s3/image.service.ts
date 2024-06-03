@@ -1,4 +1,5 @@
 import 'dotenv/config'
+
 import sharp from 'sharp'
 import { injectable } from 'inversify'
 import { bucketName, s3 } from '../config/s3.config'

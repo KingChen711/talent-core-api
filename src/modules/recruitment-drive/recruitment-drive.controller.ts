@@ -65,4 +65,14 @@ export class RecruitmentDriveController {
       next(error)
     }
   }
+
+  public addJobToCurrentRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const jobDetail = await this.recruitmentDriveService.addJobToCurrentRecruitmentDrive(res.locals.reqParams)
+      return res.status(StatusCodes.CREATED).json(jobDetail)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
 }
