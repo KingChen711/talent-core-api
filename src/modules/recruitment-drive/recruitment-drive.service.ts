@@ -1,10 +1,15 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TCreateRecruitmentDriveSchema, TGetRecruitmentDrivesSchema } from './recruitment-drive.validation'
-import { PagedList } from 'src/types'
+import {
+  TCreateRecruitmentDriveSchema,
+  TGetRecruitmentDriveSchema,
+  TGetRecruitmentDrivesSchema,
+  TUpdateRecruitmentDriveSchema
+} from './recruitment-drive.validation'
+import { PagedList } from '../../types'
 import { Prisma, RecruitmentDrive } from '@prisma/client'
-import ApiError from 'src/helpers/api-error'
+import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 
 @injectable()
@@ -22,6 +27,18 @@ export class RecruitmentDriveService {
     '-createdAt': { createdAt: 'desc' }
   } as const
 
+  public getRecruitmentDriveById = async (recruitmentDriveId: string, required = false) => {
+    const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { id: recruitmentDriveId }
+    })
+
+    if (!recruitmentDrive && required) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with id: ${recruitmentDriveId}`)
+    }
+
+    return recruitmentDrive
+  }
+
   public getCurrentRecruitmentDrive = async () => {
     return await this.prismaService.client.recruitmentDrive.findFirst({
       where: {
@@ -35,11 +52,11 @@ export class RecruitmentDriveService {
       body: { endDate, isOpening, name, startDate, description }
     } = schema
 
-    const recruitmentByName = await this.prismaService.client.recruitmentDrive.findUnique({
+    const recruitmentDriveByName = await this.prismaService.client.recruitmentDrive.findUnique({
       where: { name }
     })
 
-    if (recruitmentByName) {
+    if (recruitmentDriveByName) {
       throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
         errors: {
           name: 'This name is already used'
@@ -56,6 +73,45 @@ export class RecruitmentDriveService {
     }
 
     return await this.prismaService.client.recruitmentDrive.create({
+      data: { endDate, isOpening, name, startDate, description }
+    })
+  }
+
+  public updateRecruitmentDrive = async (schema: TUpdateRecruitmentDriveSchema) => {
+    const {
+      params: { recruitmentDriveId },
+      body: { endDate, isOpening, name, startDate, description }
+    } = schema
+
+    const recruitmentDriveByName = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { name }
+    })
+
+    if (recruitmentDriveByName && recruitmentDriveByName.id !== recruitmentDriveId) {
+      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+        errors: {
+          name: 'This name is already used'
+        }
+      })
+    }
+
+    const recruitmentDrive = recruitmentDriveByName || (await this.getRecruitmentDriveById(recruitmentDriveId, true))!
+
+    if (isOpening) {
+      const currentRecruitmentDrive = await this.getCurrentRecruitmentDrive()
+      if (currentRecruitmentDrive && currentRecruitmentDrive.id !== recruitmentDrive.id) {
+        throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
+          errors: {
+            isOpening: 'Cannot open a recruitment drive while there is another recruitment drive is opening'
+          }
+        })
+      }
+    }
+
+    return await this.prismaService.client.recruitmentDrive.update({
+      where: {
+        id: recruitmentDriveId
+      },
       data: { endDate, isOpening, name, startDate, description }
     })
   }
@@ -122,5 +178,17 @@ export class RecruitmentDriveService {
     const recruitmentDrives = await this.prismaService.client.recruitmentDrive.findMany(query)
 
     return new PagedList<RecruitmentDrive>(recruitmentDrives, totalCount, pageNumber, pageSize)
+  }
+
+  public getRecruitmentDrive = async (schema: TGetRecruitmentDriveSchema) => {
+    const {
+      params: { recruitmentDriveId }
+    } = schema
+
+    const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { id: recruitmentDriveId }
+    })
+
+    return recruitmentDrive
   }
 }

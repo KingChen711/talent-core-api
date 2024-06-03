@@ -26,4 +26,23 @@ export class RecruitmentDriveController {
       next(error)
     }
   }
+
+  public updateRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.recruitmentDriveService.updateRecruitmentDrive(res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
+  public getRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const recruitmentDrive = await this.recruitmentDriveService.getRecruitmentDrive(res.locals.reqParams)
+      return res.status(StatusCodes.OK).json(recruitmentDrive)
+    } catch (error) {
+      next(error)
+    }
+  }
 }
