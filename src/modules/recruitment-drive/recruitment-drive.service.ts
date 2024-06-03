@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service'
 import {
   TCreateRecruitmentDriveSchema,
   TDeleteRecruitmentDriveSchema,
+  TGetRecruitmentDriveAddableJobsSchema,
   TGetRecruitmentDriveSchema,
   TGetRecruitmentDrivesSchema,
   TUpdateRecruitmentDriveSchema
@@ -12,10 +13,14 @@ import { PagedList } from '../../types'
 import { Prisma, RecruitmentDrive } from '@prisma/client'
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
+import { JobService } from '../job/job.service'
 
 @injectable()
 export class RecruitmentDriveService {
-  constructor(@inject(PrismaService) private readonly prismaService: PrismaService) {}
+  constructor(
+    @inject(PrismaService) private readonly prismaService: PrismaService,
+    @inject(JobService) private readonly jobService: JobService
+  ) {}
 
   private sortMapping = {
     startDate: { startDate: 'asc' },
@@ -238,5 +243,45 @@ export class RecruitmentDriveService {
         id: recruitmentDriveId
       }
     })
+  }
+
+  public getRecruitmentDriveByCode = async (code: string, required = false) => {
+    const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: { code }
+    })
+
+    if (!recruitmentDrive && required) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitmentDrive with code: ${code}`)
+    }
+
+    return recruitmentDrive
+  }
+
+  public getRecruitmentDriveAddableJobs = async (schema: TGetRecruitmentDriveAddableJobsSchema) => {
+    const {
+      params: { recruitmentDriveCode },
+      query
+    } = schema
+
+    const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findUnique({
+      where: {
+        code: recruitmentDriveCode
+      },
+      include: {
+        jobDetails: true
+      }
+    })
+
+    if (!recruitmentDrive) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with code: ${recruitmentDriveCode}`)
+    }
+
+    if (!recruitmentDrive.isOpening) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Cannot get addable jobs of closed recruitment drive`)
+    }
+
+    const jobIdsInRecruitmentDrive = recruitmentDrive?.jobDetails.map((jd) => jd.jobId)
+
+    return this.jobService.getJobs({ query }, jobIdsInRecruitmentDrive)
   }
 }

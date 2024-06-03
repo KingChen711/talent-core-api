@@ -10,6 +10,7 @@ import { validateRequestData } from '../../middleware/validate-request-data.midd
 import {
   createRecruitmentDriveSchema,
   deleteRecruitmentDriveSchema,
+  getRecruitmentDriveAddableJobsSchema,
   getRecruitmentDriveSchema,
   getRecruitmentDrivesSchema,
   updateRecruitmentDriveSchema
@@ -18,6 +19,14 @@ import {
 const router = express.Router()
 
 const recruitmentDriveController = container.get(RecruitmentDriveController)
+
+router.get(
+  '/:recruitmentDriveCode/addable-jobs',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(getRecruitmentDriveAddableJobsSchema),
+  recruitmentDriveController.getRecruitmentDriveAddableJobs
+)
 
 router.get(
   '/:recruitmentDriveId',

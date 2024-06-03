@@ -116,3 +116,21 @@ export const deleteRecruitmentDriveSchema = z.object({
 })
 
 export type TDeleteRecruitmentDriveSchema = z.infer<typeof deleteRecruitmentDriveSchema>
+
+export const getRecruitmentDriveAddableJobsSchema = z.object({
+  params: z.object({
+    recruitmentDriveCode: z.string()
+  }),
+  query: z.object({
+    pageNumber: z.coerce.number().default(1),
+    pageSize: z.coerce
+      .number()
+      .default(10)
+      .transform((data) => Math.min(data, 50)),
+    search: z.coerce.string().trim().optional(),
+    status: z.enum(['all', 'opening', 'closed']).catch('all'),
+    sort: z.enum(['code', '-code', 'name', '-name', 'createdAt', '-createdAt']).optional().default('createdAt')
+  })
+})
+
+export type TGetRecruitmentDriveAddableJobsSchema = z.infer<typeof getRecruitmentDriveAddableJobsSchema>
