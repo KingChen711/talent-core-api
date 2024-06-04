@@ -44,6 +44,19 @@ export class ImageService {
     return url
   }
 
+  getImageUrls = async (imageNames: string[]): Promise<string[]> => {
+    const urlsData = imageNames.map((imageName) => {
+      const params = {
+        Bucket: bucketName,
+        Key: imageName
+      }
+      const command = new GetObjectCommand(params)
+      return getSignedUrl(s3, command, { expiresIn: 3600 })
+    })
+
+    return await Promise.all(urlsData)
+  }
+
   deleteImage = async (imageName: string): Promise<void> => {
     const params = {
       Bucket: bucketName,

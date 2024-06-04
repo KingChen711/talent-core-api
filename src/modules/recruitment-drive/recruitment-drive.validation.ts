@@ -135,11 +135,19 @@ export const getRecruitmentDriveAddableJobsSchema = z.object({
 
 export type TGetRecruitmentDriveAddableJobsSchema = z.infer<typeof getRecruitmentDriveAddableJobsSchema>
 
-export const addJobToCurrentRecruitmentDriveSchema = z.object({
+export const openJobSchema = z.object({
   body: z.object({
     jobId: z.string(),
     quantity: z.coerce.number().int().min(1)
   })
 })
 
-export type TAddJobToCurrentRecruitmentDriveSchema = z.infer<typeof addJobToCurrentRecruitmentDriveSchema>
+export type TOpenJobSchema = z.infer<typeof openJobSchema>
+
+export const closeJobSchema = z.object({
+  params: z.object({
+    jobId: z.string()
+  })
+})
+
+export type TCloseJobSchema = z.infer<typeof closeJobSchema>

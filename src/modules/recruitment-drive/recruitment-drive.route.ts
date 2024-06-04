@@ -8,18 +8,35 @@ import { authorize } from '../../middleware/authorize.middleware'
 import { Role } from '../../types'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import {
-  addJobToCurrentRecruitmentDriveSchema,
+  openJobSchema,
   createRecruitmentDriveSchema,
   deleteRecruitmentDriveSchema,
   getRecruitmentDriveAddableJobsSchema,
   getRecruitmentDriveSchema,
   getRecruitmentDrivesSchema,
-  updateRecruitmentDriveSchema
+  updateRecruitmentDriveSchema,
+  closeJobSchema
 } from './recruitment-drive.validation'
 
 const router = express.Router()
 
 const recruitmentDriveController = container.get(RecruitmentDriveController)
+
+router.delete(
+  '/close-job/:jobId',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(closeJobSchema),
+  recruitmentDriveController.closeJob
+)
+
+router.post(
+  '/open-job',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(openJobSchema),
+  recruitmentDriveController.openJob
+)
 
 router.get(
   '/:recruitmentDriveCode/addable-jobs',
@@ -59,14 +76,6 @@ router.delete(
   authorize([Role.EMPLOYEE]),
   validateRequestData(deleteRecruitmentDriveSchema),
   recruitmentDriveController.deleteRecruitmentDrive
-)
-
-router.post(
-  '/add-job-to-current-drive',
-  ClerkExpressWithAuth(),
-  authorize([Role.EMPLOYEE]),
-  validateRequestData(addJobToCurrentRecruitmentDriveSchema),
-  recruitmentDriveController.addJobToCurrentRecruitmentDrive
 )
 
 router.get(

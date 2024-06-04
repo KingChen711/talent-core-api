@@ -75,10 +75,20 @@ export class RecruitmentDriveController {
     }
   }
 
-  public addJobToCurrentRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
+  public openJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const jobDetail = await this.recruitmentDriveService.addJobToCurrentRecruitmentDrive(res.locals.reqParams)
+      const jobDetail = await this.recruitmentDriveService.openJob(res.locals.reqParams)
       return res.status(StatusCodes.CREATED).json(jobDetail)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
+  public closeJob = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this.recruitmentDriveService.closeJob(res.locals.reqParams)
+      return res.status(StatusCodes.NO_CONTENT).json()
     } catch (error) {
       console.log(error)
       next(error)

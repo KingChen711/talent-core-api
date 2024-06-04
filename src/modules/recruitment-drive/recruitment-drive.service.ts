@@ -2,25 +2,28 @@ import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import {
-  TAddJobToCurrentRecruitmentDriveSchema,
+  TOpenJobSchema,
   TCreateRecruitmentDriveSchema,
   TDeleteRecruitmentDriveSchema,
   TGetRecruitmentDriveAddableJobsSchema,
   TGetRecruitmentDriveSchema,
   TGetRecruitmentDrivesSchema,
-  TUpdateRecruitmentDriveSchema
+  TUpdateRecruitmentDriveSchema,
+  TCloseJobSchema
 } from './recruitment-drive.validation'
 import { PagedList } from '../../types'
-import { Application, JobDetail, Prisma, RecruitmentDrive } from '@prisma/client'
+import { Prisma, RecruitmentDrive } from '@prisma/client'
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { JobService } from '../job/job.service'
+import { ImageService } from '../aws-s3/image.service'
 
 @injectable()
 export class RecruitmentDriveService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
-    @inject(JobService) private readonly jobService: JobService
+    @inject(JobService) private readonly jobService: JobService,
+    @inject(ImageService) private readonly imageService: ImageService
   ) {}
 
   private sortMapping = {
@@ -77,6 +80,7 @@ export class RecruitmentDriveService {
       include: {
         jobDetails: {
           select: {
+            createdAt: true,
             job: true,
             quantity: true,
             applications: {
@@ -84,6 +88,9 @@ export class RecruitmentDriveService {
                 candidate: true
               }
             }
+          },
+          orderBy: {
+            createdAt: 'desc'
           }
         }
       }
@@ -93,15 +100,24 @@ export class RecruitmentDriveService {
       throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with id: ${recruitmentDriveId}`)
     }
 
+    const imageNames = recruitmentDrive.jobDetails.map((jd) => jd.job.icon)
+    const imageUrls = await this.imageService.getImageUrls(imageNames)
+
     const mappedRecruitmentDrive = {
       ...recruitmentDrive,
-      jobDetails: recruitmentDrive.jobDetails.map((jd) => ({
+      jobDetails: recruitmentDrive.jobDetails.map((jd, index) => ({
         ...jd,
+        job: {
+          ...jd.job,
+          icon: imageUrls[index]
+        },
         countApplicationsLastWeek: jd.applications.reduce((total, application) => {
-          if (application.createdAt.getTime() > new Date(new Date().setDate(new Date().getDate() - 7)).getTime()) {
-            return total + 1
-          }
-          return total
+          const isApplyInLastWeek =
+            application.createdAt.getTime() > new Date(new Date().setDate(new Date().getDate() - 7)).getTime()
+          return total + (isApplyInLastWeek ? 1 : 0)
+        }, 0),
+        countApplicationsAccepted: jd.applications.reduce((total, application) => {
+          return total + (application.status == 'Approve' ? 1 : 0)
         }, 0)
       }))
     }
@@ -311,7 +327,7 @@ export class RecruitmentDriveService {
     return recruitmentDrive
   }
 
-  public addJobToCurrentRecruitmentDrive = async (schema: TAddJobToCurrentRecruitmentDriveSchema) => {
+  public openJob = async (schema: TOpenJobSchema) => {
     const {
       body: { jobId, quantity }
     } = schema
@@ -327,6 +343,37 @@ export class RecruitmentDriveService {
         jobId,
         recruitmentDriveId: currentRecruitmentDrive.id,
         quantity
+      }
+    })
+  }
+
+  public closeJob = async (schema: TCloseJobSchema) => {
+    const {
+      params: { jobId }
+    } = schema
+
+    const currentRecruitmentDrive = (await this.getCurrentRecruitmentDrive(true))!
+
+    const jobDetail = currentRecruitmentDrive.jobDetails.find((jd) => jd.jobId === jobId)
+
+    if (!jobDetail) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `This job is not open in current recruitment drive`)
+    }
+
+    const hasApplications = !!(await this.prismaService.client.application.findFirst({
+      where: {
+        jobDetailId: jobDetail.id
+      }
+    }))
+
+    //TODO: chưa xác nhận hoạt động đúng
+    if (hasApplications) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `Cannot close a job already has some applications`)
+    }
+
+    return await this.prismaService.client.jobDetail.delete({
+      where: {
+        id: jobDetail.id
       }
     })
   }
