@@ -11,7 +11,7 @@ import {
   TUpdateRecruitmentDriveSchema
 } from './recruitment-drive.validation'
 import { PagedList } from '../../types'
-import { Prisma, RecruitmentDrive } from '@prisma/client'
+import { Application, JobDetail, Prisma, RecruitmentDrive } from '@prisma/client'
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { JobService } from '../job/job.service'
@@ -63,6 +63,50 @@ export class RecruitmentDriveService {
     }
 
     return currentRecruitmentDrive
+  }
+
+  public getRecruitmentDriveDetail = async (schema: TGetRecruitmentDriveSchema) => {
+    const {
+      params: { recruitmentDriveId }
+    } = schema
+
+    const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findFirst({
+      where: {
+        id: recruitmentDriveId
+      },
+      include: {
+        jobDetails: {
+          select: {
+            job: true,
+            quantity: true,
+            applications: {
+              include: {
+                candidate: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (!recruitmentDrive) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with id: ${recruitmentDriveId}`)
+    }
+
+    const mappedRecruitmentDrive = {
+      ...recruitmentDrive,
+      jobDetails: recruitmentDrive.jobDetails.map((jd) => ({
+        ...jd,
+        countApplicationsLastWeek: jd.applications.reduce((total, application) => {
+          if (application.createdAt.getTime() > new Date(new Date().setDate(new Date().getDate() - 7)).getTime()) {
+            return total + 1
+          }
+          return total
+        }, 0)
+      }))
+    }
+
+    return mappedRecruitmentDrive
   }
 
   public createRecruitmentDrive = async (schema: TCreateRecruitmentDriveSchema) => {

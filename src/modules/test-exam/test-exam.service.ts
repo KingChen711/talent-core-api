@@ -14,7 +14,7 @@ import {
 } from './test-exam.validation'
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
-import { ImageService } from '../../aws-s3/image.service'
+import { ImageService } from '../aws-s3/image.service'
 
 @injectable()
 export class TestExamService {

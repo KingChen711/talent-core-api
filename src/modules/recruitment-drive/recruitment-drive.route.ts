@@ -30,6 +30,14 @@ router.get(
 )
 
 router.get(
+  '/:recruitmentDriveId/detail',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(getRecruitmentDriveSchema),
+  recruitmentDriveController.getRecruitmentDriveDetail
+)
+
+router.get(
   '/:recruitmentDriveId',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
