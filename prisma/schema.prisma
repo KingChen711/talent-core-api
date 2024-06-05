@@ -228,16 +228,17 @@ model RecruitmentDrive {
 }
 
 model JobDetail {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  recruitmentDriveId String   @db.ObjectId
-  jobId              String   @db.ObjectId
-  quantity           Int
-  createdAt          DateTime @default(now())
+  id                   String @id @default(auto()) @map("_id") @db.ObjectId
+  jobCode              String
+  recruitmentDriveCode String
 
-  recruitmentDrive RecruitmentDrive @relation(fields: [recruitmentDriveId], references: [id], onDelete: Cascade)
-  job              Job              @relation(fields: [jobId], references: [id], onDelete: Restrict)
+  quantity  Int
+  createdAt DateTime @default(now())
+
+  recruitmentDrive RecruitmentDrive @relation(fields: [recruitmentDriveCode], references: [code], onDelete: Cascade)
+  job              Job              @relation(fields: [jobCode], references: [code], onDelete: Restrict)
   applications     Application[]
 
-  @@unique([jobId, recruitmentDriveId])
-  @@index([recruitmentDriveId, createdAt(sort: Desc)])
+  @@unique([jobCode, recruitmentDriveCode])
+  @@index([recruitmentDriveCode, createdAt(sort: Desc)])
 }

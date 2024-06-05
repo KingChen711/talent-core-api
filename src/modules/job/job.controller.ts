@@ -19,7 +19,7 @@ export class JobController {
   public deleteJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.jobService.deleteJob(res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       next(error)
     }
@@ -48,7 +48,7 @@ export class JobController {
   public updateJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.jobService.updateJob(req.file, res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       console.log(error)
       next(error)
@@ -80,7 +80,7 @@ export class JobController {
   public jobAddTestExams = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.jobService.jobAddTestExams(res.locals.reqParams)
-      return res.status(StatusCodes.CREATED).json()
+      return res.status(StatusCodes.CREATED)
     } catch (error) {
       console.log(error)
       next(error)
@@ -90,7 +90,7 @@ export class JobController {
   public jobRemoveTestExams = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.jobService.jobRemoveTestExams(res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       console.log(error)
       next(error)

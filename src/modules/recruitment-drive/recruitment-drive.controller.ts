@@ -2,10 +2,14 @@ import { inject, injectable } from 'inversify'
 import { RecruitmentDriveService } from './recruitment-drive.service'
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
+import { ApplicationService } from './application.service'
 
 @injectable()
 export class RecruitmentDriveController {
-  constructor(@inject(RecruitmentDriveService) private readonly recruitmentDriveService: RecruitmentDriveService) {}
+  constructor(
+    @inject(RecruitmentDriveService) private readonly recruitmentDriveService: RecruitmentDriveService,
+    @inject(ApplicationService) private readonly applicationService: ApplicationService
+  ) {}
 
   public getRecruitmentDrives = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -30,7 +34,7 @@ export class RecruitmentDriveController {
   public updateRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.recruitmentDriveService.updateRecruitmentDrive(res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       console.log(error)
       next(error)
@@ -58,7 +62,7 @@ export class RecruitmentDriveController {
   public deleteRecruitmentDrive = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.recruitmentDriveService.deleteRecruitmentDrive(res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       next(error)
     }
@@ -88,7 +92,17 @@ export class RecruitmentDriveController {
   public closeJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.recruitmentDriveService.closeJob(res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
+    } catch (error) {
+      console.log(error)
+      next(error)
+    }
+  }
+
+  public createApplication = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const application = await this.applicationService.createApplication(res.locals.reqParams)
+      return res.status(StatusCodes.CREATED).json(application)
     } catch (error) {
       console.log(error)
       next(error)

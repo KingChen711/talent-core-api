@@ -44,7 +44,7 @@ export class TestExamController {
   public deleteTestExam = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.testExamService.deleteTestExam(res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       next(error)
     }
@@ -53,7 +53,7 @@ export class TestExamController {
   public updateTestExam = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.testExamService.updateTestExam(req.file, res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       console.log(error)
       next(error)
@@ -63,7 +63,7 @@ export class TestExamController {
   public testExamAddJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.testExamService.testExamAddJobs(res.locals.reqParams)
-      return res.status(StatusCodes.CREATED).json()
+      return res.status(StatusCodes.CREATED)
     } catch (error) {
       console.log(error)
       next(error)
@@ -102,7 +102,7 @@ export class TestExamController {
   public testExamRemoveJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.testExamService.testExamRemoveJobs(res.locals.reqParams)
-      return res.status(StatusCodes.NO_CONTENT).json()
+      return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       console.log(error)
       next(error)

@@ -137,7 +137,7 @@ export type TGetRecruitmentDriveAddableJobsSchema = z.infer<typeof getRecruitmen
 
 export const openJobSchema = z.object({
   body: z.object({
-    jobId: z.string(),
+    jobCode: z.string(),
     quantity: z.coerce.number().int().min(1)
   })
 })
@@ -146,8 +146,17 @@ export type TOpenJobSchema = z.infer<typeof openJobSchema>
 
 export const closeJobSchema = z.object({
   params: z.object({
-    jobId: z.string()
+    jobCode: z.string()
   })
 })
 
 export type TCloseJobSchema = z.infer<typeof closeJobSchema>
+
+export const createApplicationSchema = z.object({
+  params: z.object({
+    jobCode: z.string(),
+    recruitmentDriveCode: z.string()
+  })
+})
+
+export type TCreateApplicationSchema = z.infer<typeof createApplicationSchema>

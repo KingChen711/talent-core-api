@@ -109,18 +109,18 @@ export class JobService {
     return mappedJob
   }
 
-  public getJobs = async (schema: TGetJobsSchema, exceptIds: string[] = []): Promise<PagedList<Job>> => {
+  public getJobs = async (schema: TGetJobsSchema, exceptCodes: string[] = []): Promise<PagedList<Job>> => {
     const {
       query: { pageNumber, pageSize, search, status, sort }
     } = schema
 
     const where = {
       AND: [
-        exceptIds.length > 0
+        exceptCodes.length > 0
           ? {
               NOT: {
-                id: {
-                  in: exceptIds
+                code: {
+                  in: exceptCodes
                 }
               }
             }

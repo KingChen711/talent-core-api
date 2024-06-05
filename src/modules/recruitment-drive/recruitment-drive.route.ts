@@ -15,7 +15,8 @@ import {
   getRecruitmentDriveSchema,
   getRecruitmentDrivesSchema,
   updateRecruitmentDriveSchema,
-  closeJobSchema
+  closeJobSchema,
+  createApplicationSchema
 } from './recruitment-drive.validation'
 
 const router = express.Router()
@@ -23,7 +24,7 @@ const router = express.Router()
 const recruitmentDriveController = container.get(RecruitmentDriveController)
 
 router.delete(
-  '/close-job/:jobId',
+  '/close-job/:jobCode',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
   validateRequestData(closeJobSchema),
@@ -36,6 +37,14 @@ router.post(
   authorize([Role.EMPLOYEE]),
   validateRequestData(openJobSchema),
   recruitmentDriveController.openJob
+)
+
+router.post(
+  '/:recruitmentDriveCode/jobs/:jobCode/applications',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(createApplicationSchema),
+  recruitmentDriveController.createApplication
 )
 
 router.get(

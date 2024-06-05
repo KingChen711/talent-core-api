@@ -329,19 +329,19 @@ export class RecruitmentDriveService {
 
   public openJob = async (schema: TOpenJobSchema) => {
     const {
-      body: { jobId, quantity }
+      body: { jobCode, quantity }
     } = schema
 
     const currentRecruitmentDrive = (await this.getCurrentRecruitmentDrive(true))!
 
-    if (currentRecruitmentDrive.jobDetails.some((jd) => jd.jobId === jobId)) {
+    if (currentRecruitmentDrive.jobDetails.some((jd) => jd.jobCode === jobCode)) {
       throw new ApiError(StatusCodes.BAD_REQUEST, `This job is already open in current recruitment drive`)
     }
 
     return await this.prismaService.client.jobDetail.create({
       data: {
-        jobId,
-        recruitmentDriveId: currentRecruitmentDrive.id,
+        jobCode,
+        recruitmentDriveCode: currentRecruitmentDrive.code,
         quantity
       }
     })
@@ -349,12 +349,12 @@ export class RecruitmentDriveService {
 
   public closeJob = async (schema: TCloseJobSchema) => {
     const {
-      params: { jobId }
+      params: { jobCode }
     } = schema
 
     const currentRecruitmentDrive = (await this.getCurrentRecruitmentDrive(true))!
 
-    const jobDetail = currentRecruitmentDrive.jobDetails.find((jd) => jd.jobId === jobId)
+    const jobDetail = currentRecruitmentDrive.jobDetails.find((jd) => jd.jobCode === jobCode)
 
     if (!jobDetail) {
       throw new ApiError(StatusCodes.BAD_REQUEST, `This job is not open in current recruitment drive`)
@@ -401,7 +401,7 @@ export class RecruitmentDriveService {
       throw new ApiError(StatusCodes.BAD_REQUEST, `Cannot get addable jobs of closed recruitment drive`)
     }
 
-    const jobIdsInRecruitmentDrive = recruitmentDrive?.jobDetails.map((jd) => jd.jobId)
+    const jobIdsInRecruitmentDrive = recruitmentDrive?.jobDetails.map((jd) => jd.jobCode)
 
     return this.jobService.getJobs({ query }, jobIdsInRecruitmentDrive)
   }
