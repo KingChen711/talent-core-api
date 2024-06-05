@@ -16,7 +16,8 @@ import {
   getRecruitmentDrivesSchema,
   updateRecruitmentDriveSchema,
   closeJobSchema,
-  createApplicationSchema
+  createApplicationSchema,
+  getRecruitmentDriveDetailSchema
 } from './recruitment-drive.validation'
 
 const router = express.Router()
@@ -56,10 +57,10 @@ router.get(
 )
 
 router.get(
-  '/:recruitmentDriveId/detail',
+  '/:recruitmentDriveCode/detail',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(getRecruitmentDriveSchema),
+  validateRequestData(getRecruitmentDriveDetailSchema),
   recruitmentDriveController.getRecruitmentDriveDetail
 )
 

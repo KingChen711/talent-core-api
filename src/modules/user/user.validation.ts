@@ -2,7 +2,7 @@ import z from 'zod'
 
 export const getProfileSchema = z.object({
   params: z.object({
-    email: z.string()
+    email: z.string().trim().toLowerCase()
   })
 })
 

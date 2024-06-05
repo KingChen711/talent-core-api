@@ -1,0 +1,13 @@
+POST http://localhost:5000/api/recruitment-drives/Summer2024/jobs/Fr_React_DEV/applications
+Content-Type: application/json
+
+{
+  "createCandidate": true,
+  "candidateEmail": "john.doe@example.com",
+  "candidateData":{
+    "fullName":"Trần Trường Văn",
+    "phone":"0933131464",
+    "bornYear":2003,
+    "gender":"Male"
+  }
+}

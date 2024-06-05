@@ -27,10 +27,33 @@ export class ApplicationService {
       throw new ApiError(StatusCodes.BAD_REQUEST, `Cannot apply a job in closed recruitment drive`)
     }
 
-    // const jobDetail = await this.prismaService.client.jobDetail.findUnique({
-    //   where: {
-    //     jobId_recruitmentDriveId: {}
-    //   }
-    // })
+    const jobDetail = await this.prismaService.client.jobDetail.findUnique({
+      where: {
+        jobCode_recruitmentDriveCode: {
+          jobCode,
+          recruitmentDriveCode
+        }
+      },
+      include: {
+        _count: {
+          //only count approved applications
+          select: {
+            applications: {
+              where: {
+                status: 'Approve'
+              }
+            }
+          }
+        }
+      }
+    })
+
+    if (!jobDetail) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode} in this recruitment drive`)
+    }
+
+    if (jobDetail._count.applications >= jobDetail.quantity) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `This job position has reached its capacity.`)
+    }
   }
 }

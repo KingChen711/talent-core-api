@@ -69,7 +69,7 @@ export class UserService {
     }
 
     if (user.role.roleName !== ERole.CANDIDATE) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `This user is having role ${user.role.roleName}. Not a candidate`)
+      throw new ApiError(StatusCodes.BAD_REQUEST, `This user is having role ${user.role.roleName}. Not a Candidate`)
     }
 
     return user

@@ -5,11 +5,12 @@ import {
   TOpenJobSchema,
   TCreateRecruitmentDriveSchema,
   TDeleteRecruitmentDriveSchema,
-  TGetAddableJobsSchema,
   TGetRecruitmentDriveSchema,
   TGetRecruitmentDrivesSchema,
   TUpdateRecruitmentDriveSchema,
-  TCloseJobSchema
+  TCloseJobSchema,
+  TGetRecruitmentDriveDetailSchema,
+  TGetAddableJobsSchema
 } from './recruitment-drive.validation'
 import { Prisma, RecruitmentDrive } from '@prisma/client'
 import ApiError from '../../helpers/api-error'
@@ -68,14 +69,14 @@ export class RecruitmentDriveService {
     return currentRecruitmentDrive
   }
 
-  public getRecruitmentDriveDetail = async (schema: TGetRecruitmentDriveSchema) => {
+  public getRecruitmentDriveDetail = async (schema: TGetRecruitmentDriveDetailSchema) => {
     const {
-      params: { recruitmentDriveId }
+      params: { recruitmentDriveCode }
     } = schema
 
     const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findFirst({
       where: {
-        id: recruitmentDriveId
+        code: recruitmentDriveCode
       },
       include: {
         jobDetails: {
@@ -97,7 +98,7 @@ export class RecruitmentDriveService {
     })
 
     if (!recruitmentDrive) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with id: ${recruitmentDriveId}`)
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with code: ${recruitmentDriveCode}`)
     }
 
     const imageNames = recruitmentDrive.jobDetails.map((jd) => jd.job.icon)

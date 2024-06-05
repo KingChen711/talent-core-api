@@ -1,3 +1,4 @@
+import { Gender } from '@prisma/client'
 import z from 'zod'
 
 export const getRecruitmentDrivesSchema = z.object({
@@ -47,18 +48,7 @@ export const createRecruitmentDriveSchema = z.object({
     })
     .refine(
       (data) => {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        return data.startDate.getTime() >= today.getTime()
-      },
-      {
-        message: 'Start Date must be today or after',
-        path: ['startDate']
-      }
-    )
-    .refine(
-      (data) => {
-        return data.endDate > data.startDate
+        return new Date(data.endDate) > new Date(data.startDate)
       },
       {
         message: 'End Date must be after Start Date',
@@ -90,7 +80,7 @@ export const updateRecruitmentDriveSchema = z.object({
     })
     .refine(
       (data) => {
-        return data.endDate > data.startDate
+        return data.endDate.getTime() > data.startDate.getTime()
       },
       {
         message: 'End Date must be after Start Date',
@@ -108,6 +98,14 @@ export const getRecruitmentDriveSchema = z.object({
 })
 
 export type TGetRecruitmentDriveSchema = z.infer<typeof getRecruitmentDriveSchema>
+
+export const getRecruitmentDriveDetailSchema = z.object({
+  params: z.object({
+    recruitmentDriveCode: z.string()
+  })
+})
+
+export type TGetRecruitmentDriveDetailSchema = z.infer<typeof getRecruitmentDriveDetailSchema>
 
 export const deleteRecruitmentDriveSchema = z.object({
   params: z.object({
@@ -152,11 +150,39 @@ export const closeJobSchema = z.object({
 
 export type TCloseJobSchema = z.infer<typeof closeJobSchema>
 
+const createUserCandidateSchema = z.object({
+  fullName: z.string().min(2),
+  phone: z.string().regex(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/),
+  gender: z.enum([Gender.Male, Gender.Female, Gender.Other]),
+  bornYear: z.number().int().min(1900),
+  avatar: z.string().catch('/images/default-avatar.png')
+})
+
 export const createApplicationSchema = z.object({
   params: z.object({
     jobCode: z.string(),
     recruitmentDriveCode: z.string()
-  })
+  }),
+  body: z
+    .object({
+      createCandidate: z.boolean(),
+      candidateEmail: z.string().email(),
+      candidateData: createUserCandidateSchema.optional()
+    })
+    .refine((data) => !data.createCandidate || data.candidateData, {
+      message: 'Candidate data is required',
+      path: ['candidateData']
+    })
+    .transform((data) => {
+      if (data.createCandidate) {
+        return data
+      }
+
+      return {
+        ...data,
+        candidateData: undefined
+      }
+    })
 })
 
 export type TCreateApplicationSchema = z.infer<typeof createApplicationSchema>
