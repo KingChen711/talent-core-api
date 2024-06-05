@@ -116,7 +116,7 @@ export class RecruitmentDriveService {
             application.createdAt.getTime() > new Date(new Date().setDate(new Date().getDate() - 7)).getTime()
           return total + (isApplyInLastWeek ? 1 : 0)
         }, 0),
-        countApplicationsAccepted: jd.applications.reduce((total, application) => {
+        countApplicationsApproved: jd.applications.reduce((total, application) => {
           return total + (application.status == 'Approve' ? 1 : 0)
         }, 0)
       }))
