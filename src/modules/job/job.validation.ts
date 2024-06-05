@@ -8,7 +8,7 @@ export const getJobSchema = z.object({
 
 export type TGetJobSchema = z.infer<typeof getJobSchema>
 
-export const jobAddOrRemoveTestExamsSchema = z.object({
+export const addOrRemoveTestExamsSchema = z.object({
   params: z.object({
     jobCode: z.string()
   }),
@@ -17,7 +17,7 @@ export const jobAddOrRemoveTestExamsSchema = z.object({
   })
 })
 
-export type TJobAddOrRemoveTestExamsSchema = z.infer<typeof jobAddOrRemoveTestExamsSchema>
+export type TAddOrRemoveTestExamsSchema = z.infer<typeof addOrRemoveTestExamsSchema>
 
 export const getJobTestExamsSchema = z.object({
   params: z.object({
@@ -27,7 +27,7 @@ export const getJobTestExamsSchema = z.object({
 
 export type TGetJobTestExamsSchema = z.infer<typeof getJobTestExamsSchema>
 
-export const getJobAddableTestExamsSchema = z.object({
+export const getAddableTestExamsSchema = z.object({
   params: z.object({
     jobCode: z.string()
   }),
@@ -56,7 +56,7 @@ export const getJobAddableTestExamsSchema = z.object({
   })
 })
 
-export type TGetJobAddableTestExamsSchema = z.infer<typeof getJobAddableTestExamsSchema>
+export type TGetAddableTestExamsSchema = z.infer<typeof getAddableTestExamsSchema>
 
 export const deleteJobSchema = z.object({
   params: z.object({

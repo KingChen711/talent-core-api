@@ -4,11 +4,11 @@ import { PrismaService } from '../prisma/prisma.service'
 import {
   TCreateJobSchema,
   TDeleteJobSchema,
-  TGetJobAddableTestExamsSchema,
+  TGetAddableTestExamsSchema,
   TGetJobSchema,
   TGetJobTestExamsSchema,
   TGetJobsSchema,
-  TJobAddOrRemoveTestExamsSchema,
+  TAddOrRemoveTestExamsSchema,
   TUpdateJobSchema
 } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
@@ -327,7 +327,7 @@ export class JobService {
     return job.testExams
   }
 
-  public getJobAddableTestExams = async (schema: TGetJobAddableTestExamsSchema) => {
+  public getAddableTestExams = async (schema: TGetAddableTestExamsSchema) => {
     const {
       params: { jobCode },
       query
@@ -346,7 +346,7 @@ export class JobService {
     return addableTestExams
   }
 
-  public jobAddTestExams = async (schema: TJobAddOrRemoveTestExamsSchema) => {
+  public jobAddTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {
     const {
       params: { jobCode },
       body: { testExamIds }
@@ -395,7 +395,7 @@ export class JobService {
     await Promise.all(updateJobPromises)
   }
 
-  public jobRemoveTestExams = async (schema: TJobAddOrRemoveTestExamsSchema) => {
+  public removeTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {
     const {
       params: { jobCode },
       body: { testExamIds }

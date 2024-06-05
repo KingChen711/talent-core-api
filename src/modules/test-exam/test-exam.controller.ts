@@ -3,7 +3,7 @@ import { TestExamService } from './test-exam.service'
 import { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 import { JobService } from '../job/job.service'
-import { TGetTestExamAddableJobsSchema } from './test-exam.validation'
+import { TGetAddableJobsSchema } from './test-exam.validation'
 
 @injectable()
 export class TestExamController {
@@ -60,7 +60,7 @@ export class TestExamController {
     }
   }
 
-  public testExamAddJobs = async (req: Request, res: Response, next: NextFunction) => {
+  public addJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this.testExamService.testExamAddJobs(res.locals.reqParams)
       return res.status(StatusCodes.CREATED)
@@ -70,13 +70,13 @@ export class TestExamController {
     }
   }
 
-  public getTestExamAddableJobs = async (req: Request, res: Response, next: NextFunction) => {
+  public getAddableJobs = async (req: Request, res: Response, next: NextFunction) => {
     //because circular dependency problem, can not do all works in one service method
     try {
       const {
         params: { testExamCode },
         query
-      } = res.locals.reqParams as TGetTestExamAddableJobsSchema
+      } = res.locals.reqParams as TGetAddableJobsSchema
 
       const testExam = (await this.testExamService.getTestExamByCode(testExamCode, true))!
 
@@ -99,9 +99,9 @@ export class TestExamController {
     }
   }
 
-  public testExamRemoveJobs = async (req: Request, res: Response, next: NextFunction) => {
+  public removeJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.testExamService.testExamRemoveJobs(res.locals.reqParams)
+      await this.testExamService.removeJobs(res.locals.reqParams)
       return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       console.log(error)

@@ -1,6 +1,6 @@
 import z from 'zod'
 
-export const getTestExamAddableJobsSchema = z.object({
+export const getAddableJobsSchema = z.object({
   params: z.object({
     testExamCode: z.string()
   }),
@@ -16,7 +16,7 @@ export const getTestExamAddableJobsSchema = z.object({
   })
 })
 
-export type TGetTestExamAddableJobsSchema = z.infer<typeof getTestExamAddableJobsSchema>
+export type TGetAddableJobsSchema = z.infer<typeof getAddableJobsSchema>
 
 export const getTestExamsSchema = z.object({
   query: z.object({
@@ -131,7 +131,7 @@ export const getTestExamSchema = z.object({
 
 export type TGetTestExamSchema = z.infer<typeof getTestExamSchema>
 
-export const testExamAddOrRemoveJobsSchema = z.object({
+export const addOrRemoveJobsSchema = z.object({
   params: z.object({
     testExamCode: z.string()
   }),
@@ -140,7 +140,7 @@ export const testExamAddOrRemoveJobsSchema = z.object({
   })
 })
 
-export type TTestExamAddOrRemoveJobsSchema = z.infer<typeof testExamAddOrRemoveJobsSchema>
+export type TAddOrRemoveJobsSchema = z.infer<typeof addOrRemoveJobsSchema>
 
 export const getTestExamJobsSchema = z.object({
   params: z.object({

@@ -117,7 +117,7 @@ export const deleteRecruitmentDriveSchema = z.object({
 
 export type TDeleteRecruitmentDriveSchema = z.infer<typeof deleteRecruitmentDriveSchema>
 
-export const getRecruitmentDriveAddableJobsSchema = z.object({
+export const getAddableJobsSchema = z.object({
   params: z.object({
     recruitmentDriveCode: z.string()
   }),
@@ -133,7 +133,7 @@ export const getRecruitmentDriveAddableJobsSchema = z.object({
   })
 })
 
-export type TGetRecruitmentDriveAddableJobsSchema = z.infer<typeof getRecruitmentDriveAddableJobsSchema>
+export type TGetAddableJobsSchema = z.infer<typeof getAddableJobsSchema>
 
 export const openJobSchema = z.object({
   body: z.object({

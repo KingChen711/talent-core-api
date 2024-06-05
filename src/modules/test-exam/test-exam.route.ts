@@ -13,8 +13,8 @@ import {
   createTestExamSchema,
   getTestExamSchema,
   updateTestExamSchema,
-  getTestExamAddableJobsSchema,
-  testExamAddOrRemoveJobsSchema,
+  getAddableJobsSchema,
+  addOrRemoveJobsSchema,
   getTestExamJobsSchema
 } from './test-exam.validation'
 
@@ -26,16 +26,16 @@ router.get(
   '/:testExamCode/addable-jobs',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(getTestExamAddableJobsSchema),
-  testExamController.getTestExamAddableJobs
+  validateRequestData(getAddableJobsSchema),
+  testExamController.getAddableJobs
 )
 
 router.patch(
   '/:testExamCode/jobs',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(testExamAddOrRemoveJobsSchema),
-  testExamController.testExamRemoveJobs
+  validateRequestData(addOrRemoveJobsSchema),
+  testExamController.removeJobs
 )
 
 router.get(
@@ -50,8 +50,8 @@ router.post(
   '/:testExamCode/jobs',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(testExamAddOrRemoveJobsSchema),
-  testExamController.testExamAddJobs
+  validateRequestData(addOrRemoveJobsSchema),
+  testExamController.addJobs
 )
 
 router.delete(

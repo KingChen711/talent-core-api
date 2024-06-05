@@ -8,7 +8,7 @@ import {
   TGetTestExamJobsSchema,
   TGetTestExamSchema,
   TGetTestExamsSchema,
-  TTestExamAddOrRemoveJobsSchema,
+  TAddOrRemoveJobsSchema,
   TUpdateTestExamSchema
 } from './test-exam.validation'
 import ApiError from '../../helpers/api-error'
@@ -234,7 +234,7 @@ export class TestExamService {
     })
   }
 
-  public testExamAddJobs = async (schema: TTestExamAddOrRemoveJobsSchema) => {
+  public testExamAddJobs = async (schema: TAddOrRemoveJobsSchema) => {
     const {
       params: { testExamCode },
       body: { jobIds }
@@ -310,7 +310,7 @@ export class TestExamService {
     return mappedJobs
   }
 
-  public testExamRemoveJobs = async (schema: TTestExamAddOrRemoveJobsSchema) => {
+  public removeJobs = async (schema: TAddOrRemoveJobsSchema) => {
     const {
       params: { testExamCode },
       body: { jobIds }

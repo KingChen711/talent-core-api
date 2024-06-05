@@ -7,8 +7,8 @@ import { validateRequestData } from '../../middleware/validate-request-data.midd
 import {
   createJobSchema,
   deleteJobSchema,
-  jobAddOrRemoveTestExamsSchema,
-  getJobAddableTestExamsSchema,
+  addOrRemoveTestExamsSchema,
+  getAddableTestExamsSchema,
   getJobSchema,
   getJobTestExamsSchema,
   getJobsSchema,
@@ -27,23 +27,23 @@ router.get(
   '/:jobCode/addable-test-exams',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(getJobAddableTestExamsSchema),
-  jobController.getJobAddableTestExams
+  validateRequestData(getAddableTestExamsSchema),
+  jobController.getAddableTestExams
 )
 
 router.patch(
   '/:jobCode/test-exams',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(jobAddOrRemoveTestExamsSchema),
-  jobController.jobRemoveTestExams
+  validateRequestData(addOrRemoveTestExamsSchema),
+  jobController.removeTestExams
 )
 
 router.post(
   '/:jobCode/test-exams',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(jobAddOrRemoveTestExamsSchema),
+  validateRequestData(addOrRemoveTestExamsSchema),
   jobController.jobAddTestExams
 )
 

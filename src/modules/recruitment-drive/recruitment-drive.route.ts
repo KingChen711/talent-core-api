@@ -11,7 +11,7 @@ import {
   openJobSchema,
   createRecruitmentDriveSchema,
   deleteRecruitmentDriveSchema,
-  getRecruitmentDriveAddableJobsSchema,
+  getAddableJobsSchema,
   getRecruitmentDriveSchema,
   getRecruitmentDrivesSchema,
   updateRecruitmentDriveSchema,
@@ -51,8 +51,8 @@ router.get(
   '/:recruitmentDriveCode/addable-jobs',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(getRecruitmentDriveAddableJobsSchema),
-  recruitmentDriveController.getRecruitmentDriveAddableJobs
+  validateRequestData(getAddableJobsSchema),
+  recruitmentDriveController.getAddableJobs
 )
 
 router.get(

@@ -68,9 +68,9 @@ export class RecruitmentDriveController {
     }
   }
 
-  public getRecruitmentDriveAddableJobs = async (req: Request, res: Response, next: NextFunction) => {
+  public getAddableJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const addableJobs = await this.recruitmentDriveService.getRecruitmentDriveAddableJobs(res.locals.reqParams)
+      const addableJobs = await this.recruitmentDriveService.getAddableJobs(res.locals.reqParams)
       res.setHeader('X-Pagination', JSON.stringify(addableJobs.metaData))
       return res.status(StatusCodes.OK).json(addableJobs)
     } catch (error) {

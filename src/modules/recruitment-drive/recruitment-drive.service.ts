@@ -5,7 +5,7 @@ import {
   TOpenJobSchema,
   TCreateRecruitmentDriveSchema,
   TDeleteRecruitmentDriveSchema,
-  TGetRecruitmentDriveAddableJobsSchema,
+  TGetAddableJobsSchema,
   TGetRecruitmentDriveSchema,
   TGetRecruitmentDrivesSchema,
   TUpdateRecruitmentDriveSchema,
@@ -378,7 +378,7 @@ export class RecruitmentDriveService {
     })
   }
 
-  public getRecruitmentDriveAddableJobs = async (schema: TGetRecruitmentDriveAddableJobsSchema) => {
+  public getAddableJobs = async (schema: TGetAddableJobsSchema) => {
     const {
       params: { recruitmentDriveCode },
       query

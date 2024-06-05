@@ -66,9 +66,9 @@ export class JobController {
     }
   }
 
-  public getJobAddableTestExams = async (req: Request, res: Response, next: NextFunction) => {
+  public getAddableTestExams = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const addableTestExams = await this.jobService.getJobAddableTestExams(res.locals.reqParams)
+      const addableTestExams = await this.jobService.getAddableTestExams(res.locals.reqParams)
       res.setHeader('X-Pagination', JSON.stringify(addableTestExams.metaData))
       return res.status(StatusCodes.OK).json(addableTestExams)
     } catch (error) {
@@ -87,9 +87,9 @@ export class JobController {
     }
   }
 
-  public jobRemoveTestExams = async (req: Request, res: Response, next: NextFunction) => {
+  public removeTestExams = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.jobService.jobRemoveTestExams(res.locals.reqParams)
+      await this.jobService.removeTestExams(res.locals.reqParams)
       return res.status(StatusCodes.NO_CONTENT)
     } catch (error) {
       console.log(error)
