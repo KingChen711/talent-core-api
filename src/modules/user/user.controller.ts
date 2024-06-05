@@ -22,4 +22,18 @@ export class UserController {
       next(error)
     }
   }
+
+  getCandidateProfile = async (req: Request, res: ResponseWithUser, next: NextFunction) => {
+    try {
+      const user = res.locals.user
+
+      if (!user) {
+        throw new ApiError(StatusCodes.UNAUTHORIZED, 'UNAUTHORIZED')
+      }
+
+      return res.status(StatusCodes.OK).json(user)
+    } catch (error) {
+      next(error)
+    }
+  }
 }

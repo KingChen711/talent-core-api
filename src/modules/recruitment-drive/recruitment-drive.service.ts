@@ -11,12 +11,12 @@ import {
   TUpdateRecruitmentDriveSchema,
   TCloseJobSchema
 } from './recruitment-drive.validation'
-import { PagedList } from '../../types'
 import { Prisma, RecruitmentDrive } from '@prisma/client'
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { JobService } from '../job/job.service'
 import { ImageService } from '../aws-s3/image.service'
+import { PagedList } from 'src/helpers/paged-list'
 
 @injectable()
 export class RecruitmentDriveService {

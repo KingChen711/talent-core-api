@@ -1,7 +1,6 @@
 import 'dotenv/config'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { PagedList } from '../../types'
 import { Prisma, TestExam } from '@prisma/client'
 import {
   TCreateTestExamSchema,
@@ -15,6 +14,7 @@ import {
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { ImageService } from '../aws-s3/image.service'
+import { PagedList } from 'src/helpers/paged-list'
 
 @injectable()
 export class TestExamService {
