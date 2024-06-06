@@ -101,9 +101,8 @@ export class RecruitmentDriveController {
 
   public createApplication = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // const application = await this.applicationService.createApplication(res.locals.reqParams)
-      // return res.status(StatusCodes.CREATED).json(application)
-      return res.status(200).json(res.locals.reqParams)
+      await this.applicationService.createApplication(res.locals.reqParams)
+      return res.status(StatusCodes.CREATED)
     } catch (error) {
       console.log(error)
       next(error)

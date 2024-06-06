@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import { TCreateApplicationSchema } from './recruitment-drive.validation'
-import ApiError from 'src/helpers/api-error'
+import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 
 @injectable()
@@ -10,7 +10,8 @@ export class ApplicationService {
 
   public createApplication = async (schema: TCreateApplicationSchema) => {
     const {
-      params: { jobCode, recruitmentDriveCode }
+      params: { jobCode, recruitmentDriveCode },
+      body: { candidateEmail, createCandidate, candidateData }
     } = schema
 
     const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findUnique({
@@ -55,5 +56,55 @@ export class ApplicationService {
     if (jobDetail._count.applications >= jobDetail.quantity) {
       throw new ApiError(StatusCodes.BAD_REQUEST, `This job position has reached its capacity.`)
     }
+
+    const candidate = await this.prismaService.client.user.findUnique({
+      where: {
+        email: candidateEmail
+      }
+    })
+
+    if (!candidate && !createCandidate) {
+      throw new ApiError(StatusCodes.NOT_FOUND, `Not found candidate with email: ${candidateEmail}`)
+    }
+
+    if (candidate && createCandidate) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `This candidate is already exists`)
+    }
+
+    if (!createCandidate) {
+      await this.prismaService.client.application.create({
+        data: {
+          candidateId: candidate!.id,
+          jobDetailId: jobDetail.id
+        }
+      })
+
+      return
+    }
+
+    await this.prismaService.client.user.create({
+      data: {
+        email: candidateEmail,
+        fullName: candidateData!.fullName,
+        avatar: candidateData!.avatar,
+        bornYear: candidateData!.bornYear,
+        gender: candidateData!.gender,
+        phone: candidateData!.phone,
+        role: {
+          connect: {
+            roleName: 'Candidate'
+          }
+        },
+        candidate: {
+          create: {
+            applications: {
+              create: {
+                jobDetailId: jobDetail.id
+              }
+            }
+          }
+        }
+      }
+    })
   }
 }

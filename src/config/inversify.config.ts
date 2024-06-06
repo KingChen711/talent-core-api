@@ -10,7 +10,7 @@ import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { RecruitmentDriveService } from '../modules/recruitment-drive/recruitment-drive.service'
 import { RecruitmentDriveController } from '../modules/recruitment-drive/recruitment-drive.controller'
-import { ApplicationService } from 'src/modules/recruitment-drive/application.service'
+import { ApplicationService } from '../modules/recruitment-drive/application.service'
 
 const container = new Container()
 

@@ -4,7 +4,7 @@ import { container } from '../../config/inversify.config'
 import { UserController } from './user.controller'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
 import { authorize } from '../../middleware/authorize.middleware'
-import { validateRequestData } from 'src/middleware/validate-request-data.middleware'
+import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import { getProfileSchema } from './user.validation'
 
 const router = express.Router()

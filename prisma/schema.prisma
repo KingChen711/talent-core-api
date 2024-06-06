@@ -77,7 +77,7 @@ model Application {
   id             String            @id @default(auto()) @map("_id") @db.ObjectId
   candidateId    String            @db.ObjectId
   jobDetailId    String            @db.ObjectId
-  status         ApplicationStatus @default(Processing)
+  status         ApplicationStatus @default(Screening)
   receiveJobDate DateTime?
 
   candidate        Candidate         @relation(fields: [candidateId], references: [id], onDelete: Restrict)
@@ -176,7 +176,9 @@ enum TestSessionStatus {
 }
 
 enum ApplicationStatus {
-  Processing //Khi ứng viên đang tham gia vào đợt ứng tuyển hiện tại
+  Screening //Khi ứng viên đang tham gia vào đợt ứng tuyển hiện tại
+  Testing //Khi ứng viên đang trong giao đoạn làm kiểm tra đầu vào
+  Interviewing //Khi ứng viên đang trong giai đoạn phỏng vấn
   Saved // Khi ứng viên chưa vượt qua được bài test của đợt ứng tuyển gần nhất hoặc kết quả phỏng vấn chưa đạt yêu cầu 
   Approve //Khi ứng viên có kết quả phỏng vấn đạt yêu cầu và xác nhận làm việc tại công ty
   Reject //Khi ứng viên có kết quả phỏng vấn đạt yêu cầu và xác nhận không làm việc tại công ty

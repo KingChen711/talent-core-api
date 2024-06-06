@@ -1,9 +1,9 @@
 import { Prisma, Role, User } from '@prisma/client'
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { Role as ERole, UserWithRole } from 'src/types'
+import { Role as ERole, UserWithRole } from '../../types'
 import { TGetProfileSchema } from './user.validation'
-import ApiError from 'src/helpers/api-error'
+import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 
 @injectable()
