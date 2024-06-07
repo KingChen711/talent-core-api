@@ -86,7 +86,9 @@ export class RecruitmentDriveService {
             quantity: true,
             applications: {
               include: {
-                candidate: true
+                candidate: {
+                  select: { user: true }
+                }
               }
             }
           },
