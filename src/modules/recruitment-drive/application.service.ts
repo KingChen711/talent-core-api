@@ -57,6 +57,19 @@ export class ApplicationService {
       throw new ApiError(StatusCodes.BAD_REQUEST, `This job position has reached its capacity.`)
     }
 
+    const hasAlreadyApply = !!(await this.prismaService.client.application.findFirst({
+      where: {
+        candidate: {
+          user: { email: candidateEmail }
+        },
+        jobDetailId: jobDetail.id
+      }
+    }))
+
+    if (hasAlreadyApply) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, `This candidate is already apply this job`)
+    }
+
     const candidate = await this.prismaService.client.user.findUnique({
       where: {
         email: candidateEmail
@@ -72,10 +85,19 @@ export class ApplicationService {
     }
 
     if (!createCandidate) {
-      await this.prismaService.client.application.create({
+      await this.prismaService.client.user.update({
+        where: { email: candidateEmail },
         data: {
-          candidateId: candidate!.id,
-          jobDetailId: jobDetail.id
+          ...candidateData,
+          candidate: {
+            update: {
+              applications: {
+                create: {
+                  jobDetailId: jobDetail.id
+                }
+              }
+            }
+          }
         }
       })
 
@@ -84,12 +106,8 @@ export class ApplicationService {
 
     await this.prismaService.client.user.create({
       data: {
+        ...candidateData,
         email: candidateEmail,
-        fullName: candidateData!.fullName,
-        avatar: candidateData!.avatar,
-        bornYear: candidateData!.bornYear,
-        gender: candidateData!.gender,
-        phone: candidateData!.phone,
         role: {
           connect: {
             roleName: 'Candidate'

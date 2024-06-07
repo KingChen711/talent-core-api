@@ -63,7 +63,7 @@ export class UserService {
       throw new ApiError(StatusCodes.NOT_FOUND, `Not found user with email: ${email}`)
     }
 
-    if (sender.role.roleName === ERole.EMPLOYEE && sender.id !== user.id) {
+    if (sender.role.roleName === ERole.CANDIDATE && sender.id !== user.id) {
       //actually forbidden403, but return notfound404 will be better security, it will make the sender do not know that this user is exist or not exist in the system
       throw new ApiError(StatusCodes.NOT_FOUND, `Not found user with email: ${email}`)
     }
