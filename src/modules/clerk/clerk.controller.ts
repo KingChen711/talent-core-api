@@ -77,9 +77,6 @@ export class ClerkController {
             connect: {
               roleName: Role.CANDIDATE
             }
-          },
-          candidate: {
-            create: true
           }
         })
         return res.status(StatusCodes.CREATED).json(user)
@@ -101,8 +98,7 @@ export class ClerkController {
         message: 'Webhook received'
       })
     } catch (error) {
-      return res.status(500).json(error)
-      // next(error)
+      next(error)
     }
   }
 }
