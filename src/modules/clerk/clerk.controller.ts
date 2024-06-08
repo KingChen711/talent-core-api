@@ -101,7 +101,8 @@ export class ClerkController {
         message: 'Webhook received'
       })
     } catch (error) {
-      next(error)
+      return res.status(500).json(error)
+      // next(error)
     }
   }
 }
