@@ -77,6 +77,9 @@ export class ClerkController {
             connect: {
               roleName: Role.CANDIDATE
             }
+          },
+          candidate: {
+            create: {}
           }
         })
         return res.status(StatusCodes.CREATED).json(user)
