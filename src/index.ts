@@ -14,6 +14,7 @@ import jobRoute from './modules/job/job.route'
 import testExamRoute from './modules/test-exam/test-exam.route'
 import recruitmentDriveRoute from './modules/recruitment-drive/recruitment-drive.route'
 import corsMiddleware from './middleware/cors.middleware'
+import NotFoundException from './helpers/errors/not-found.exception'
 
 //!Just for development
 const DELAY = 0
@@ -41,6 +42,10 @@ app.use('/api/recruitment-drives', recruitmentDriveRoute)
 
 app.get('/', (req, res) => {
   return res.status(200).json({ message: 'hello world' })
+})
+
+app.all('*', () => {
+  throw new NotFoundException()
 })
 
 app.use(errorHandlingMiddleware)

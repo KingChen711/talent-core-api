@@ -18,6 +18,10 @@ import { StatusCodes } from 'http-status-codes'
 import { JobService } from '../job/job.service'
 import { ImageService } from '../aws-s3/image.service'
 import { PagedList } from '../../helpers/paged-list'
+import NotFoundException from 'src/helpers/errors/not-found.exception'
+import AlreadyUsedCodeException from 'src/helpers/errors/already-used-code.exception'
+import OpenRecruitmentDriveException from './recruitment-drive.exception'
+import BadRequestException from 'src/helpers/errors/bad-request.exception'
 
 @injectable()
 export class RecruitmentDriveService {
@@ -46,7 +50,7 @@ export class RecruitmentDriveService {
     })
 
     if (!recruitmentDrive && required) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with id: ${recruitmentDriveId}`)
+      throw new NotFoundException(`Not found recruitment drive with id: ${recruitmentDriveId}`)
     }
 
     return recruitmentDrive
@@ -63,7 +67,7 @@ export class RecruitmentDriveService {
     })
 
     if (!currentRecruitmentDrive && required) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive is opening`)
+      throw new NotFoundException(`Not found recruitment drive is opening`)
     }
 
     return currentRecruitmentDrive
@@ -100,7 +104,7 @@ export class RecruitmentDriveService {
     })
 
     if (!recruitmentDrive) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with code: ${recruitmentDriveCode}`)
+      throw new NotFoundException(`Not found recruitment drive with code: ${recruitmentDriveCode}`)
     }
 
     const imageNames = recruitmentDrive.jobDetails.map((jd) => jd.job.icon)
@@ -137,20 +141,10 @@ export class RecruitmentDriveService {
       where: { code }
     })
 
-    if (recruitmentDriveByCode) {
-      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-        errors: {
-          code: 'This code is already used'
-        }
-      })
-    }
+    if (recruitmentDriveByCode) throw new AlreadyUsedCodeException()
 
     if (isOpening && (await this.getCurrentRecruitmentDrive())) {
-      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-        errors: {
-          isOpening: 'Cannot open a recruitment drive while there is another recruitment drive is opening'
-        }
-      })
+      throw new OpenRecruitmentDriveException()
     }
 
     return await this.prismaService.client.recruitmentDrive.create({
@@ -169,11 +163,7 @@ export class RecruitmentDriveService {
     })
 
     if (recruitmentDriveByCode && recruitmentDriveByCode.id !== recruitmentDriveId) {
-      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-        errors: {
-          code: 'This code is already used'
-        }
-      })
+      throw new AlreadyUsedCodeException()
     }
 
     const recruitmentDrive = recruitmentDriveByCode || (await this.getRecruitmentDriveById(recruitmentDriveId, true))!
@@ -181,11 +171,7 @@ export class RecruitmentDriveService {
     if (isOpening) {
       const currentRecruitmentDrive = await this.getCurrentRecruitmentDrive()
       if (currentRecruitmentDrive && currentRecruitmentDrive.id !== recruitmentDrive.id) {
-        throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-          errors: {
-            isOpening: 'Cannot open a recruitment drive while there is another recruitment drive is opening'
-          }
-        })
+        throw new OpenRecruitmentDriveException()
       }
     }
 
@@ -301,14 +287,14 @@ export class RecruitmentDriveService {
     })
 
     if (!recruitmentDrive) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with id: ${recruitmentDriveId}`)
+      throw new NotFoundException(`Not found recruitment drive with id: ${recruitmentDriveId}`)
     }
 
     const countApplications = recruitmentDrive.jobDetails.reduce((total, jd) => total + jd._count.applications, 0)
 
     //TODO: chưa xác nhận cái này chạy được không
     if (countApplications > 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Cannot delete a recruitment drive already having some applications')
+      throw new BadRequestException('Cannot delete a recruitment drive already having some applications')
     }
 
     await this.prismaService.client.recruitmentDrive.delete({
@@ -324,7 +310,7 @@ export class RecruitmentDriveService {
     })
 
     if (!recruitmentDrive && required) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitmentDrive with code: ${code}`)
+      throw new NotFoundException(`Not found recruitmentDrive with code: ${code}`)
     }
 
     return recruitmentDrive
@@ -338,7 +324,7 @@ export class RecruitmentDriveService {
     const currentRecruitmentDrive = (await this.getCurrentRecruitmentDrive(true))!
 
     if (currentRecruitmentDrive.jobDetails.some((jd) => jd.jobCode === jobCode)) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `This job is already open in current recruitment drive`)
+      throw new BadRequestException(`This job is already open in current recruitment drive`)
     }
 
     return await this.prismaService.client.jobDetail.create({
@@ -360,7 +346,7 @@ export class RecruitmentDriveService {
     const jobDetail = currentRecruitmentDrive.jobDetails.find((jd) => jd.jobCode === jobCode)
 
     if (!jobDetail) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `This job is not open in current recruitment drive`)
+      throw new BadRequestException(`This job is not open in current recruitment drive`)
     }
 
     const hasApplications = !!(await this.prismaService.client.application.findFirst({
@@ -371,7 +357,7 @@ export class RecruitmentDriveService {
 
     //TODO: chưa xác nhận hoạt động đúng
     if (hasApplications) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Cannot close a job already has some applications`)
+      throw new BadRequestException(`Cannot close a job already has some applications`)
     }
 
     return await this.prismaService.client.jobDetail.delete({
@@ -397,11 +383,11 @@ export class RecruitmentDriveService {
     })
 
     if (!recruitmentDrive) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with code: ${recruitmentDriveCode}`)
+      throw new NotFoundException(`Not found recruitment drive with code: ${recruitmentDriveCode}`)
     }
 
     if (!recruitmentDrive.isOpening) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Cannot get addable jobs of closed recruitment drive`)
+      throw new BadRequestException(`Cannot get addable jobs of closed recruitment drive`)
     }
 
     const jobIdsInRecruitmentDrive = recruitmentDrive?.jobDetails.map((jd) => jd.jobCode)

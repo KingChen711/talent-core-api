@@ -7,6 +7,8 @@ import { Webhook } from 'svix'
 import { WebhookEvent } from '@clerk/clerk-sdk-node'
 import { UserService } from '../user/user.service'
 import { Role } from '../../types'
+import InternalServerErrorException from 'src/helpers/errors/internal-server-error.exception'
+import BadRequestException from 'src/helpers/errors/bad-request.exception'
 
 @injectable()
 export class ClerkController {
@@ -16,12 +18,10 @@ export class ClerkController {
     try {
       const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
-      if (!CLERK_WEBHOOK_SECRET) {
-        throw new ApiError(
-          StatusCodes.INTERNAL_SERVER_ERROR,
+      if (!CLERK_WEBHOOK_SECRET)
+        throw new InternalServerErrorException(
           'Please add CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local'
         )
-      }
 
       // Get the headers and body
       const headers = req.headers
@@ -33,9 +33,8 @@ export class ClerkController {
       const svix_signature = headers['svix-signature'] as string
 
       // If there are no Svix headers, error out
-      if (!svix_id || !svix_timestamp || !svix_signature) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'Error occured -- no svix headers')
-      }
+      if (!svix_id || !svix_timestamp || !svix_signature)
+        throw new BadRequestException('Error occured -- no svix headers')
 
       // Create a new Svix instance with your secret.
       const wh = new Webhook(CLERK_WEBHOOK_SECRET)
@@ -50,7 +49,7 @@ export class ClerkController {
         }) as WebhookEvent
       } catch (err: any) {
         console.log('Error verifying webhook:', err.message)
-        throw new ApiError(StatusCodes.BAD_REQUEST, err.message)
+        throw new BadRequestException(err.message)
       }
 
       const eventType = evt.type

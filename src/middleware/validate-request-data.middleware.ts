@@ -1,16 +1,14 @@
 import { Request, Response, NextFunction } from 'express'
-import { StatusCodes } from 'http-status-codes'
 import { isZodError } from '../helpers/utils'
 import { AnyZodObject } from 'zod'
+import RequestValidationException from 'src/helpers/errors/request-validation.exception'
 
 const validateRequestData = (schema: AnyZodObject) => async (req: Request, res: Response, next: NextFunction) => {
   try {
     res.locals.requestData = await schema.parseAsync(req)
     next()
   } catch (error) {
-    if (!isZodError(error)) {
-      return next(error)
-    }
+    if (!isZodError(error)) throw error
 
     const result: Record<string, string> = {}
 
@@ -19,7 +17,7 @@ const validateRequestData = (schema: AnyZodObject) => async (req: Request, res: 
       result[path] = issue.message
     })
 
-    return res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({ error: result })
+    throw new RequestValidationException(result)
   }
 }
 

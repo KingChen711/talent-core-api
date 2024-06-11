@@ -5,6 +5,8 @@ import { Role as ERole, UserWithRole } from '../../types'
 import { TGetProfileSchema } from './user.validation'
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
+import NotFoundException from 'src/helpers/errors/not-found.exception'
+import BadRequestException from 'src/helpers/errors/bad-request.exception'
 
 @injectable()
 export class UserService {
@@ -60,16 +62,16 @@ export class UserService {
     })
 
     if (!user) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found user with email: ${email}`)
+      throw new NotFoundException(`Not found user with email: ${email}`)
     }
 
     if (sender.role.roleName === ERole.CANDIDATE && sender.id !== user.id) {
       //actually forbidden403, but return notfound404 will be better security, it will make the sender do not know that this user is exist or not exist in the system
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found user with email: ${email}`)
+      throw new NotFoundException(`Not found user with email: ${email}`)
     }
 
     if (user.role.roleName !== ERole.CANDIDATE) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `This user is having role ${user.role.roleName}. Not a Candidate`)
+      throw new BadRequestException(`This user is having role ${user.role.roleName}. Not a Candidate`)
     }
 
     return user

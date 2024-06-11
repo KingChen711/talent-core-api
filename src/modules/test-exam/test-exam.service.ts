@@ -15,6 +15,9 @@ import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { ImageService } from '../aws-s3/image.service'
 import { PagedList } from '../../helpers/paged-list'
+import NotFoundException from 'src/helpers/errors/not-found.exception'
+import BadRequestException from 'src/helpers/errors/bad-request.exception'
+import AlreadyUsedCodeException from 'src/helpers/errors/already-used-code.exception'
 
 @injectable()
 export class TestExamService {
@@ -64,7 +67,7 @@ export class TestExamService {
     })
 
     if (!testExam && required) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found testExam with id: ${testExamId}`)
+      throw new NotFoundException(`Not found testExam with id: ${testExamId}`)
     }
 
     return testExam
@@ -76,7 +79,7 @@ export class TestExamService {
     })
 
     if (!testExam && required) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found testExam with code: ${code}`)
+      throw new NotFoundException(`Not found testExam with code: ${code}`)
     }
 
     return testExam
@@ -154,7 +157,7 @@ export class TestExamService {
 
     //TODO: chưa xác nhận cái này chạy được không
     if (testExam!._count.testSessions > 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Cannot delete a test exam have test sessions.')
+      throw new BadRequestException('Cannot delete a test exam have test sessions.')
     }
 
     await this.prismaService.client.testExam.delete({
@@ -170,11 +173,7 @@ export class TestExamService {
     } = schema
 
     if (await this.getTestExamByCode(code)) {
-      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-        errors: {
-          code: 'This code is already used'
-        }
-      })
+      throw new AlreadyUsedCodeException()
     }
 
     const testExam = await this.prismaService.client.testExam.create({
@@ -204,11 +203,7 @@ export class TestExamService {
     const testExamByCode = await this.getTestExamByCode(code)
 
     if (testExamByCode && testExamByCode.id !== testExamId) {
-      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-        errors: {
-          code: 'This code is already used'
-        }
-      })
+      throw new AlreadyUsedCodeException()
     }
 
     const testExam = testExamByCode || (await this.getTestExamById(testExamId, true))!
@@ -245,7 +240,7 @@ export class TestExamService {
     })
 
     if (!testExam) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found test exam with code: ${testExamCode}`)
+      throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
     }
 
     const jobs = await this.prismaService.client.job.findMany({
@@ -257,14 +252,14 @@ export class TestExamService {
     })
 
     if (jobs.length !== jobIds.length) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Some jobs are not found`)
+      throw new BadRequestException(`Some jobs are not found`)
     }
 
     const hasSomeJobsAlreadyAdded =
       new Set([...jobIds, ...testExam.jobIds]).size < jobIds.length + testExam.jobIds.length
 
     if (hasSomeJobsAlreadyAdded) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Some jobs have already added`)
+      throw new BadRequestException(`Some jobs have already added`)
     }
 
     const updateTestExamPromises = jobIds.map((jobId) =>
@@ -296,7 +291,7 @@ export class TestExamService {
     })
 
     if (!testExam) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found test exam with code: ${testExamCode}`)
+      throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
     }
 
     const imageUrls = await Promise.all(testExam.jobs.map((job) => this.imageService.getImageUrl(job.icon)))
@@ -321,13 +316,13 @@ export class TestExamService {
     })
 
     if (!testExam) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found test exam with code: ${testExamCode}`)
+      throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
     }
 
     const hasSomeJobsNotExistInTestExam = new Set([...jobIds, ...testExam.jobIds]).size > testExam.jobIds.length
 
     if (hasSomeJobsNotExistInTestExam) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Some jobs do not exist in this test exam`)
+      throw new BadRequestException(`Some jobs do not exist in this test exam`)
     }
 
     const updateTestExamPromises = jobIds.map((jobId) =>

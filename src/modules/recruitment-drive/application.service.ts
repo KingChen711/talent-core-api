@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service'
 import { TCreateApplicationSchema } from './recruitment-drive.validation'
 import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
+import NotFoundException from 'src/helpers/errors/not-found.exception'
+import BadRequestException from 'src/helpers/errors/bad-request.exception'
 
 @injectable()
 export class ApplicationService {
@@ -21,11 +23,11 @@ export class ApplicationService {
     })
 
     if (!recruitmentDrive) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found recruitment drive with code: ${recruitmentDriveCode}`)
+      throw new NotFoundException(`Not found recruitment drive with code: ${recruitmentDriveCode}`)
     }
 
     if (!recruitmentDrive.isOpening) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Cannot apply a job in closed recruitment drive`)
+      throw new BadRequestException(`Cannot apply a job in closed recruitment drive`)
     }
 
     const jobDetail = await this.prismaService.client.jobDetail.findUnique({
@@ -50,11 +52,11 @@ export class ApplicationService {
     })
 
     if (!jobDetail) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode} in this recruitment drive`)
+      throw new NotFoundException(`Not found job with code: ${jobCode} in this recruitment drive`)
     }
 
     if (jobDetail._count.applications >= jobDetail.quantity) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `This job position has reached its capacity.`)
+      throw new BadRequestException(`This job position has reached its capacity.`)
     }
 
     const hasAlreadyApply = !!(await this.prismaService.client.application.findFirst({
@@ -67,7 +69,7 @@ export class ApplicationService {
     }))
 
     if (hasAlreadyApply) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `This candidate is already apply this job`)
+      throw new BadRequestException(`This candidate is already apply this job`)
     }
 
     const candidate = await this.prismaService.client.user.findUnique({
@@ -77,11 +79,11 @@ export class ApplicationService {
     })
 
     if (!candidate && !createCandidate) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found candidate with email: ${candidateEmail}`)
+      throw new NotFoundException(`Not found candidate with email: ${candidateEmail}`)
     }
 
     if (candidate && createCandidate) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `This candidate is already exists`)
+      throw new BadRequestException(`This candidate is already exists`)
     }
 
     if (!createCandidate) {

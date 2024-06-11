@@ -18,6 +18,10 @@ import ApiError from '../../helpers/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { TestExamService } from '../test-exam/test-exam.service'
 import { PagedList } from '../../helpers/paged-list'
+import NotFoundException from 'src/helpers/errors/not-found.exception'
+import RequestValidationException from 'src/helpers/errors/request-validation.exception'
+import AlreadyUsedCodeException from '../../helpers/errors/already-used-code.exception'
+import BadRequestException from 'src/helpers/errors/bad-request.exception'
 
 @injectable()
 export class JobService {
@@ -49,7 +53,7 @@ export class JobService {
     })
 
     if (!job && required) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with id: ${jobId}`)
+      throw new NotFoundException(`Not found job with id: ${jobId}`)
     }
 
     return job
@@ -68,7 +72,7 @@ export class JobService {
     })
 
     if (!job && required) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${code}`)
+      throw new NotFoundException(`Not found job with code: ${code}`)
     }
 
     return job
@@ -225,11 +229,7 @@ export class JobService {
     } = schema
 
     if (await this.getJobByCode(code)) {
-      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-        errors: {
-          code: 'This code is already used'
-        }
-      })
+      throw new AlreadyUsedCodeException()
     }
 
     let imageName: string
@@ -255,13 +255,7 @@ export class JobService {
 
     const jobByCode = await this.getJobByCode(code)
 
-    if (jobByCode && jobByCode.id !== jobId) {
-      throw new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, {
-        errors: {
-          code: 'This code is already used'
-        }
-      })
-    }
+    if (jobByCode && jobByCode.id !== jobId) throw new AlreadyUsedCodeException()
 
     const job = jobByCode || (await this.getJobById(jobId, true)!)
 
@@ -297,7 +291,7 @@ export class JobService {
     const job = await this.getJobById(jobId, true)!
 
     if (job!._count.jobDetails > 0) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'This jobs have already belong to some recruitment drives')
+      throw new BadRequestException('This jobs have already belong to some recruitment drives')
     }
 
     await this.prismaService.client.job.delete({
@@ -320,7 +314,7 @@ export class JobService {
     })
 
     if (!job) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+      throw new NotFoundException(`Not found job with code: ${jobCode}`)
     }
 
     //A job will not have to to much test exam, no need to pagination, search, sort
@@ -338,7 +332,7 @@ export class JobService {
     })
 
     if (!job) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+      throw new NotFoundException(`Not found job with code: ${jobCode}`)
     }
 
     const addableTestExams = await this.testExamService.getTestExams({ query }, job.testExamIds)
@@ -357,7 +351,7 @@ export class JobService {
     })
 
     if (!job) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
+      throw new NotFoundException(`Not found job with code: ${jobCode}`)
     }
 
     const testExams = await this.prismaService.client.testExam.findMany({
@@ -368,15 +362,13 @@ export class JobService {
       }
     })
 
-    if (testExams.length !== testExamIds.length) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams are not found`)
-    }
+    if (testExams.length !== testExamIds.length) throw new BadRequestException(`Some test exams are not found`)
 
     const hasSomeTestExamAlreadyAdded =
       new Set([...testExamIds, ...job.testExamIds]).size < testExamIds.length + job.testExamIds.length
 
     if (hasSomeTestExamAlreadyAdded) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams have already added`)
+      throw new BadRequestException(`Some test exams have already added`)
     }
 
     const updateJobPromises = testExamIds.map((testExamId) =>
@@ -405,15 +397,11 @@ export class JobService {
       where: { code: jobCode }
     })
 
-    if (!job) {
-      throw new ApiError(StatusCodes.NOT_FOUND, `Not found job with code: ${jobCode}`)
-    }
+    if (!job) throw new NotFoundException(`Not found job with code: ${jobCode}`)
 
     const hasSomeTestExamNotExistInJob = new Set([...testExamIds, ...job.testExamIds]).size > job.testExamIds.length
 
-    if (hasSomeTestExamNotExistInJob) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `Some test exams do not exist in this job`)
-    }
+    if (hasSomeTestExamNotExistInJob) throw new BadRequestException(`Some test exams do not exist in this job`)
 
     const updateJobPromises = testExamIds.map((testExamId) =>
       this.prismaService.client.job.update({
