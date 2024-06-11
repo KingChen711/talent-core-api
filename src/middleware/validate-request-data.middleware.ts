@@ -5,7 +5,7 @@ import { AnyZodObject } from 'zod'
 
 const validateRequestData = (schema: AnyZodObject) => async (req: Request, res: Response, next: NextFunction) => {
   try {
-    res.locals.reqParams = await schema.parseAsync(req)
+    res.locals.requestData = await schema.parseAsync(req)
     next()
   } catch (error) {
     if (!isZodError(error)) {

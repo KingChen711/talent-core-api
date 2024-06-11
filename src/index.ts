@@ -1,5 +1,6 @@
-import 'reflect-metadata'
 import 'dotenv/config'
+import 'reflect-metadata'
+import 'express-async-errors'
 
 import express from 'express'
 import bodyParser from 'body-parser'
@@ -27,7 +28,8 @@ app.use(helmet())
 app.use(morgan('dev'))
 app.use(express.static('public'))
 
-app.use('/api/webhook/clerk', clerkRoute) //!Must place before app.use(bodyParser.), do not move it.
+//!Must place before app.use(bodyParser.), do not move it.
+app.use('/api/webhook/clerk', clerkRoute)
 
 app.use(bodyParser.json())
 app.use(corsMiddleware)
