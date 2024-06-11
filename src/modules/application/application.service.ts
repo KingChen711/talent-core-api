@@ -1,6 +1,6 @@
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
-import { TCreateApplicationSchema } from './recruitment-drive.validation'
+import { TCreateApplicationSchema } from '../recruitment-drive/recruitment-drive.validation'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
 

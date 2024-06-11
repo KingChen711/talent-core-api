@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify'
 import { RecruitmentDriveService } from './recruitment-drive.service'
 import { Request, Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
-import { ApplicationService } from './application.service'
+import { ApplicationService } from '../application/application.service'
+import { created, noContent, ok } from 'src/helpers/utils'
 
 @injectable()
 export class RecruitmentDriveController {
@@ -14,52 +14,52 @@ export class RecruitmentDriveController {
   public getRecruitmentDrives = async (req: Request, res: Response) => {
     const recruitmentDrives = await this.recruitmentDriveService.getRecruitmentDrives(res.locals.requestData)
     res.setHeader('X-Pagination', JSON.stringify(recruitmentDrives.metaData))
-    return res.status(StatusCodes.OK).json(recruitmentDrives)
+    return ok(res, recruitmentDrives)
   }
 
   public createRecruitmentDrive = async (req: Request, res: Response) => {
     const recruitmentDrive = await this.recruitmentDriveService.createRecruitmentDrive(res.locals.requestData)
-    return res.status(StatusCodes.CREATED).json(recruitmentDrive)
+    return created(res, recruitmentDrive)
   }
 
   public updateRecruitmentDrive = async (req: Request, res: Response) => {
     await this.recruitmentDriveService.updateRecruitmentDrive(res.locals.requestData)
-    return res.status(StatusCodes.NO_CONTENT)
+    return noContent(res)
   }
 
   public getRecruitmentDrive = async (req: Request, res: Response) => {
     const recruitmentDrive = await this.recruitmentDriveService.getRecruitmentDrive(res.locals.requestData)
-    return res.status(StatusCodes.OK).json(recruitmentDrive)
+    return ok(res, recruitmentDrive)
   }
 
   public getRecruitmentDriveDetail = async (req: Request, res: Response) => {
     const recruitmentDrive = await this.recruitmentDriveService.getRecruitmentDriveDetail(res.locals.requestData)
-    return res.status(StatusCodes.OK).json(recruitmentDrive)
+    return ok(res, recruitmentDrive)
   }
 
   public deleteRecruitmentDrive = async (req: Request, res: Response) => {
     await this.recruitmentDriveService.deleteRecruitmentDrive(res.locals.requestData)
-    return res.status(StatusCodes.NO_CONTENT)
+    return noContent(res)
   }
 
   public getAddableJobs = async (req: Request, res: Response) => {
     const addableJobs = await this.recruitmentDriveService.getAddableJobs(res.locals.requestData)
     res.setHeader('X-Pagination', JSON.stringify(addableJobs.metaData))
-    return res.status(StatusCodes.OK).json(addableJobs)
+    return ok(res, addableJobs)
   }
 
   public openJob = async (req: Request, res: Response) => {
     const jobDetail = await this.recruitmentDriveService.openJob(res.locals.requestData)
-    return res.status(StatusCodes.CREATED).json(jobDetail)
+    return created(res, jobDetail)
   }
 
   public closeJob = async (req: Request, res: Response) => {
     await this.recruitmentDriveService.closeJob(res.locals.requestData)
-    return res.status(StatusCodes.NO_CONTENT)
+    return noContent(res)
   }
 
   public createApplication = async (req: Request, res: Response) => {
     await this.applicationService.createApplication(res.locals.requestData)
-    return res.status(StatusCodes.CREATED)
+    return noContent(res)
   }
 }

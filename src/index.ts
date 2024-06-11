@@ -15,6 +15,7 @@ import { userRoute } from './modules/user/user.route'
 import { jobRoute } from './modules/job/job.route'
 import { testExamRoute } from './modules/test-exam/test-exam.route'
 import { recruitmentDriveRoute } from './modules/recruitment-drive/recruitment-drive.route'
+import { ok } from './helpers/utils'
 
 //!Just for development
 const DELAY = 0
@@ -41,7 +42,7 @@ app.use('/api/test-exams', testExamRoute)
 app.use('/api/recruitment-drives', recruitmentDriveRoute)
 
 app.get('/', (req, res) => {
-  return res.status(200).json({ message: 'hello world' })
+  return ok(res, { message: 'hello world' })
 })
 
 app.all('*', () => {

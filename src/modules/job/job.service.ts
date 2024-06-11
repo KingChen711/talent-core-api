@@ -338,18 +338,23 @@ export class JobService {
   }
 
   public jobAddTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {
+    console.log('jobAddTestExams Service')
     const {
       params: { jobCode },
       body: { testExamIds }
     } = schema
 
+    console.log(1)
+
     const job = await this.prismaService.client.job.findUnique({
       where: { code: jobCode }
     })
 
-    if (!job) {
-      throw new NotFoundException(`Not found job with code: ${jobCode}`)
-    }
+    console.log(2)
+
+    if (!job) throw new NotFoundException(`Not found job with code: ${jobCode}`)
+
+    console.log(3)
 
     const testExams = await this.prismaService.client.testExam.findMany({
       where: {
@@ -359,14 +364,16 @@ export class JobService {
       }
     })
 
+    console.log(4)
+
     if (testExams.length !== testExamIds.length) throw new BadRequestException(`Some test exams are not found`)
 
     const hasSomeTestExamAlreadyAdded =
       new Set([...testExamIds, ...job.testExamIds]).size < testExamIds.length + job.testExamIds.length
 
-    if (hasSomeTestExamAlreadyAdded) {
-      throw new BadRequestException(`Some test exams have already added`)
-    }
+    if (hasSomeTestExamAlreadyAdded) throw new BadRequestException(`Some test exams have already added`)
+
+    console.log(5)
 
     const updateJobPromises = testExamIds.map((testExamId) =>
       this.prismaService.client.job.update({
@@ -381,7 +388,11 @@ export class JobService {
       })
     )
 
+    console.log(6)
+
     await Promise.all(updateJobPromises)
+
+    console.log(7)
   }
 
   public removeTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {

@@ -86,13 +86,7 @@ export class RecruitmentDriveService {
             createdAt: true,
             job: true,
             quantity: true,
-            applications: {
-              include: {
-                candidate: {
-                  select: { user: true }
-                }
-              }
-            }
+            applications: true
           },
           orderBy: {
             createdAt: 'desc'
@@ -116,6 +110,7 @@ export class RecruitmentDriveService {
           ...jd.job,
           icon: imageUrls[index]
         },
+        countApplications: jd.applications.length,
         countApplicationsLastWeek: jd.applications.reduce((total, application) => {
           const isApplyInLastWeek =
             application.createdAt.getTime() > new Date(new Date().setDate(new Date().getDate() - 7)).getTime()

@@ -1,7 +1,6 @@
 import 'dotenv/config'
 
 import { NextFunction, Request, Response } from 'express'
-import { StatusCodes } from 'http-status-codes'
 import { Role } from '../types'
 import { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { container } from '../config/inversify.config'
@@ -31,7 +30,7 @@ const authorize = (roles?: Role[]) => async (req: WithAuthProp<Request>, res: Re
 
     next()
   } catch (error) {
-    return res.status(StatusCodes.FORBIDDEN)
+    throw new ForbiddenException()
   }
 }
 

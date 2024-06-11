@@ -1,8 +1,8 @@
 import { inject, injectable } from 'inversify'
 import { UserService } from './user.service'
-import { StatusCodes } from 'http-status-codes'
 import { Request } from 'express'
 import { ResponseWithUser } from '../../types'
+import { ok } from 'src/helpers/utils'
 
 @injectable()
 export class UserController {
@@ -10,11 +10,11 @@ export class UserController {
 
   whoAmI = async (req: Request, res: ResponseWithUser) => {
     const user = res.locals.user
-    return res.status(StatusCodes.OK).json(user)
+    return ok(res, user)
   }
 
   getCandidateProfile = async (req: Request, res: ResponseWithUser) => {
     const user = await this.userService.getCandidateProfile(res.locals.user, res.locals.requestData)
-    return res.status(StatusCodes.OK).json(user)
+    return ok(res, user)
   }
 }
