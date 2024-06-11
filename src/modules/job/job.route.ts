@@ -44,7 +44,7 @@ router.post(
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
   validateRequestData(addOrRemoveTestExamsSchema),
-  jobController.jobAddTestExams
+  jobController.addTestExams
 )
 
 router.get(

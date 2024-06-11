@@ -337,8 +337,8 @@ export class JobService {
     return addableTestExams
   }
 
-  public jobAddTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {
-    console.log('jobAddTestExams Service')
+  public addTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {
+    console.log('addTestExams Service')
     const {
       params: { jobCode },
       body: { testExamIds }

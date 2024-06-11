@@ -1,4 +1,4 @@
-import { Gender } from '@prisma/client'
+import { ApplicationStatus, Gender } from '@prisma/client'
 import z from 'zod'
 
 export const getRecruitmentDrivesSchema = z.object({
@@ -106,6 +106,24 @@ export const getRecruitmentDriveDetailSchema = z.object({
 })
 
 export type TGetRecruitmentDriveDetailSchema = z.infer<typeof getRecruitmentDriveDetailSchema>
+
+export const getApplicationsByRecruitmentDriveSchema = z.object({
+  params: z.object({
+    recruitmentDriveCode: z.string()
+  }),
+  query: z.object({
+    pageNumber: z.coerce.number().default(1),
+    pageSize: z.coerce
+      .number()
+      .default(10)
+      .transform((data) => Math.min(data, 50)),
+    search: z.coerce.string().trim().optional(),
+    status: z.enum(['All', ...Object.values(ApplicationStatus)]).catch('All'),
+    sort: z.enum(['createdAt', '-createdAt']).optional().default('createdAt')
+  })
+})
+
+export type TGetApplicationsByRecruitmentDriveSchema = z.infer<typeof getApplicationsByRecruitmentDriveSchema>
 
 export const deleteRecruitmentDriveSchema = z.object({
   params: z.object({
