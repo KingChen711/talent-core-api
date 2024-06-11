@@ -6,8 +6,8 @@ import { Role } from '../types'
 import { WithAuthProp } from '@clerk/clerk-sdk-node'
 import { container } from '../config/inversify.config'
 import { UserService } from '../modules/user/user.service'
-import UnauthorizedException from 'src/helpers/errors/unauthorized-exception'
-import ForbiddenException from 'src/helpers/errors/forbidden-exception'
+import UnauthorizedException from '../helpers/errors/unauthorized-exception'
+import ForbiddenException from '../helpers/errors/forbidden-exception'
 
 const authorize = (roles?: Role[]) => async (req: WithAuthProp<Request>, res: Response, next: NextFunction) => {
   try {

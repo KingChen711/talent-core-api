@@ -94,4 +94,4 @@ router.post(
   testExamController.createTestExam
 )
 
-export default router
+export { router as testExamRoute }

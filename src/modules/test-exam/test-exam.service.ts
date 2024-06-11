@@ -11,13 +11,11 @@ import {
   TAddOrRemoveJobsSchema,
   TUpdateTestExamSchema
 } from './test-exam.validation'
-import ApiError from '../../helpers/api-error'
-import { StatusCodes } from 'http-status-codes'
 import { ImageService } from '../aws-s3/image.service'
 import { PagedList } from '../../helpers/paged-list'
-import NotFoundException from 'src/helpers/errors/not-found.exception'
-import BadRequestException from 'src/helpers/errors/bad-request.exception'
-import AlreadyUsedCodeException from 'src/helpers/errors/already-used-code.exception'
+import NotFoundException from '../../helpers/errors/not-found.exception'
+import BadRequestException from '../../helpers/errors/bad-request.exception'
+import AlreadyUsedCodeException from '../../helpers/errors/already-used-code.exception'
 
 @injectable()
 export class TestExamService {

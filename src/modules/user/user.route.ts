@@ -21,4 +21,4 @@ router.get(
   userController.getCandidateProfile
 )
 
-export default router
+export { router as userRoute }

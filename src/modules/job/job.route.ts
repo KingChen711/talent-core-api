@@ -97,4 +97,4 @@ router.post(
   jobController.createJob
 )
 
-export default router
+export { router as jobRoute }

@@ -9,4 +9,4 @@ const clerkController = container.get(ClerkController)
 
 router.post('/', bodyParser.raw({ type: 'application/json' }), clerkController.webhookHandler)
 
-export default router
+export { router as clerkRoute }

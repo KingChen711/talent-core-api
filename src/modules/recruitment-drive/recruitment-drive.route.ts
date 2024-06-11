@@ -104,4 +104,4 @@ router.post(
   recruitmentDriveController.createRecruitmentDrive
 )
 
-export default router
+export { router as recruitmentDriveRoute }

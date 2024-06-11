@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { isZodError } from '../helpers/utils'
 import { AnyZodObject } from 'zod'
-import RequestValidationException from 'src/helpers/errors/request-validation.exception'
+import RequestValidationException from '../helpers/errors/request-validation.exception'
 
 const validateRequestData = (schema: AnyZodObject) => async (req: Request, res: Response, next: NextFunction) => {
   try {

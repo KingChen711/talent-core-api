@@ -1,4 +1,4 @@
-import RequestValidationException from 'src/helpers/errors/request-validation.exception'
+import RequestValidationException from '../../helpers/errors/request-validation.exception'
 
 export type ValidationErrors = Record<string, string>
 

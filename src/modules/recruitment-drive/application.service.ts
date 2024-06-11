@@ -1,10 +1,8 @@
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import { TCreateApplicationSchema } from './recruitment-drive.validation'
-import ApiError from '../../helpers/api-error'
-import { StatusCodes } from 'http-status-codes'
-import NotFoundException from 'src/helpers/errors/not-found.exception'
-import BadRequestException from 'src/helpers/errors/bad-request.exception'
+import NotFoundException from '../../helpers/errors/not-found.exception'
+import BadRequestException from '../../helpers/errors/bad-request.exception'
 
 @injectable()
 export class ApplicationService {
