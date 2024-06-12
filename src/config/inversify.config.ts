@@ -5,7 +5,7 @@ import { UserController } from '../modules/user/user.controller'
 import { ClerkController } from '../modules/clerk/clerk.controller'
 import { JobService } from '../modules/job/job.service'
 import { JobController } from '../modules/job/job.controller'
-import { ImageService } from '../modules/aws-s3/image.service'
+import { FileService } from '../modules/aws-s3/file.service'
 import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { RecruitmentDriveService } from '../modules/recruitment-drive/recruitment-drive.service'
@@ -15,7 +15,7 @@ import { ApplicationService } from '../modules/application/application.service'
 const container = new Container()
 
 container.bind(PrismaService).toSelf().inRequestScope()
-container.bind(ImageService).toSelf().inRequestScope()
+container.bind(FileService).toSelf().inRequestScope()
 
 container.bind(ClerkController).toSelf().inRequestScope()
 

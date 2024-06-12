@@ -14,7 +14,7 @@ import {
 } from './recruitment-drive.validation'
 import { Prisma, RecruitmentDrive } from '@prisma/client'
 import { JobService } from '../job/job.service'
-import { ImageService } from '../aws-s3/image.service'
+import { FileService } from '../aws-s3/file.service'
 import { PagedList } from '../../helpers/paged-list'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import AlreadyUsedCodeException from '../../helpers/errors/already-used-code.exception'
@@ -26,7 +26,7 @@ export class RecruitmentDriveService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
     @inject(JobService) private readonly jobService: JobService,
-    @inject(ImageService) private readonly imageService: ImageService
+    @inject(FileService) private readonly fileService: FileService
   ) {}
 
   private sortMapping = {
@@ -100,7 +100,7 @@ export class RecruitmentDriveService {
     }
 
     const imageNames = recruitmentDrive.jobDetails.map((jd) => jd.job.icon)
-    const imageUrls = await this.imageService.getImageUrls(imageNames)
+    const imageUrls = await this.fileService.getFileUrls(imageNames)
 
     const mappedRecruitmentDrive = {
       ...recruitmentDrive,

@@ -53,8 +53,8 @@ router.get(
   '/:recruitmentDriveCode/applications',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(getApplicationsByRecruitmentDriveSchema)
-  // recruitmentDriveController.getApplicationsByRecruitmentDrive
+  validateRequestData(getApplicationsByRecruitmentDriveSchema),
+  recruitmentDriveController.getApplicationsByRecruitmentDrive
 )
 
 router.get(

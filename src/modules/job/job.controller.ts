@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify'
 import { JobService } from './job.service'
 import { Request, Response } from 'express'
-import { created, noContent, ok } from 'src/helpers/utils'
+import { created, noContent, ok } from '../../helpers/utils'
 
 @injectable()
 export class JobController {

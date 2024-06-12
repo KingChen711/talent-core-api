@@ -12,7 +12,7 @@ import {
   TUpdateJobSchema
 } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
-import { ImageService } from '../aws-s3/image.service'
+import { FileService } from '../aws-s3/file.service'
 import { defaultImageName, systemImageJobs } from '../../constants/index'
 import { TestExamService } from '../test-exam/test-exam.service'
 import { PagedList } from '../../helpers/paged-list'
@@ -24,7 +24,7 @@ import BadRequestException from '../../helpers/errors/bad-request.exception'
 export class JobService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
-    @inject(ImageService) private readonly imageService: ImageService,
+    @inject(FileService) private readonly fileService: FileService,
     @inject(TestExamService) private readonly testExamService: TestExamService
   ) {}
 
@@ -97,7 +97,7 @@ export class JobService {
 
     if (!job) return null
 
-    const imageUrl = await this.imageService.getImageUrl(job.icon)
+    const imageUrl = await this.fileService.getFileUrl(job.icon)
 
     const mappedJob = {
       ...job,
@@ -201,7 +201,7 @@ export class JobService {
       }
     })
 
-    const imageUrls = await Promise.all(jobs.map((job) => this.imageService.getImageUrl(job.icon)))
+    const imageUrls = await Promise.all(jobs.map((job) => this.fileService.getFileUrl(job.icon)))
 
     const mappedJobs = jobs.map((job, i) => ({
       ...job,
@@ -231,7 +231,7 @@ export class JobService {
 
     let imageName: string
     if (file) {
-      imageName = await this.imageService.upLoadImage(file, 240, 240)
+      imageName = await this.fileService.upLoadImage(file, 240, 240)
     }
     imageName ||= defaultImageName
 
@@ -261,11 +261,11 @@ export class JobService {
     if (file) {
       if (systemImageJobs.includes(job!.icon)) {
         //create new image object
-        imageName = await this.imageService.upLoadImage(file, 240, 240)
+        imageName = await this.fileService.upLoadImage(file, 240, 240)
       } else {
         //put available image object
         imageName = job!.icon
-        await this.imageService.upLoadImage(file, 240, 240, imageName)
+        await this.fileService.upLoadImage(file, 240, 240, imageName)
       }
     } else {
       imageName = job!.icon
@@ -291,11 +291,15 @@ export class JobService {
       throw new BadRequestException('This jobs have already belong to some recruitment drives')
     }
 
-    await this.prismaService.client.job.delete({
+    const deleteIconPromise = !systemImageJobs.includes(job!.icon) ? this.fileService.deleteFile(job!.icon) : undefined
+
+    const deleteJobPromise = this.prismaService.client.job.delete({
       where: {
         id: jobId
       }
     })
+
+    await Promise.all([deleteIconPromise, deleteJobPromise])
   }
 
   public getJobTestExams = async (schema: TGetJobTestExamsSchema) => {

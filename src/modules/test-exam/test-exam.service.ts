@@ -11,7 +11,7 @@ import {
   TAddOrRemoveJobsSchema,
   TUpdateTestExamSchema
 } from './test-exam.validation'
-import { ImageService } from '../aws-s3/image.service'
+import { FileService } from '../aws-s3/file.service'
 import { PagedList } from '../../helpers/paged-list'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
@@ -21,7 +21,7 @@ import AlreadyUsedCodeException from '../../helpers/errors/already-used-code.exc
 export class TestExamService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
-    @inject(ImageService) private readonly imageService: ImageService
+    @inject(FileService) private readonly fileService: FileService
   ) {}
 
   private sortMapping = {
@@ -292,7 +292,7 @@ export class TestExamService {
       throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
     }
 
-    const imageUrls = await Promise.all(testExam.jobs.map((job) => this.imageService.getImageUrl(job.icon)))
+    const imageUrls = await Promise.all(testExam.jobs.map((job) => this.fileService.getFileUrl(job.icon)))
 
     const mappedJobs = testExam.jobs.map((job, i) => ({
       ...job,

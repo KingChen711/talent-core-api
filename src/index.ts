@@ -40,6 +40,12 @@ app.use('/api/users', userRoute)
 app.use('/api/jobs', jobRoute)
 app.use('/api/test-exams', testExamRoute)
 app.use('/api/recruitment-drives', recruitmentDriveRoute)
+// app.post('/api/upload', multerMiddleware('portfolio'), async (req, res) => {
+//   const file = req.file as Express.Multer.File
+//   const fileService = container.get(FileService)
+//   await fileService.upLoadPortfolio(file)
+//   return ok(res)
+// })
 
 app.get('/', (req, res) => {
   return ok(res, { message: 'hello world' })

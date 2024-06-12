@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { RecruitmentDriveService } from './recruitment-drive.service'
 import { Request, Response } from 'express'
 import { ApplicationService } from '../application/application.service'
-import { created, noContent, ok } from 'src/helpers/utils'
+import { created, noContent, ok } from '../../helpers/utils'
 
 @injectable()
 export class RecruitmentDriveController {
@@ -61,5 +61,11 @@ export class RecruitmentDriveController {
   public createApplication = async (req: Request, res: Response) => {
     await this.applicationService.createApplication(res.locals.requestData)
     return noContent(res)
+  }
+
+  public getApplicationsByRecruitmentDrive = async (req: Request, res: Response) => {
+    const applications = await this.applicationService.getCandidateByRecruitmentDrive(res.locals.requestData)
+    res.setHeader('X-Pagination', JSON.stringify(applications.metaData))
+    return ok(res, applications)
   }
 }

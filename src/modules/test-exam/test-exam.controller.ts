@@ -3,7 +3,7 @@ import { TestExamService } from './test-exam.service'
 import { Request, Response } from 'express'
 import { JobService } from '../job/job.service'
 import { TGetAddableJobsSchema } from './test-exam.validation'
-import { created, noContent, ok } from 'src/helpers/utils'
+import { created, noContent, ok } from '../../helpers/utils'
 
 @injectable()
 export class TestExamController {

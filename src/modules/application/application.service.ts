@@ -6,11 +6,49 @@ import {
 } from '../recruitment-drive/recruitment-drive.validation'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
-import { Prisma } from '@prisma/client'
+import { Application, Prisma } from '@prisma/client'
+import { PagedList } from 'src/helpers/paged-list'
+import { FileService } from '../aws-s3/file.service'
 
 @injectable()
 export class ApplicationService {
-  constructor(@inject(PrismaService) private readonly prismaService: PrismaService) {}
+  constructor(
+    @inject(PrismaService) private readonly prismaService: PrismaService,
+    @inject(FileService) private readonly fileService: FileService
+  ) {}
+
+  private sortMapping: Record<string, Prisma.ApplicationOrderByWithRelationInput> = {
+    createdAt: { createdAt: 'asc' },
+    '-createdAt': { createdAt: 'desc' },
+    candidateName: {
+      candidate: {
+        user: {
+          fullName: 'asc'
+        }
+      }
+    },
+    '-candidateName': {
+      candidate: {
+        user: {
+          fullName: 'desc'
+        }
+      }
+    },
+    appliedJob: {
+      jobDetail: {
+        job: {
+          name: 'asc'
+        }
+      }
+    },
+    '-appliedJob': {
+      jobDetail: {
+        job: {
+          name: 'desc'
+        }
+      }
+    }
+  } as const
 
   public createApplication = async (schema: TCreateApplicationSchema) => {
     const {
@@ -130,30 +168,82 @@ export class ApplicationService {
       }
     }
 
-    // let searchQuery: Prisma.ApplicationWhereInput = {}s
-    // if (search) {
-    //   searchQuery = {
-    //     OR: [
-    //       {
-    //         code: {
-    //           contains: search,
-    //           mode: 'insensitive'
-    //         }
-    //       },
-    //       {
-    //         name: {
-    //           contains: search,
-    //           mode: 'insensitive'
-    //         }
-    //       },
-    //       {
-    //         description: {
-    //           contains: search,
-    //           mode: 'insensitive'
-    //         }
-    //       }
-    //     ]
-    //   }
-    // }
+    let searchQuery: Prisma.ApplicationWhereInput = {}
+    if (search) {
+      searchQuery = {
+        OR: [
+          {
+            candidate: {
+              user: {
+                fullName: {
+                  contains: search,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          },
+          {
+            jobDetail: {
+              job: {
+                name: {
+                  contains: search,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+
+    const query: Prisma.ApplicationFindManyArgs = {
+      where: {
+        AND: [
+          {
+            jobDetail: {
+              recruitmentDriveCode
+            }
+          },
+          statusQuery,
+          searchQuery
+        ]
+      }
+    }
+
+    const totalCount = await this.prismaService.client.application.count(query as Prisma.ApplicationCountArgs)
+
+    if (sort && sort in this.sortMapping) {
+      query.orderBy = this.sortMapping[sort]
+    }
+
+    query.skip = pageSize * (pageNumber - 1)
+    query.take = pageSize
+
+    const applications = await this.prismaService.client.application.findMany({
+      ...query,
+      include: {
+        jobDetail: {
+          select: {
+            job: true
+          }
+        },
+        candidate: {
+          select: {
+            user: true
+          }
+        }
+      }
+    })
+
+    const imageUrls = await Promise.all(
+      applications.map((application) => this.fileService.getFileUrl(application.jobDetail.job.icon))
+    )
+
+    const mappedApplications = applications.map((a, index) => {
+      a.jobDetail.job.icon = imageUrls[index]
+      return a
+    })
+
+    return new PagedList<Application>(mappedApplications, totalCount, pageNumber, pageSize)
   }
 }

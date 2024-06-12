@@ -119,7 +119,10 @@ export const getApplicationsByRecruitmentDriveSchema = z.object({
       .transform((data) => Math.min(data, 50)),
     search: z.coerce.string().trim().optional(),
     status: z.enum(['All', ...Object.values(ApplicationStatus)]).catch('All'),
-    sort: z.enum(['createdAt', '-createdAt']).optional().default('createdAt')
+    sort: z
+      .enum(['createdAt', '-createdAt', 'candidateName', '-candidateName', 'appliedJob', '-appliedJob'])
+      .optional()
+      .default('-createdAt')
   })
 })
 

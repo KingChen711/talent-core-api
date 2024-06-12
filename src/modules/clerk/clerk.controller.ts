@@ -7,7 +7,7 @@ import { UserService } from '../user/user.service'
 import { Role } from '../../types'
 import InternalServerErrorException from '../../helpers/errors/internal-server-error.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
-import { created, ok } from 'src/helpers/utils'
+import { created, ok } from '../../helpers/utils'
 
 @injectable()
 export class ClerkController {

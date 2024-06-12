@@ -75,7 +75,7 @@ router.put(
   '/:jobId',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  multerMiddleware,
+  multerMiddleware('image'),
   validateRequestData(updateJobSchema),
   jobController.updateJob
 )
@@ -92,7 +92,7 @@ router.post(
   '/',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  multerMiddleware,
+  multerMiddleware('image'),
   validateRequestData(createJobSchema),
   jobController.createJob
 )

@@ -7,7 +7,7 @@ export function isZodError<T>(error: unknown): error is ZodError<T> {
   return typeof error === 'object' && error !== null && 'name' in error && error.name === 'ZodError'
 }
 
-export const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
+export const randomFileName = (bytes = 32) => crypto.randomBytes(bytes).toString('hex')
 
 export const ok = (res: Response, data: unknown = undefined) => {
   return res.status(StatusCodes.OK).json(data)

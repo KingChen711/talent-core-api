@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { UserService } from './user.service'
 import { Request } from 'express'
 import { ResponseWithUser } from '../../types'
-import { ok } from 'src/helpers/utils'
+import { ok } from '../../helpers/utils'
 
 @injectable()
 export class UserController {
