@@ -9,6 +9,7 @@ import BadRequestException from '../../helpers/errors/bad-request.exception'
 import { Application, Prisma } from '@prisma/client'
 import { PagedList } from 'src/helpers/paged-list'
 import { FileService } from '../aws-s3/file.service'
+import { TGetApplicationDetailSchema } from './application.validation'
 
 @injectable()
 export class ApplicationService {
@@ -245,5 +246,33 @@ export class ApplicationService {
     })
 
     return new PagedList<Application>(mappedApplications, totalCount, pageNumber, pageSize)
+  }
+
+  public getApplicationDetail = async (schema: TGetApplicationDetailSchema) => {
+    const {
+      params: { applicationId }
+    } = schema
+
+    const application = await this.prismaService.client.application.findUnique({
+      where: {
+        id: applicationId
+      },
+      include: {
+        jobDetail: {
+          select: {
+            createdAt: true,
+            job: true,
+            quantity: true
+          }
+        },
+        candidate: {
+          select: { user: true }
+        }
+      }
+    })
+
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
+
+    return application
   }
 }

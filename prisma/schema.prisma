@@ -31,11 +31,6 @@ model Job {
   @@index([code, name, description])
 }
 
-//ví dụ: 
-// Fr_FE_DEV, Fresher Frontend Developer, Lập trình viên FE.
-// Ju_BE_DEV, Junior Backend Developer, Lập trình viên BE.
-// Se_BA, Senior Business Analyst, Phân tích nghiệp vụ.
-
 model User {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   roleId   String  @db.ObjectId
@@ -79,6 +74,7 @@ model Application {
   jobDetailId    String            @db.ObjectId
   status         ApplicationStatus @default(Screening)
   receiveJobDate DateTime?
+  portfolio      String?
 
   candidate        Candidate         @relation(fields: [candidateId], references: [id], onDelete: Restrict)
   jobDetail        JobDetail         @relation(fields: [jobDetailId], references: [id], onDelete: Restrict)
@@ -96,13 +92,13 @@ model InterviewSession {
   applicationId   String          @unique @db.ObjectId
   interviewDate   DateTime
   interviewResult InterviewResult @default(Processing)
-  method          InterviewMethod @default(Offline)
+  method          Method          @default(Offline)
 
   application          Application           @relation(fields: [applicationId], references: [id])
   interviewSessionWish InterviewSessionWish?
 }
 
-enum InterviewMethod {
+enum Method {
   Online
   Offline
 }
@@ -125,8 +121,7 @@ enum ReceiveJobWishType {
 
 enum InterviewResult {
   Processing
-  Fail
-  Pass
+  Completed
 }
 
 model TestSession {
@@ -136,6 +131,7 @@ model TestSession {
   point         Int?
   status        TestSessionStatus @default(Processing)
   startDate     DateTime
+  // method        Method            @default(Offline)
 
   application     Application      @relation(fields: [applicationId], references: [id])
   testExam        TestExam         @relation(fields: [testExamId], references: [id], onDelete: Restrict)
@@ -143,12 +139,12 @@ model TestSession {
 }
 
 model InterviewSessionWish {
-  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
-  interviewSessionId String          @unique @db.ObjectId
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
+  interviewSessionId String     @unique @db.ObjectId
   content            String
   status             WishStatus
   wishTime           DateTime
-  wishMethod         InterviewMethod
+  wishMethod         Method
 
   interviewSession InterviewSession @relation(fields: [interviewSessionId], references: [id])
 }
@@ -171,8 +167,7 @@ enum WishStatus {
 
 enum TestSessionStatus {
   Processing
-  Fail
-  Pass
+  Completed
 }
 
 enum ApplicationStatus {
