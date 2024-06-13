@@ -7,6 +7,6 @@ const router = express.Router()
 
 const clerkController = container.get(ClerkController)
 
-router.post('/', bodyParser.raw({ type: 'application/json' }), clerkController.webhookHandler)
+router.post('/', bodyParser.raw({ type: 'applicant/json' }), clerkController.webhookHandler)
 
 export { router as clerkRoute }

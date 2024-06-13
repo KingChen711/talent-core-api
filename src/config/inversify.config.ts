@@ -10,8 +10,8 @@ import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { RecruitmentDriveService } from '../modules/recruitment-drive/recruitment-drive.service'
 import { RecruitmentDriveController } from '../modules/recruitment-drive/recruitment-drive.controller'
-import { ApplicationService } from '../modules/application/application.service'
-import { ApplicationController } from 'src/modules/application/application.controller'
+import { ApplicantService } from '../modules/applicant/applicant.service'
+import { ApplicantController } from 'src/modules/applicant/applicant.controller'
 
 const container = new Container()
 
@@ -29,8 +29,8 @@ container.bind(JobController).toSelf().inRequestScope()
 container.bind(TestExamService).toSelf().inRequestScope()
 container.bind(TestExamController).toSelf().inRequestScope()
 
-container.bind(ApplicationService).toSelf().inRequestScope()
-container.bind(ApplicationController).toSelf().inRequestScope()
+container.bind(ApplicantService).toSelf().inRequestScope()
+container.bind(ApplicantController).toSelf().inRequestScope()
 
 container.bind(RecruitmentDriveService).toSelf().inRequestScope()
 container.bind(RecruitmentDriveController).toSelf().inRequestScope()

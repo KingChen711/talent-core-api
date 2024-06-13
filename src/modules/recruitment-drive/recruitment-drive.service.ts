@@ -86,7 +86,7 @@ export class RecruitmentDriveService {
             createdAt: true,
             job: true,
             quantity: true,
-            applications: true
+            applicants: true
           },
           orderBy: {
             createdAt: 'desc'
@@ -110,14 +110,14 @@ export class RecruitmentDriveService {
           ...jd.job,
           icon: imageUrls[index]
         },
-        countApplications: jd.applications.length,
-        countApplicationsLastWeek: jd.applications.reduce((total, application) => {
+        countApplicants: jd.applicants.length,
+        countApplicantsLastWeek: jd.applicants.reduce((total, applicant) => {
           const isApplyInLastWeek =
-            application.createdAt.getTime() > new Date(new Date().setDate(new Date().getDate() - 7)).getTime()
+            applicant.createdAt.getTime() > new Date(new Date().setDate(new Date().getDate() - 7)).getTime()
           return total + (isApplyInLastWeek ? 1 : 0)
         }, 0),
-        countApplicationsApproved: jd.applications.reduce((total, application) => {
-          return total + (application.status == 'Approve' ? 1 : 0)
+        countApplicantsApproved: jd.applicants.reduce((total, applicant) => {
+          return total + (applicant.status == 'Approve' ? 1 : 0)
         }, 0)
       }))
     }
@@ -271,7 +271,7 @@ export class RecruitmentDriveService {
           select: {
             _count: {
               select: {
-                applications: true
+                applicants: true
               }
             }
           }
@@ -283,11 +283,11 @@ export class RecruitmentDriveService {
       throw new NotFoundException(`Not found recruitment drive with id: ${recruitmentDriveId}`)
     }
 
-    const countApplications = recruitmentDrive.jobDetails.reduce((total, jd) => total + jd._count.applications, 0)
+    const countApplicants = recruitmentDrive.jobDetails.reduce((total, jd) => total + jd._count.applicants, 0)
 
     //TODO: chưa xác nhận cái này chạy được không
-    if (countApplications > 0) {
-      throw new BadRequestException('Cannot delete a recruitment drive already having some applications')
+    if (countApplicants > 0) {
+      throw new BadRequestException('Cannot delete a recruitment drive already having some applicants')
     }
 
     await this.prismaService.client.recruitmentDrive.delete({
@@ -342,15 +342,15 @@ export class RecruitmentDriveService {
       throw new BadRequestException(`This job is not open in current recruitment drive`)
     }
 
-    const hasApplications = !!(await this.prismaService.client.application.findFirst({
+    const hasApplicants = !!(await this.prismaService.client.applicant.findFirst({
       where: {
         jobDetailId: jobDetail.id
       }
     }))
 
     //TODO: chưa xác nhận hoạt động đúng
-    if (hasApplications) {
-      throw new BadRequestException(`Cannot close a job already has some applications`)
+    if (hasApplicants) {
+      throw new BadRequestException(`Cannot close a job already has some applicants`)
     }
 
     return await this.prismaService.client.jobDetail.delete({

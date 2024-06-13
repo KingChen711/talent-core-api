@@ -64,18 +64,18 @@ model Candidate {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
   userId String @unique @db.ObjectId
 
-  user         User          @relation(fields: [userId], references: [id])
-  applications Application[]
+  user       User        @relation(fields: [userId], references: [id])
+  applicants Applicant[]
 }
 
-model Application {
-  id             String            @id @default(auto()) @map("_id") @db.ObjectId
-  candidateId    String            @db.ObjectId
-  jobDetailId    String            @db.ObjectId
-  status         ApplicationStatus @default(Screening)
+model Applicant {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  candidateId    String          @db.ObjectId
+  jobDetailId    String          @db.ObjectId
+  status         ApplicantStatus @default(Screening)
   receiveJobDate DateTime?
 
-  //Trong bảng application, fullName, gender, bornYear, phone có thể khác với trong bảng User. Bảng User có mục đích lưu trữ thông tin ứng viên để hệ thống có thể generate sẵn thông tin của ứng viên để có thể ứng tuyển nhanh chóng. Sau đó, ứng viên có thể thay đổi lại các trường thông tin này tùy ý để có thể tạo applition. Riêng trường email (unique và đại diện cho user) sẽ không đổi, nhưng vẫn cho vào bảng application để tiện cho việc query thông tin ứng tuyển
+  //Trong bảng applicant, fullName, gender, bornYear, phone có thể khác với trong bảng User. Bảng User có mục đích lưu trữ thông tin ứng viên để hệ thống có thể generate sẵn thông tin của ứng viên để có thể ứng tuyển nhanh chóng. Sau đó, ứng viên có thể thay đổi lại các trường thông tin này tùy ý để có thể tạo applition. Riêng trường email (unique và đại diện cho user) sẽ không đổi, nhưng vẫn cho vào bảng applicant để tiện cho việc query thông tin ứng tuyển
   email                String
   fullName             String
   gender               Gender
@@ -97,12 +97,12 @@ model Application {
 
 model InterviewSession {
   id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId   String          @unique @db.ObjectId
+  applicantId     String          @unique @db.ObjectId
   interviewDate   DateTime
   interviewResult InterviewResult @default(Processing)
   method          Method          @default(Offline)
 
-  application          Application           @relation(fields: [applicationId], references: [id])
+  applicant            Applicant             @relation(fields: [applicantId], references: [id])
   interviewSessionWish InterviewSessionWish?
 }
 
@@ -112,14 +112,14 @@ enum Method {
 }
 
 model ReceiveJobWish {
-  id            String             @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId String             @unique @db.ObjectId
-  content       String?
-  status        WishStatus
-  wishTime      DateTime?
-  type          ReceiveJobWishType
+  id          String             @id @default(auto()) @map("_id") @db.ObjectId
+  applicantId String             @unique @db.ObjectId
+  content     String?
+  status      WishStatus
+  wishTime    DateTime?
+  type        ReceiveJobWishType
 
-  application Application @relation(fields: [applicationId], references: [id])
+  applicant Applicant @relation(fields: [applicantId], references: [id])
 }
 
 enum ReceiveJobWishType {
@@ -133,15 +133,15 @@ enum InterviewResult {
 }
 
 model TestSession {
-  id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId String            @unique @db.ObjectId
-  testExamId    String            @db.ObjectId
-  point         Int?
-  status        TestSessionStatus @default(Processing)
-  startDate     DateTime
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  applicantId String            @unique @db.ObjectId
+  testExamId  String            @db.ObjectId
+  point       Int?
+  status      TestSessionStatus @default(Processing)
+  startDate   DateTime
   // method        Method            @default(Offline)
 
-  application     Application      @relation(fields: [applicationId], references: [id])
+  applicant       Applicant        @relation(fields: [applicantId], references: [id])
   testExam        TestExam         @relation(fields: [testExamId], references: [id], onDelete: Restrict)
   testSessionWish TestSessionWish?
 }
@@ -178,7 +178,7 @@ enum TestSessionStatus {
   Completed
 }
 
-enum ApplicationStatus {
+enum ApplicantStatus {
   Screening //Khi ứng viên đang tham gia vào đợt ứng tuyển hiện tại
   Testing //Khi ứng viên đang trong giao đoạn làm kiểm tra đầu vào
   Interviewing //Khi ứng viên đang trong giai đoạn phỏng vấn
@@ -242,7 +242,7 @@ model JobDetail {
 
   recruitmentDrive RecruitmentDrive @relation(fields: [recruitmentDriveCode], references: [code], onDelete: Cascade)
   job              Job              @relation(fields: [jobCode], references: [code], onDelete: Restrict)
-  applications     Application[]
+  applicants       Applicant[]
 
   @@unique([jobCode, recruitmentDriveCode])
   @@index([recruitmentDriveCode, createdAt(sort: Desc)])

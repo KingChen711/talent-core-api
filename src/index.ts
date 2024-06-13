@@ -17,7 +17,7 @@ import { jobRoute } from './modules/job/job.route'
 import { testExamRoute } from './modules/test-exam/test-exam.route'
 import { recruitmentDriveRoute } from './modules/recruitment-drive/recruitment-drive.route'
 import { ok } from './helpers/utils'
-import { applicationRoute } from './modules/application/application.route'
+import { applicantRoute } from './modules/applicant/applicant.route'
 
 //!Just for development
 const DELAY = 0
@@ -42,7 +42,7 @@ app.use('/api/users', userRoute)
 app.use('/api/jobs', jobRoute)
 app.use('/api/test-exams', testExamRoute)
 app.use('/api/recruitment-drives', recruitmentDriveRoute)
-app.use('/api/applications', applicationRoute)
+app.use('/api/applicants', applicantRoute)
 // app.post('/api/upload', multerMiddleware('cv'), async (req, res) => {
 //   const file = req.file as Express.Multer.File
 //   const fileService = container.get(FileService)

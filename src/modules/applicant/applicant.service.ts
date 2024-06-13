@@ -1,25 +1,25 @@
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import {
-  TCreateApplicationSchema,
-  TGetApplicationsByRecruitmentDriveSchema
+  TCreateApplicantSchema,
+  TGetApplicantsByRecruitmentDriveSchema
 } from '../recruitment-drive/recruitment-drive.validation'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
-import { Application, Prisma } from '@prisma/client'
+import { Applicant, Prisma } from '@prisma/client'
 import { PagedList } from 'src/helpers/paged-list'
 import { FileService } from '../aws-s3/file.service'
-import { TGetApplicationDetailSchema } from './application.validation'
+import { TGetApplicantDetailSchema } from './applicant.validation'
 import RequestValidationException from 'src/helpers/errors/request-validation.exception'
 
 @injectable()
-export class ApplicationService {
+export class ApplicantService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
     @inject(FileService) private readonly fileService: FileService
   ) {}
 
-  private sortMapping: Record<string, Prisma.ApplicationOrderByWithRelationInput> = {
+  private sortMapping: Record<string, Prisma.ApplicantOrderByWithRelationInput> = {
     createdAt: { createdAt: 'asc' },
     '-createdAt': { createdAt: 'desc' },
     candidateName: {
@@ -44,7 +44,7 @@ export class ApplicationService {
     }
   } as const
 
-  public createApplication = async (file: Express.Multer.File | undefined, schema: TCreateApplicationSchema) => {
+  public createApplicant = async (file: Express.Multer.File | undefined, schema: TCreateApplicantSchema) => {
     const {
       params: { jobCode, recruitmentDriveCode },
       body: { bornYear, email, fullName, gender, phone, personalIntroduction }
@@ -76,9 +76,9 @@ export class ApplicationService {
       },
       include: {
         _count: {
-          //only count approved applications
+          //only count approved applicants
           select: {
-            applications: {
+            applicants: {
               where: {
                 status: 'Approve'
               }
@@ -90,10 +90,10 @@ export class ApplicationService {
 
     if (!jobDetail) throw new NotFoundException(`Not found job with code: ${jobCode} in this recruitment drive`)
 
-    if (jobDetail._count.applications >= jobDetail.quantity)
+    if (jobDetail._count.applicants >= jobDetail.quantity)
       throw new BadRequestException(`This job position has reached its capacity.`)
 
-    const hasAlreadyApply = !!(await this.prismaService.client.application.findFirst({
+    const hasAlreadyApply = !!(await this.prismaService.client.applicant.findFirst({
       where: {
         candidate: {
           user: { email }
@@ -115,7 +115,7 @@ export class ApplicationService {
         phone,
         candidate: {
           update: {
-            applications: {
+            applicants: {
               create: {
                 jobDetailId: jobDetail.id,
                 bornYear,
@@ -135,20 +135,20 @@ export class ApplicationService {
     return
   }
 
-  public getCandidateByRecruitmentDrive = async (schema: TGetApplicationsByRecruitmentDriveSchema) => {
+  public getCandidateByRecruitmentDrive = async (schema: TGetApplicantsByRecruitmentDriveSchema) => {
     const {
       params: { recruitmentDriveCode },
       query: { pageNumber, pageSize, sort, status, search }
     } = schema
 
-    let statusQuery: Prisma.ApplicationWhereInput = {}
+    let statusQuery: Prisma.ApplicantWhereInput = {}
     if (status !== 'All') {
       statusQuery = {
         status
       }
     }
 
-    let searchQuery: Prisma.ApplicationWhereInput = {}
+    let searchQuery: Prisma.ApplicantWhereInput = {}
     if (search) {
       searchQuery = {
         OR: [
@@ -172,7 +172,7 @@ export class ApplicationService {
       }
     }
 
-    const query: Prisma.ApplicationFindManyArgs = {
+    const query: Prisma.ApplicantFindManyArgs = {
       where: {
         AND: [
           {
@@ -186,7 +186,7 @@ export class ApplicationService {
       }
     }
 
-    const totalCount = await this.prismaService.client.application.count(query as Prisma.ApplicationCountArgs)
+    const totalCount = await this.prismaService.client.applicant.count(query as Prisma.ApplicantCountArgs)
 
     if (sort && sort in this.sortMapping) {
       query.orderBy = this.sortMapping[sort]
@@ -195,7 +195,7 @@ export class ApplicationService {
     query.skip = pageSize * (pageNumber - 1)
     query.take = pageSize
 
-    const applications = await this.prismaService.client.application.findMany({
+    const applicants = await this.prismaService.client.applicant.findMany({
       ...query,
       include: {
         jobDetail: {
@@ -207,25 +207,25 @@ export class ApplicationService {
     })
 
     const imageUrls = await Promise.all(
-      applications.map((application) => this.fileService.getFileUrl(application.jobDetail.job.icon))
+      applicants.map((applicant) => this.fileService.getFileUrl(applicant.jobDetail.job.icon))
     )
 
-    const mappedApplications = applications.map((a, index) => {
+    const mappedApplicants = applicants.map((a, index) => {
       a.jobDetail.job.icon = imageUrls[index]
       return a
     })
 
-    return new PagedList<Application>(mappedApplications, totalCount, pageNumber, pageSize)
+    return new PagedList<Applicant>(mappedApplicants, totalCount, pageNumber, pageSize)
   }
 
-  public getApplicationDetail = async (schema: TGetApplicationDetailSchema) => {
+  public getApplicantDetail = async (schema: TGetApplicantDetailSchema) => {
     const {
-      params: { applicationId }
+      params: { applicantId }
     } = schema
 
-    const application = await this.prismaService.client.application.findUnique({
+    const applicant = await this.prismaService.client.applicant.findUnique({
       where: {
-        id: applicationId
+        id: applicantId
       },
       include: {
         jobDetail: {
@@ -234,15 +234,12 @@ export class ApplicationService {
             job: true,
             quantity: true
           }
-        },
-        candidate: {
-          select: { user: true }
         }
       }
     })
 
-    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
+    if (!applicant) throw new NotFoundException(`Not found applicant with id: ${applicantId}`)
 
-    return application
+    return applicant
   }
 }
