@@ -14,10 +14,10 @@ import {
   getJobsSchema,
   updateJobSchema
 } from './job.validation'
-import multerMiddleware from '../../middleware/multer.middleware'
 import { authorize } from '../../middleware/authorize.middleware'
 import { Role } from '../../types'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
+import imageMulterMiddleware from 'src/middleware/image-multer.middleware'
 
 const router = express.Router()
 
@@ -75,7 +75,7 @@ router.put(
   '/:jobId',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  multerMiddleware('image'),
+  imageMulterMiddleware,
   validateRequestData(updateJobSchema),
   jobController.updateJob
 )
@@ -92,7 +92,7 @@ router.post(
   '/',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  multerMiddleware('image'),
+  imageMulterMiddleware,
   validateRequestData(createJobSchema),
   jobController.createJob
 )

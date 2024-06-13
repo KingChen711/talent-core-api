@@ -188,7 +188,8 @@ export const createApplicationSchema = z.object({
     fullName: z.string().min(2),
     phone: z.string().regex(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/),
     gender: z.enum([Gender.Male, Gender.Female, Gender.Other]),
-    bornYear: z.number().int().min(1900)
+    bornYear: z.coerce.number().int().min(1900),
+    personalIntroduction: z.string().optional()
   })
 })
 

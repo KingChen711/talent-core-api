@@ -7,6 +7,7 @@ import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import morgan from 'morgan'
 
+import multerErrorHandlingMiddleware from './middleware/multer-error-handling.middleware'
 import errorHandlingMiddleware from './middleware/error-handling.middleware'
 import corsMiddleware from './middleware/cors.middleware'
 import NotFoundException from './helpers/errors/not-found.exception'
@@ -57,6 +58,7 @@ app.all('*', () => {
   throw new NotFoundException()
 })
 
+app.use(multerErrorHandlingMiddleware)
 app.use(errorHandlingMiddleware)
 
 const PORT = process.env.PORT || 6000

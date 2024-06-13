@@ -20,7 +20,7 @@ import {
   getRecruitmentDriveDetailSchema,
   getApplicationsByRecruitmentDriveSchema
 } from './recruitment-drive.validation'
-import multerMiddleware from 'src/middleware/multer.middleware'
+import cvMulterMiddleware from 'src/middleware/cv-multer.middleware'
 
 const router = express.Router()
 
@@ -46,7 +46,7 @@ router.post(
   '/:recruitmentDriveCode/jobs/:jobCode/applications',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  multerMiddleware('cv'),
+  cvMulterMiddleware,
   validateRequestData(createApplicationSchema),
   recruitmentDriveController.createApplication
 )

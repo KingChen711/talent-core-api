@@ -23,18 +23,10 @@ export class ApplicationService {
     createdAt: { createdAt: 'asc' },
     '-createdAt': { createdAt: 'desc' },
     candidateName: {
-      candidate: {
-        user: {
-          fullName: 'asc'
-        }
-      }
+      fullName: 'asc'
     },
     '-candidateName': {
-      candidate: {
-        user: {
-          fullName: 'desc'
-        }
-      }
+      fullName: 'desc'
     },
     appliedJob: {
       jobDetail: {
@@ -55,8 +47,10 @@ export class ApplicationService {
   public createApplication = async (file: Express.Multer.File | undefined, schema: TCreateApplicationSchema) => {
     const {
       params: { jobCode, recruitmentDriveCode },
-      body: { bornYear, email, fullName, gender, phone }
+      body: { bornYear, email, fullName, gender, phone, personalIntroduction }
     } = schema
+
+    console.log({ file })
 
     if (!file) {
       throw new RequestValidationException({ cv: 'CV is required' })
@@ -128,6 +122,7 @@ export class ApplicationService {
                 email,
                 fullName,
                 gender,
+                personalIntroduction,
                 phone,
                 cv
               }
@@ -158,13 +153,9 @@ export class ApplicationService {
       searchQuery = {
         OR: [
           {
-            candidate: {
-              user: {
-                fullName: {
-                  contains: search,
-                  mode: 'insensitive'
-                }
-              }
+            fullName: {
+              contains: search,
+              mode: 'insensitive'
             }
           },
           {
@@ -210,11 +201,6 @@ export class ApplicationService {
         jobDetail: {
           select: {
             job: true
-          }
-        },
-        candidate: {
-          select: {
-            user: true
           }
         }
       }

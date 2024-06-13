@@ -76,12 +76,13 @@ model Application {
   receiveJobDate DateTime?
 
   //Trong bảng application, fullName, gender, bornYear, phone có thể khác với trong bảng User. Bảng User có mục đích lưu trữ thông tin ứng viên để hệ thống có thể generate sẵn thông tin của ứng viên để có thể ứng tuyển nhanh chóng. Sau đó, ứng viên có thể thay đổi lại các trường thông tin này tùy ý để có thể tạo applition. Riêng trường email (unique và đại diện cho user) sẽ không đổi, nhưng vẫn cho vào bảng application để tiện cho việc query thông tin ứng tuyển
-  email    String
-  fullName String
-  gender   Gender
-  bornYear Int
-  phone    String
-  cv       String
+  email                String
+  fullName             String
+  gender               Gender
+  bornYear             Int
+  phone                String
+  cv                   String
+  personalIntroduction String?
 
   candidate        Candidate         @relation(fields: [candidateId], references: [id], onDelete: Restrict)
   jobDetail        JobDetail         @relation(fields: [jobDetailId], references: [id], onDelete: Restrict)
