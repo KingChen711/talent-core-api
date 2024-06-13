@@ -171,12 +171,12 @@ export const closeJobSchema = z.object({
 
 export type TCloseJobSchema = z.infer<typeof closeJobSchema>
 
-const candidateSchema = z.object({
-  fullName: z.string().min(2),
-  phone: z.string().regex(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/),
-  gender: z.enum([Gender.Male, Gender.Female, Gender.Other]),
-  bornYear: z.number().int().min(1900)
-})
+// const candidateSchema = z.object({
+//   fullName: z.string().min(2),
+//   phone: z.string().regex(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/),
+//   gender: z.enum([Gender.Male, Gender.Female, Gender.Other]),
+//   bornYear: z.number().int().min(1900)
+// })
 
 export const createApplicationSchema = z.object({
   params: z.object({
@@ -184,9 +184,11 @@ export const createApplicationSchema = z.object({
     recruitmentDriveCode: z.string()
   }),
   body: z.object({
-    createCandidate: z.boolean(),
-    candidateEmail: z.string().email(),
-    candidateData: candidateSchema
+    email: z.string().email(),
+    fullName: z.string().min(2),
+    phone: z.string().regex(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/),
+    gender: z.enum([Gender.Male, Gender.Female, Gender.Other]),
+    bornYear: z.number().int().min(1900)
   })
 })
 

@@ -10,6 +10,7 @@ import { Application, Prisma } from '@prisma/client'
 import { PagedList } from 'src/helpers/paged-list'
 import { FileService } from '../aws-s3/file.service'
 import { TGetApplicationDetailSchema } from './application.validation'
+import RequestValidationException from 'src/helpers/errors/request-validation.exception'
 
 @injectable()
 export class ApplicationService {
@@ -51,11 +52,15 @@ export class ApplicationService {
     }
   } as const
 
-  public createApplication = async (schema: TCreateApplicationSchema) => {
+  public createApplication = async (file: Express.Multer.File | undefined, schema: TCreateApplicationSchema) => {
     const {
       params: { jobCode, recruitmentDriveCode },
-      body: { candidateEmail, createCandidate, candidateData }
+      body: { bornYear, email, fullName, gender, phone }
     } = schema
+
+    if (!file) {
+      throw new RequestValidationException({ cv: 'CV is required' })
+    }
 
     const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findUnique({
       where: {
@@ -65,7 +70,8 @@ export class ApplicationService {
 
     if (!recruitmentDrive) throw new NotFoundException(`Not found recruitment drive with code: ${recruitmentDriveCode}`)
 
-    if (!recruitmentDrive.isOpening) throw new BadRequestException(`Cannot apply a job in closed recruitment drive`)
+    if (!recruitmentDrive.isOpening)
+      throw new BadRequestException(`Cannot apply for a job in a not opening recruitment drive`)
 
     const jobDetail = await this.prismaService.client.jobDetail.findUnique({
       where: {
@@ -96,7 +102,7 @@ export class ApplicationService {
     const hasAlreadyApply = !!(await this.prismaService.client.application.findFirst({
       where: {
         candidate: {
-          user: { email: candidateEmail }
+          user: { email }
         },
         jobDetailId: jobDetail.id
       }
@@ -104,56 +110,34 @@ export class ApplicationService {
 
     if (hasAlreadyApply) throw new BadRequestException(`This candidate is already apply this job`)
 
-    const candidate = await this.prismaService.client.user.findUnique({
-      where: {
-        email: candidateEmail
-      }
-    })
+    const cv = await this.fileService.upLoadPortfolio(file)
 
-    if (!candidate && !createCandidate) throw new NotFoundException(`Not found candidate with email: ${candidateEmail}`)
-
-    if (candidate && createCandidate) throw new BadRequestException(`This candidate is already exists`)
-
-    if (!createCandidate) {
-      await this.prismaService.client.user.update({
-        where: { email: candidateEmail },
-        data: {
-          ...candidateData,
-          candidate: {
-            update: {
-              applications: {
-                create: {
-                  jobDetailId: jobDetail.id
-                }
-              }
-            }
-          }
-        }
-      })
-
-      return
-    }
-
-    await this.prismaService.client.user.create({
+    await this.prismaService.client.user.update({
+      where: { email },
       data: {
-        ...candidateData,
-        email: candidateEmail,
-        role: {
-          connect: {
-            roleName: 'Candidate'
-          }
-        },
+        //fullName trong bảng User chỉ nên có thể đổi bằng cách tương tác với Clerk component + Webhook
+        bornYear,
+        gender,
+        phone,
         candidate: {
-          create: {
+          update: {
             applications: {
               create: {
-                jobDetailId: jobDetail.id
+                jobDetailId: jobDetail.id,
+                bornYear,
+                email,
+                fullName,
+                gender,
+                phone,
+                cv
               }
             }
           }
         }
       }
     })
+
+    return
   }
 
   public getCandidateByRecruitmentDrive = async (schema: TGetApplicationsByRecruitmentDriveSchema) => {

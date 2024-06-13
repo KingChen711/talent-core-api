@@ -59,7 +59,7 @@ export class RecruitmentDriveController {
   }
 
   public createApplication = async (req: Request, res: Response) => {
-    await this.applicationService.createApplication(res.locals.requestData)
+    await this.applicationService.createApplication(req.file, res.locals.requestData)
     return noContent(res)
   }
 
