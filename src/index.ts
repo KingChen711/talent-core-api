@@ -18,6 +18,8 @@ import { testExamRoute } from './modules/test-exam/test-exam.route'
 import { recruitmentDriveRoute } from './modules/recruitment-drive/recruitment-drive.route'
 import { ok } from './helpers/utils'
 import { applicantRoute } from './modules/applicant/applicant.route'
+import { container } from './config/inversify.config'
+import { EmailService } from './modules/email/email.service'
 
 //!Just for development
 const DELAY = 0
@@ -43,12 +45,13 @@ app.use('/api/jobs', jobRoute)
 app.use('/api/test-exams', testExamRoute)
 app.use('/api/recruitment-drives', recruitmentDriveRoute)
 app.use('/api/applicants', applicantRoute)
-// app.post('/api/upload', multerMiddleware('cv'), async (req, res) => {
-//   const file = req.file as Express.Multer.File
-//   const fileService = container.get(FileService)
-//   await fileService.upLoadPortfolio(file)
-//   return ok(res)
-// })
+app.post('/api/email', async (req, res) => {
+  const emailService = container.get(EmailService)
+
+  await emailService.sendMail('vanttse170128@fpt.edu.vn', '[TALENT_CORE][SCHEDULE_TEST_EXAM]', "Let's do test exam")
+
+  return res.status(200).json()
+})
 
 app.get('/', (req, res) => {
   return ok(res, { message: 'hello world' })

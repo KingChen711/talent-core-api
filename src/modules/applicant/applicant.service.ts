@@ -9,7 +9,15 @@ import BadRequestException from '../../helpers/errors/bad-request.exception'
 import { Applicant, Prisma } from '@prisma/client'
 import { PagedList } from 'src/helpers/paged-list'
 import { FileService } from '../aws-s3/file.service'
-import { TGetApplicantDetailSchema, TScheduleTestExamSchema } from './applicant.validation'
+import {
+  TApproveApplicantSchema,
+  TCompletedInterviewSchema,
+  TGetApplicantDetailSchema,
+  TRejectApplicantSchema,
+  TSaveApplicantSchema,
+  TScheduleInterviewSchema,
+  TScheduleTestExamSchema
+} from './applicant.validation'
 import RequestValidationException from 'src/helpers/errors/request-validation.exception'
 
 @injectable()
@@ -234,7 +242,9 @@ export class ApplicantService {
             job: true,
             quantity: true
           }
-        }
+        },
+        testSession: true,
+        interviewSession: true
       }
     })
 
@@ -282,6 +292,179 @@ export class ApplicantService {
             status: 'Processing'
           }
         }
+      }
+    })
+  }
+
+  public scheduleInterview = async (schema: TScheduleInterviewSchema) => {
+    const {
+      params: { applicantId },
+      body: { guide, interviewDate }
+    } = schema
+
+    const applicant = await this.prismaService.client.applicant.findUnique({
+      where: {
+        id: applicantId
+      },
+      include: {
+        testSession: true
+      }
+    })
+
+    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+
+    if (applicant.status !== 'Testing')
+      throw new BadRequestException('Only schedule interview for applicant with status Testing')
+
+    if (applicant.testSession?.status !== 'Pass')
+      throw new BadRequestException('Candidate must pass the test before schedule a interview')
+
+    //TODO: gửi mail thông báo
+    await this.prismaService.client.applicant.update({
+      where: {
+        id: applicantId
+      },
+      data: {
+        status: 'Interviewing',
+        interviewSession: {
+          create: {
+            guide,
+            interviewDate,
+            status: 'Processing'
+          }
+        }
+      }
+    })
+  }
+
+  public rejectApplicant = async (schema: TRejectApplicantSchema) => {
+    const {
+      params: { applicantId }
+    } = schema
+
+    const applicant = await this.prismaService.client.applicant.findUnique({
+      where: {
+        id: applicantId
+      }
+    })
+
+    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+
+    if (applicant.status !== 'Approve')
+      throw new BadRequestException('Only reject applicant for applicant with status Approve')
+
+    //TODO: gửi mail thông báo
+    await this.prismaService.client.applicant.update({
+      where: {
+        id: applicantId
+      },
+      data: {
+        status: 'Reject'
+      }
+    })
+  }
+
+  public saveApplicant = async (schema: TSaveApplicantSchema) => {
+    const {
+      params: { applicantId }
+    } = schema
+
+    const applicant = await this.prismaService.client.applicant.findUnique({
+      where: {
+        id: applicantId
+      },
+      include: {
+        interviewSession: true
+      }
+    })
+
+    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+
+    if (applicant.status !== 'Screening' && applicant.status !== 'Interviewing')
+      throw new BadRequestException('Only save applicant for applicant with status Screening or Interviewing')
+
+    if (applicant.status === 'Interviewing' && applicant.interviewSession?.status !== 'Completed')
+      throw new BadRequestException('Only save applicant for applicant with interview status is Completed')
+
+    //TODO: gửi mail thông báo
+    await this.prismaService.client.applicant.update({
+      where: {
+        id: applicantId
+      },
+      data: {
+        status: 'Saved'
+      }
+    })
+  }
+  public approveApplicant = async (schema: TApproveApplicantSchema) => {
+    const {
+      params: { applicantId },
+      body: { guide, receiveJobDate }
+    } = schema
+
+    const applicant = await this.prismaService.client.applicant.findUnique({
+      where: {
+        id: applicantId
+      },
+      include: {
+        interviewSession: true
+      }
+    })
+
+    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+
+    if (applicant.status !== 'Interviewing')
+      throw new BadRequestException('Only approve applicant for applicant with status Interviewing')
+
+    if (applicant.interviewSession?.status !== 'Completed')
+      throw new BadRequestException('Only approve applicant for applicant with interview status is Completed')
+
+    //TODO: gửi mail thông báo, gửi với guide
+    console.log(guide)
+
+    await this.prismaService.client.applicant.update({
+      where: {
+        id: applicantId
+      },
+      data: {
+        status: 'Approve',
+        receiveJobDate
+      }
+    })
+  }
+
+  public completedInterview = async (schema: TCompletedInterviewSchema) => {
+    const {
+      params: { applicantId }
+    } = schema
+
+    const applicant = await this.prismaService.client.applicant.findUnique({
+      where: {
+        id: applicantId
+      },
+      include: {
+        interviewSession: true
+      }
+    })
+
+    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+
+    if (applicant.status !== 'Interviewing')
+      throw new BadRequestException('Only completed interview for applicant with status Interviewing')
+
+    if (applicant.interviewSession?.status !== 'Processing')
+      throw new BadRequestException('Only completed interview with status Processing')
+
+    if (applicant.interviewSession?.interviewDate.getTime() >= Date.now())
+      throw new BadRequestException('The interview has not been taken')
+
+    //TODO: gửi mail thông báo
+    await this.prismaService.client.interviewSession.update({
+      where: {
+        applicantId
+      },
+      data: {
+        status: 'Completed'
       }
     })
   }

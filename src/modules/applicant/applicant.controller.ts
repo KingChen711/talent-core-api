@@ -16,4 +16,29 @@ export class ApplicantController {
     await this.applicantService.scheduleTestExam(res.locals.requestData)
     return noContent(res)
   }
+
+  public scheduleInterview = async (req: Request, res: Response) => {
+    await this.applicantService.scheduleInterview(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public completedInterview = async (req: Request, res: Response) => {
+    await this.applicantService.completedInterview(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public approveApplicant = async (req: Request, res: Response) => {
+    await this.applicantService.approveApplicant(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public rejectApplicant = async (req: Request, res: Response) => {
+    await this.applicantService.rejectApplicant(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public saveApplicant = async (req: Request, res: Response) => {
+    await this.applicantService.saveApplicant(res.locals.requestData)
+    return noContent(res)
+  }
 }

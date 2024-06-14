@@ -12,6 +12,7 @@ import { RecruitmentDriveService } from '../modules/recruitment-drive/recruitmen
 import { RecruitmentDriveController } from '../modules/recruitment-drive/recruitment-drive.controller'
 import { ApplicantService } from '../modules/applicant/applicant.service'
 import { ApplicantController } from 'src/modules/applicant/applicant.controller'
+import { EmailService } from 'src/modules/email/email.service'
 
 const container = new Container()
 
@@ -34,5 +35,7 @@ container.bind(ApplicantController).toSelf().inRequestScope()
 
 container.bind(RecruitmentDriveService).toSelf().inRequestScope()
 container.bind(RecruitmentDriveController).toSelf().inRequestScope()
+
+container.bind(EmailService).toSelf().inRequestScope()
 
 export { container }
