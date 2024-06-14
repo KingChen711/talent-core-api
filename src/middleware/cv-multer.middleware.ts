@@ -7,9 +7,9 @@ const storage = multer.memoryStorage()
 const fileFilter = (req: Request, file: Express.Multer.File, callback: multer.FileFilterCallback) => {
   // Accept only pdf, doc, and docx files
   if (
-    file.mimetype === 'applicant/pdf' ||
-    file.mimetype === 'applicant/msword' ||
-    file.mimetype === 'applicant/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    file.mimetype === 'application/pdf' ||
+    file.mimetype === 'application/msword' ||
+    file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ) {
     callback(null, true)
   } else {

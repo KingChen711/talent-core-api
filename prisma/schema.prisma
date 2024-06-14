@@ -133,16 +133,16 @@ enum InterviewResult {
 }
 
 model TestSession {
-  id          String            @id @default(auto()) @map("_id") @db.ObjectId
-  applicantId String            @unique @db.ObjectId
-  testExamId  String            @db.ObjectId
-  point       Int?
-  status      TestSessionStatus @default(Processing)
-  startDate   DateTime
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  applicantId  String            @unique @db.ObjectId
+  testExamCode String
+  point        Int?
+  status       TestSessionStatus @default(Processing)
+  testDate     DateTime
   // method        Method            @default(Offline)
 
   applicant       Applicant        @relation(fields: [applicantId], references: [id])
-  testExam        TestExam         @relation(fields: [testExamId], references: [id], onDelete: Restrict)
+  testExam        TestExam         @relation(fields: [testExamCode], references: [code], onDelete: Restrict)
   testSessionWish TestSessionWish?
 }
 

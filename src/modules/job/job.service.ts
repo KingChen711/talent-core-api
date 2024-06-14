@@ -110,18 +110,18 @@ export class JobService {
     return mappedJob
   }
 
-  public getJobs = async (schema: TGetJobsSchema, exceptCodes: string[] = []): Promise<PagedList<Job>> => {
+  public getJobs = async (schema: TGetJobsSchema, exceptIds: string[] = []): Promise<PagedList<Job>> => {
     const {
       query: { pageNumber, pageSize, search, status, sort }
     } = schema
 
     const where = {
       AND: [
-        exceptCodes.length > 0
+        exceptIds.length > 0
           ? {
               NOT: {
-                code: {
-                  in: exceptCodes
+                id: {
+                  in: exceptIds
                 }
               }
             }
@@ -310,7 +310,15 @@ export class JobService {
     const job = await this.prismaService.client.job.findUnique({
       where: { code: jobCode },
       include: {
-        testExams: true
+        testExams: {
+          include: {
+            _count: {
+              select: {
+                questions: true
+              }
+            }
+          }
+        }
       }
     })
 
@@ -319,7 +327,13 @@ export class JobService {
     }
 
     //A job will not have to to much test exam, no need to pagination, search, sort
-    return job.testExams
+    const mappedTestExams = job.testExams.map((test) => ({
+      ...test,
+      countQuestions: test._count.questions,
+      _count: undefined
+    }))
+
+    return mappedTestExams
   }
 
   public getAddableTestExams = async (schema: TGetAddableTestExamsSchema) => {
@@ -342,13 +356,10 @@ export class JobService {
   }
 
   public addTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {
-    console.log('addTestExams Service')
     const {
       params: { jobCode },
       body: { testExamIds }
     } = schema
-
-    console.log(1)
 
     const job = await this.prismaService.client.job.findUnique({
       where: { code: jobCode }
@@ -369,6 +380,10 @@ export class JobService {
     })
 
     console.log(4)
+
+    console.log({ testExamIds })
+
+    console.log({ testExams })
 
     if (testExams.length !== testExamIds.length) throw new BadRequestException(`Some test exams are not found`)
 

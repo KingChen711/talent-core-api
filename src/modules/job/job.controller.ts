@@ -46,11 +46,7 @@ export class JobController {
   }
 
   public addTestExams = async (req: Request, res: Response) => {
-    console.log('addTestExamsControllers')
-
     await this.jobService.addTestExams(res.locals.requestData)
-
-    console.log('9')
     return noContent(res)
   }
 

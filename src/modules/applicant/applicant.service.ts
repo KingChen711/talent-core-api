@@ -9,7 +9,7 @@ import BadRequestException from '../../helpers/errors/bad-request.exception'
 import { Applicant, Prisma } from '@prisma/client'
 import { PagedList } from 'src/helpers/paged-list'
 import { FileService } from '../aws-s3/file.service'
-import { TGetApplicantDetailSchema } from './applicant.validation'
+import { TGetApplicantDetailSchema, TScheduleTestExamSchema } from './applicant.validation'
 import RequestValidationException from 'src/helpers/errors/request-validation.exception'
 
 @injectable()
@@ -241,5 +241,48 @@ export class ApplicantService {
     if (!applicant) throw new NotFoundException(`Not found applicant with id: ${applicantId}`)
 
     return applicant
+  }
+
+  public scheduleTestExam = async (schema: TScheduleTestExamSchema) => {
+    const {
+      params: { applicantId },
+      body: { testDate, testExamCode }
+    } = schema
+
+    const applicant = await this.prismaService.client.applicant.findUnique({
+      where: {
+        id: applicantId
+      }
+    })
+
+    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+
+    if (applicant.status !== 'Screening')
+      throw new BadRequestException('Only schedule test exam for applicant with status Screening')
+
+    const testExam = await this.prismaService.client.testExam.findUnique({
+      where: {
+        code: testExamCode
+      }
+    })
+
+    if (!testExam) throw new NotFoundException(`Not found application with code: ${testExamCode}`)
+
+    //TODO: set background task handle test session
+    await this.prismaService.client.applicant.update({
+      where: {
+        id: applicantId
+      },
+      data: {
+        status: 'Testing',
+        testSession: {
+          create: {
+            testDate,
+            testExamCode,
+            status: 'Processing'
+          }
+        }
+      }
+    })
   }
 }
