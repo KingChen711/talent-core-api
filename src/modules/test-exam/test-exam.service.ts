@@ -153,7 +153,6 @@ export class TestExamService {
     //check exist
     const testExam = await this.getTestExamById(testExamId, true)!
 
-    //TODO: chưa xác nhận cái này chạy được không
     if (testExam!._count.testSessions > 0) {
       throw new BadRequestException('Cannot delete a test exam have test sessions.')
     }

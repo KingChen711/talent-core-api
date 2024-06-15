@@ -285,7 +285,6 @@ export class RecruitmentDriveService {
 
     const countApplicants = recruitmentDrive.jobDetails.reduce((total, jd) => total + jd._count.applicants, 0)
 
-    //TODO: chưa xác nhận cái này chạy được không
     if (countApplicants > 0) {
       throw new BadRequestException('Cannot delete a recruitment drive already having some applicants')
     }
@@ -348,7 +347,6 @@ export class RecruitmentDriveService {
       }
     }))
 
-    //TODO: chưa xác nhận hoạt động đúng
     if (hasApplicants) {
       throw new BadRequestException(`Cannot close a job already has some applicants`)
     }

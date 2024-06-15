@@ -334,7 +334,6 @@ export class ApplicantService {
     if (applicant.testSession?.status !== 'Pass')
       throw new BadRequestException('Candidate must pass the test before schedule a interview')
 
-    //TODO: gửi mail thông báo
     await this.prismaService.client.applicant.update({
       where: {
         id: applicantId
@@ -356,7 +355,8 @@ export class ApplicantService {
       appliedJob: applicant.jobDetail.job.name,
       candidate: applicant.fullName,
       location,
-      interviewDate
+      interviewDate,
+      point: applicant.testSession.point!
     })
   }
 
@@ -368,6 +368,13 @@ export class ApplicantService {
     const applicant = await this.prismaService.client.applicant.findUnique({
       where: {
         id: applicantId
+      },
+      include: {
+        jobDetail: {
+          select: {
+            job: true
+          }
+        }
       }
     })
 
@@ -376,7 +383,6 @@ export class ApplicantService {
     if (applicant.status !== 'Approve')
       throw new BadRequestException('Only reject applicant for applicant with status Approve')
 
-    //TODO: gửi mail thông báo
     await this.prismaService.client.applicant.update({
       where: {
         id: applicantId
@@ -384,6 +390,12 @@ export class ApplicantService {
       data: {
         status: 'Reject'
       }
+    })
+
+    await this.emailService.sendEmailRejectApplicant({
+      to: applicant.email,
+      appliedJob: applicant.jobDetail.job.name,
+      candidate: applicant.fullName
     })
   }
 
@@ -397,7 +409,12 @@ export class ApplicantService {
         id: applicantId
       },
       include: {
-        interviewSession: true
+        interviewSession: true,
+        jobDetail: {
+          select: {
+            job: true
+          }
+        }
       }
     })
 
@@ -409,7 +426,6 @@ export class ApplicantService {
     if (applicant.status === 'Interviewing' && applicant.interviewSession?.status !== 'Completed')
       throw new BadRequestException('Only save applicant for applicant with interview status is Completed')
 
-    //TODO: gửi mail thông báo
     await this.prismaService.client.applicant.update({
       where: {
         id: applicantId
@@ -418,11 +434,17 @@ export class ApplicantService {
         status: 'Saved'
       }
     })
+
+    await this.emailService.sendEmailSaveApplicant({
+      to: applicant.email,
+      appliedJob: applicant.jobDetail.job.name,
+      candidate: applicant.fullName
+    })
   }
   public approveApplicant = async (schema: TApproveApplicantSchema) => {
     const {
       params: { applicantId },
-      body: { guide, receiveJobDate }
+      body: { location, receiveJobDate }
     } = schema
 
     const applicant = await this.prismaService.client.applicant.findUnique({
@@ -430,7 +452,12 @@ export class ApplicantService {
         id: applicantId
       },
       include: {
-        interviewSession: true
+        interviewSession: true,
+        jobDetail: {
+          select: {
+            job: true
+          }
+        }
       }
     })
 
@@ -442,9 +469,6 @@ export class ApplicantService {
     if (applicant.interviewSession?.status !== 'Completed')
       throw new BadRequestException('Only approve applicant for applicant with interview status is Completed')
 
-    //TODO: gửi mail thông báo, gửi với guide
-    console.log(guide)
-
     await this.prismaService.client.applicant.update({
       where: {
         id: applicantId
@@ -453,6 +477,14 @@ export class ApplicantService {
         status: 'Approve',
         receiveJobDate
       }
+    })
+
+    await this.emailService.sendEmailApproveApplicant({
+      to: applicant.email,
+      appliedJob: applicant.jobDetail.job.name,
+      candidate: applicant.fullName,
+      location,
+      receiveJobDate
     })
   }
 
@@ -481,7 +513,6 @@ export class ApplicantService {
     if (applicant.interviewSession?.interviewDate.getTime() >= Date.now())
       throw new BadRequestException('The interview has not been taken')
 
-    //TODO: gửi mail thông báo
     await this.prismaService.client.interviewSession.update({
       where: {
         applicantId

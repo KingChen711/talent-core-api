@@ -6,7 +6,13 @@ import { PrismaService } from '../prisma/prisma.service'
 import mailTransporter from './mail-transporter'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { replacePlaceholders, toDateTime } from 'src/helpers/utils'
-import { notifyInterviewSessionTemplate, receivedApplicantTemplate } from 'src/constants/email-templates'
+import {
+  notifyApproveApplicantTemplate,
+  notifyInterviewSessionTemplate,
+  notifyRejectApplicantTemplate,
+  notifySaveApplicantTemplate,
+  receivedApplicantTemplate
+} from 'src/constants/email-templates'
 
 type TSendEmailReceivedApplicant = {
   to: string
@@ -21,6 +27,27 @@ type TSendEmailInterviewSession = {
   appliedJob: string
   interviewDate: Date
   location: string
+  point: number
+}
+
+type TSendEmailApproveApplicant = {
+  to: string
+  candidate: string
+  appliedJob: string
+  receiveJobDate: Date
+  location: string
+}
+
+type TSendEmailSaveApplicant = {
+  to: string
+  candidate: string
+  appliedJob: string
+}
+
+type TSendEmailRejectApplicant = {
+  to: string
+  candidate: string
+  appliedJob: string
 }
 
 @injectable()
@@ -70,15 +97,62 @@ export class EmailService {
     candidate,
     interviewDate,
     location,
-    to
+    to,
+    point
   }: TSendEmailInterviewSession) => {
     const html = replacePlaceholders(notifyInterviewSessionTemplate, {
       appliedJob,
       candidate,
       location,
+      point: point.toString(),
       interviewDate: toDateTime(interviewDate)
     })
 
     await this.sendMail(to, `Interview Invitation for ${appliedJob} at Talent Core Corporation`, html)
+  }
+
+  public sendEmailApproveApplicant = async ({
+    appliedJob,
+    candidate,
+    receiveJobDate,
+    location,
+    to
+  }: TSendEmailApproveApplicant) => {
+    const html = replacePlaceholders(notifyApproveApplicantTemplate, {
+      appliedJob,
+      candidate,
+      location,
+      receiveJobDate: toDateTime(receiveJobDate)
+    })
+
+    await this.sendMail(to, `Job Offer for ${appliedJob} at Talent Core Corporation`, html)
+  }
+
+  public sendEmailSaveApplicant = async ({
+    appliedJob,
+    candidate,
+
+    to
+  }: TSendEmailSaveApplicant) => {
+    const html = replacePlaceholders(notifySaveApplicantTemplate, {
+      appliedJob,
+      candidate
+    })
+
+    await this.sendMail(to, `Update on Your Application for ${appliedJob} at Talent Core Corporation`, html)
+  }
+
+  public sendEmailRejectApplicant = async ({
+    appliedJob,
+    candidate,
+
+    to
+  }: TSendEmailRejectApplicant) => {
+    const html = replacePlaceholders(notifyRejectApplicantTemplate, {
+      appliedJob,
+      candidate
+    })
+
+    await this.sendMail(to, `Update on Your Application for ${appliedJob} at Talent Core Corporation`, html)
   }
 }
