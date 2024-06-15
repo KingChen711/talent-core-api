@@ -53,6 +53,11 @@ export class RecruitmentDriveController {
     return created(res, jobDetail)
   }
 
+  public addJob = async (req: Request, res: Response) => {
+    const jobDetail = await this.recruitmentDriveService.addJob(res.locals.requestData)
+    return created(res, jobDetail)
+  }
+
   public closeJob = async (req: Request, res: Response) => {
     await this.recruitmentDriveService.closeJob(res.locals.requestData)
     return noContent(res)

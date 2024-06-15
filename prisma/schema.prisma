@@ -213,18 +213,24 @@ type QuestionOption {
 }
 
 model RecruitmentDrive {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  code        String   @unique
+  id          String                 @id @default(auto()) @map("_id") @db.ObjectId
+  code        String                 @unique
   name        String
   startDate   DateTime
   endDate     DateTime
   description String?
-  isOpening   Boolean
-  createdAt   DateTime @default(now())
+  status      RecruitmentDriveStatus
+  createdAt   DateTime               @default(now())
 
   jobDetails JobDetail[]
 
-  @@index([isOpening(sort: Desc), createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum RecruitmentDriveStatus {
+  Upcoming
+  Open
+  Closed
 }
 
 model JobDetail {

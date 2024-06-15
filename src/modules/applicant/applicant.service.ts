@@ -74,8 +74,8 @@ export class ApplicantService {
 
     if (!recruitmentDrive) throw new NotFoundException(`Not found recruitment drive with code: ${recruitmentDriveCode}`)
 
-    if (!recruitmentDrive.isOpening)
-      throw new BadRequestException(`Cannot apply for a job in a not opening recruitment drive`)
+    if (recruitmentDrive.status !== 'Open')
+      throw new BadRequestException(`Cannot apply for a job in a ${recruitmentDrive.status} recruitment drive`)
 
     const jobDetail = await this.prismaService.client.jobDetail.findUnique({
       where: {

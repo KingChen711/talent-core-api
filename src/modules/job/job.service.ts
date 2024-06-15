@@ -87,7 +87,7 @@ export class JobService {
           select: {
             recruitmentDrive: {
               select: {
-                isOpening: true
+                status: true
               }
             }
           }
@@ -99,9 +99,15 @@ export class JobService {
 
     const imageUrl = await this.fileService.getFileUrl(job.icon)
 
+    let status = [...new Set(job.jobDetails.map((jd) => jd.recruitmentDrive.status))]
+
+    if (status.includes('Closed') && status.length > 1) {
+      status = status.filter((s) => s !== 'Closed')
+    }
+
     const mappedJob = {
       ...job,
-      isOpening: job.jobDetails.some((jd) => jd.recruitmentDrive.isOpening),
+      status,
       icon: imageUrl,
       jobDetails: undefined,
       testExamIds: undefined
@@ -115,67 +121,87 @@ export class JobService {
       query: { pageNumber, pageSize, search, status, sort }
     } = schema
 
-    const where = {
-      AND: [
-        exceptIds.length > 0
-          ? {
-              NOT: {
-                id: {
-                  in: exceptIds
-                }
-              }
-            }
-          : undefined,
-        status === 'opening'
-          ? {
-              jobDetails: {
-                some: {
-                  recruitmentDrive: {
-                    isOpening: true
-                  }
-                }
-              }
-            }
-          : undefined,
-        status === 'closed'
-          ? {
-              jobDetails: {
-                every: {
-                  recruitmentDrive: {
-                    isOpening: false
-                  }
-                }
-              }
-            }
-          : undefined,
-        search
-          ? {
-              OR: [
-                {
-                  code: {
-                    contains: search,
-                    mode: 'insensitive'
-                  }
-                },
-                {
-                  description: {
-                    contains: search,
-                    mode: 'insensitive'
-                  }
-                },
-                {
-                  name: {
-                    contains: search,
-                    mode: 'insensitive'
-                  }
-                }
-              ]
-            }
-          : undefined
-      ].filter((i) => i !== undefined) as Prisma.JobWhereInput
+    let exceptIdsQuery: Prisma.JobWhereInput = {}
+
+    if (exceptIds.length > 0) {
+      exceptIdsQuery = {
+        NOT: {
+          id: {
+            in: exceptIds
+          }
+        }
+      }
     }
 
-    const query: Prisma.JobFindManyArgs = { where }
+    let searchQuery: Prisma.JobWhereInput = {}
+
+    if (search) {
+      searchQuery = {
+        OR: [
+          {
+            code: {
+              contains: search,
+              mode: 'insensitive'
+            }
+          },
+          {
+            description: {
+              contains: search,
+              mode: 'insensitive'
+            }
+          },
+          {
+            name: {
+              contains: search,
+              mode: 'insensitive'
+            }
+          }
+        ]
+      }
+    }
+
+    let statusQuery: Prisma.JobWhereInput = {}
+
+    switch (status) {
+      case 'Closed': {
+        statusQuery = {
+          jobDetails: {
+            every: {
+              recruitmentDrive: {
+                status: { notIn: ['Open', 'Upcoming'] }
+              }
+            }
+          }
+        }
+        break
+      }
+      case 'Open': {
+        statusQuery = {
+          jobDetails: {
+            some: {
+              recruitmentDrive: {
+                status: 'Open'
+              }
+            }
+          }
+        }
+        break
+      }
+      case 'Upcoming': {
+        statusQuery = {
+          jobDetails: {
+            some: {
+              recruitmentDrive: {
+                status: 'Upcoming'
+              }
+            }
+          }
+        }
+        break
+      }
+    }
+
+    const query: Prisma.JobFindManyArgs = { where: { AND: [statusQuery, searchQuery, exceptIdsQuery] } }
 
     const totalCount = await this.prismaService.client.job.count(query as Prisma.JobCountArgs)
 
@@ -193,7 +219,7 @@ export class JobService {
           select: {
             recruitmentDrive: {
               select: {
-                isOpening: true
+                status: true
               }
             }
           }
@@ -203,12 +229,20 @@ export class JobService {
 
     const imageUrls = await Promise.all(jobs.map((job) => this.fileService.getFileUrl(job.icon)))
 
-    const mappedJobs = jobs.map((job, i) => ({
-      ...job,
-      isOpening: job.jobDetails.some((jd) => jd.recruitmentDrive.isOpening),
-      icon: imageUrls[i],
-      jobDetails: undefined // key have undefined value will be remove from the returned json
-    }))
+    const mappedJobs = jobs.map((job, i) => {
+      let status = [...new Set(job.jobDetails.map((jd) => jd.recruitmentDrive.status))]
+
+      if (status.includes('Closed') && status.length > 1) {
+        status = status.filter((s) => s !== 'Closed')
+      }
+
+      return {
+        ...job,
+        status: status.length > 0 ? status : ['Closed'],
+        icon: imageUrls[i],
+        jobDetails: undefined // key have undefined value will be remove from the returned json
+      }
+    })
 
     return new PagedList<Job>(mappedJobs, totalCount, pageNumber, pageSize)
   }

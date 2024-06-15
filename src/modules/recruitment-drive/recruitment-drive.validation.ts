@@ -9,7 +9,7 @@ export const getRecruitmentDrivesSchema = z.object({
       .default(10)
       .transform((data) => Math.min(data, 50)),
     search: z.coerce.string().trim().optional(),
-    status: z.enum(['all', 'opening', 'closed']).catch('all'),
+    status: z.enum(['All', 'Open', 'Closed', 'Upcoming']).catch('All'),
     sort: z
       .enum([
         'startDate',
@@ -43,8 +43,7 @@ export const createRecruitmentDriveSchema = z.object({
       name: z.string().min(2).max(50),
       startDate: z.coerce.date(),
       endDate: z.coerce.date(),
-      description: z.string().optional(),
-      isOpening: z.boolean()
+      description: z.string().optional()
     })
     .refine(
       (data) => {
@@ -75,8 +74,7 @@ export const updateRecruitmentDriveSchema = z.object({
       name: z.string().min(2).max(50),
       startDate: z.coerce.date(),
       endDate: z.coerce.date(),
-      description: z.string().optional(),
-      isOpening: z.boolean()
+      description: z.string().optional()
     })
     .refine(
       (data) => {
@@ -147,7 +145,7 @@ export const getAddableJobsSchema = z.object({
       .default(10)
       .transform((data) => Math.min(data, 50)),
     search: z.coerce.string().trim().optional(),
-    status: z.enum(['all', 'opening', 'closed']).catch('all'),
+    status: z.enum(['All', 'Open', 'Closed', 'Upcoming']).catch('All'),
     sort: z.enum(['code', '-code', 'name', '-name', 'createdAt', '-createdAt']).optional().default('createdAt')
   })
 })
@@ -171,12 +169,17 @@ export const closeJobSchema = z.object({
 
 export type TCloseJobSchema = z.infer<typeof closeJobSchema>
 
-// const candidateSchema = z.object({
-//   fullName: z.string().min(2),
-//   phone: z.string().regex(/^(0?)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/),
-//   gender: z.enum([Gender.Male, Gender.Female, Gender.Other]),
-//   bornYear: z.number().int().min(1900)
-// })
+export const addJobSchema = z.object({
+  params: z.object({
+    recruitmentDriveCode: z.string()
+  }),
+  body: z.object({
+    jobCode: z.string(),
+    quantity: z.coerce.number().int().min(1)
+  })
+})
+
+export type TAddJobSchema = z.infer<typeof addJobSchema>
 
 export const createApplicantSchema = z.object({
   params: z.object({

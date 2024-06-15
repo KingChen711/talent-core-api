@@ -18,7 +18,8 @@ import {
   closeJobSchema,
   createApplicantSchema,
   getRecruitmentDriveDetailSchema,
-  getApplicantsByRecruitmentDriveSchema
+  getApplicantsByRecruitmentDriveSchema,
+  addJobSchema
 } from './recruitment-drive.validation'
 import cvMulterMiddleware from 'src/middleware/cv-multer.middleware'
 
@@ -49,6 +50,15 @@ router.post(
   cvMulterMiddleware,
   validateRequestData(createApplicantSchema),
   recruitmentDriveController.createApplicant
+)
+
+router.post(
+  '/:recruitmentDriveCode/jobs',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  cvMulterMiddleware,
+  validateRequestData(addJobSchema),
+  recruitmentDriveController.addJob
 )
 
 router.get(

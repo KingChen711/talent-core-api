@@ -52,8 +52,6 @@ export class TestExamController {
 
     const testExam = (await this.testExamService.getTestExamByCode(testExamCode, true))!
 
-    console.log({ except: testExam.jobIds })
-
     const addableJobs = await this.jobService.getJobs({ query }, testExam.jobIds)
     res.setHeader('X-Pagination', JSON.stringify(addableJobs.metaData))
     return ok(res, addableJobs)
