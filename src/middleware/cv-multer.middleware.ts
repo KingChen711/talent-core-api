@@ -1,6 +1,7 @@
-import multer from 'multer'
-import RequestValidationException from '../helpers/errors/request-validation.exception'
 import { Request } from 'express'
+import multer from 'multer'
+
+import RequestValidationException from '../helpers/errors/request-validation.exception'
 
 const storage = multer.memoryStorage()
 

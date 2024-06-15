@@ -1,23 +1,26 @@
-import 'dotenv/config' // To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
+import 'dotenv/config'
 
-import express from 'express'
-import { container } from '../../config/inversify.config'
 import { JobController } from './job.controller'
-import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import {
+  addOrRemoveTestExamsSchema,
   createJobSchema,
   deleteJobSchema,
-  addOrRemoveTestExamsSchema,
   getAddableTestExamsSchema,
   getJobSchema,
   getJobTestExamsSchema,
   getJobsSchema,
   updateJobSchema
 } from './job.validation'
-import { authorize } from '../../middleware/authorize.middleware'
-import { Role } from '../../types'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
-import imageMulterMiddleware from 'src/middleware/image-multer.middleware'
+// To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
+import express from 'express'
+
+import { container } from '../../config/inversify.config'
+
+import { authorize } from '../../middleware/authorize.middleware'
+import imageMulterMiddleware from '../../middleware/image-multer.middleware'
+import { validateRequestData } from '../../middleware/validate-request-data.middleware'
+import { Role } from '../../types'
 
 const router = express.Router()
 

@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express'
-import { isZodError } from '../helpers/utils'
+import { NextFunction, Request, Response } from 'express'
 import { AnyZodObject } from 'zod'
+
 import RequestValidationException from '../helpers/errors/request-validation.exception'
+import { isZodError } from '../helpers/utils'
 
 const validateRequestData = (schema: AnyZodObject) => async (req: Request, res: Response, next: NextFunction) => {
   try {

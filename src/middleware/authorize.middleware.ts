@@ -1,12 +1,15 @@
 import 'dotenv/config'
 
-import { NextFunction, Request, Response } from 'express'
-import { Role } from '../types'
 import { WithAuthProp } from '@clerk/clerk-sdk-node'
+import { NextFunction, Request, Response } from 'express'
+
 import { container } from '../config/inversify.config'
-import { UserService } from '../modules/user/user.service'
-import UnauthorizedException from '../helpers/errors/unauthorized-exception'
+
 import ForbiddenException from '../helpers/errors/forbidden-exception'
+import UnauthorizedException from '../helpers/errors/unauthorized-exception'
+
+import { UserService } from '../modules/user/user.service'
+import { Role } from '../types'
 
 const authorize = (roles?: Role[]) => async (req: WithAuthProp<Request>, res: Response, next: NextFunction) => {
   try {

@@ -1,4 +1,5 @@
 import 'dotenv/config'
+
 import cors from 'cors'
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS!.split(',')

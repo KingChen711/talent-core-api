@@ -7,7 +7,7 @@ import {
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
 import { Applicant, Prisma } from '@prisma/client'
-import { PagedList } from 'src/helpers/paged-list'
+import { PagedList } from '../../helpers/paged-list'
 import { FileService } from '../aws-s3/file.service'
 import {
   TApproveApplicantSchema,
@@ -18,7 +18,7 @@ import {
   TScheduleInterviewSchema,
   TScheduleTestExamSchema
 } from './applicant.validation'
-import RequestValidationException from 'src/helpers/errors/request-validation.exception'
+import RequestValidationException from '../../helpers/errors/request-validation.exception'
 import { EmailService } from '../email/email.service'
 
 @injectable()

@@ -1,4 +1,5 @@
 {
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "arrowParens": "always",
   "semi": false,
   "trailingComma": "none",
@@ -7,5 +8,25 @@
   "useTabs": false,
   "singleQuote": true,
   "printWidth": 120,
-  "jsxSingleQuote": true
+  "jsxSingleQuote": true,
+
+  "importOrder": [
+    "dotenv/config",
+    "<THIRD_PARTY_MODULES>",
+    "interface",
+    "(?=content|api)",
+    "provider/",
+    "context/",
+    "mock/",
+    "config",
+    "utils/",
+    "helpers/",
+    "hooks/",
+    "(components/|./index)",
+    ".svg",
+    "^../(.*)$",
+    "(?=./styles.module.scss)"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
 }

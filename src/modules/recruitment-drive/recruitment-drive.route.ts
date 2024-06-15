@@ -1,27 +1,30 @@
-import 'dotenv/config' // To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
+import 'dotenv/config'
 
-import express from 'express'
-import { container } from '../../config/inversify.config'
 import { RecruitmentDriveController } from './recruitment-drive.controller'
-import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
-import { authorize } from '../../middleware/authorize.middleware'
-import { Role } from '../../types'
-import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import {
-  openJobSchema,
+  addJobSchema,
+  closeJobSchema,
+  createApplicantSchema,
   createRecruitmentDriveSchema,
   deleteRecruitmentDriveSchema,
   getAddableJobsSchema,
+  getApplicantsByRecruitmentDriveSchema,
+  getRecruitmentDriveDetailSchema,
   getRecruitmentDriveSchema,
   getRecruitmentDrivesSchema,
-  updateRecruitmentDriveSchema,
-  closeJobSchema,
-  createApplicantSchema,
-  getRecruitmentDriveDetailSchema,
-  getApplicantsByRecruitmentDriveSchema,
-  addJobSchema
+  openJobSchema,
+  updateRecruitmentDriveSchema
 } from './recruitment-drive.validation'
-import cvMulterMiddleware from 'src/middleware/cv-multer.middleware'
+import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
+// To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
+import express from 'express'
+
+import { container } from '../../config/inversify.config'
+
+import { authorize } from '../../middleware/authorize.middleware'
+import cvMulterMiddleware from '../../middleware/cv-multer.middleware'
+import { validateRequestData } from '../../middleware/validate-request-data.middleware'
+import { Role } from '../../types'
 
 const router = express.Router()
 

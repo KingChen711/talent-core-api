@@ -1,11 +1,15 @@
-import 'dotenv/config' // To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
-import express from 'express'
-import { container } from '../../config/inversify.config'
+import 'dotenv/config'
+
 import { UserController } from './user.controller'
+import { getProfileSchema } from './user.validation'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
+// To read CLERK_SECRET_KEY and CLERK_PUBLISHABLE_KEY
+import express from 'express'
+
+import { container } from '../../config/inversify.config'
+
 import { authorize } from '../../middleware/authorize.middleware'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
-import { getProfileSchema } from './user.validation'
 
 const router = express.Router()
 

@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+
 import ApiError from './api-error'
 
 class UnauthorizedException extends ApiError {

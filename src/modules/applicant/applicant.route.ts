@@ -1,10 +1,4 @@
-import express from 'express'
-import { container } from '../../config/inversify.config'
 import { ApplicantController } from './applicant.controller'
-import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
-import { authorize } from '../../middleware/authorize.middleware'
-import { Role } from '../../types'
-import { validateRequestData } from 'src/middleware/validate-request-data.middleware'
 import {
   approveApplicantSchema,
   completedInterviewSchema,
@@ -14,6 +8,14 @@ import {
   scheduleInterviewSchema,
   scheduleTestExamSchema
 } from './applicant.validation'
+import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
+import express from 'express'
+
+import { container } from '../../config/inversify.config'
+
+import { authorize } from '../../middleware/authorize.middleware'
+import { validateRequestData } from '../../middleware/validate-request-data.middleware'
+import { Role } from '../../types'
 
 const router = express.Router()
 

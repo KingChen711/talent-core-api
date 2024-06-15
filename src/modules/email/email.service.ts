@@ -5,14 +5,14 @@ import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import mailTransporter from './mail-transporter'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
-import { replacePlaceholders, toDateTime } from 'src/helpers/utils'
+import { replacePlaceholders, toDateTime } from '../../helpers/utils'
 import {
   notifyApproveApplicantTemplate,
   notifyInterviewSessionTemplate,
   notifyRejectApplicantTemplate,
   notifySaveApplicantTemplate,
   receivedApplicantTemplate
-} from 'src/constants/email-templates'
+} from '../../constants/email-templates'
 
 type TSendEmailReceivedApplicant = {
   to: string

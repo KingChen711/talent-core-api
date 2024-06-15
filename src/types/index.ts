@@ -1,6 +1,6 @@
 import { User } from '@prisma/client'
-import { Response } from 'express'
 import { Role as TRole } from '@prisma/client'
+import { Response } from 'express'
 
 export enum Role {
   EMPLOYEE = 'Employee',

@@ -1,7 +1,8 @@
+import { ClerkController } from './clerk.controller'
 import bodyParser from 'body-parser'
 import express from 'express'
+
 import { container } from '../../config/inversify.config'
-import { ClerkController } from './clerk.controller'
 
 const router = express.Router()
 
