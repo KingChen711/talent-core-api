@@ -2,7 +2,7 @@ import { ZodError } from 'zod'
 import crypto from 'crypto'
 import { StatusCodes } from 'http-status-codes'
 import { Response } from 'express'
-import { Express } from 'express'
+import { format } from 'date-fns'
 import mime from 'mime-types'
 
 export function isZodError<T>(error: unknown): error is ZodError<T> {
@@ -37,4 +37,17 @@ export const isPdfFile = (file: Express.Multer.File): boolean => {
   }
 
   return true
+}
+
+export function replacePlaceholders(template: string, data: { [key: string]: string }): string {
+  let result = template
+  for (const key in data) {
+    const placeholder = `{${key}}`
+    result = result.replace(new RegExp(placeholder, 'g'), data[key])
+  }
+  return result
+}
+
+export function toDateTime(isoString: Date): string {
+  return format(isoString, 'PPP p')
 }

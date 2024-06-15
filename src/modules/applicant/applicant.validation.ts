@@ -34,7 +34,7 @@ export const scheduleInterviewSchema = z.object({
       const threeDaysLater = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3)
       return data.getTime() >= threeDaysLater.getTime()
     }, 'Interview date must be after today at least 3 day'),
-    guide: z.string()
+    location: z.string()
   })
 })
 

@@ -5,6 +5,23 @@ import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import mailTransporter from './mail-transporter'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
+import { replacePlaceholders, toDateTime } from 'src/helpers/utils'
+import { notifyInterviewSessionTemplate, receivedApplicantTemplate } from 'src/constants/email-templates'
+
+type TSendEmailReceivedApplicant = {
+  to: string
+  candidate: string
+  appliedJob: string
+  recruitmentDrive: string
+}
+
+type TSendEmailInterviewSession = {
+  to: string
+  candidate: string
+  appliedJob: string
+  interviewDate: Date
+  location: string
+}
 
 @injectable()
 export class EmailService {
@@ -35,5 +52,33 @@ export class EmailService {
         console.log('Email sent:', info.response)
       }
     })
+  }
+
+  public sendEmailReceivedApplicant = async ({
+    appliedJob,
+    candidate,
+    recruitmentDrive,
+    to
+  }: TSendEmailReceivedApplicant) => {
+    const html = replacePlaceholders(receivedApplicantTemplate, { appliedJob, candidate, recruitmentDrive })
+
+    await this.sendMail(to, `Your Application for ${appliedJob} at Talent Core Corporation`, html)
+  }
+
+  public sendEmailInterviewSession = async ({
+    appliedJob,
+    candidate,
+    interviewDate,
+    location,
+    to
+  }: TSendEmailInterviewSession) => {
+    const html = replacePlaceholders(notifyInterviewSessionTemplate, {
+      appliedJob,
+      candidate,
+      location,
+      interviewDate: toDateTime(interviewDate)
+    })
+
+    await this.sendMail(to, `Interview Invitation for ${appliedJob} at Talent Core Corporation`, html)
   }
 }

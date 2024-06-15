@@ -19,12 +19,14 @@ import {
   TScheduleTestExamSchema
 } from './applicant.validation'
 import RequestValidationException from 'src/helpers/errors/request-validation.exception'
+import { EmailService } from '../email/email.service'
 
 @injectable()
 export class ApplicantService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
-    @inject(FileService) private readonly fileService: FileService
+    @inject(FileService) private readonly fileService: FileService,
+    @inject(EmailService) private readonly emailService: EmailService
   ) {}
 
   private sortMapping: Record<string, Prisma.ApplicantOrderByWithRelationInput> = {
@@ -92,7 +94,8 @@ export class ApplicantService {
               }
             }
           }
-        }
+        },
+        job: true
       }
     })
 
@@ -138,6 +141,13 @@ export class ApplicantService {
           }
         }
       }
+    })
+
+    await this.emailService.sendEmailReceivedApplicant({
+      to: email,
+      candidate: fullName,
+      appliedJob: jobDetail.job.name,
+      recruitmentDrive: recruitmentDrive.name
     })
 
     return
@@ -299,7 +309,7 @@ export class ApplicantService {
   public scheduleInterview = async (schema: TScheduleInterviewSchema) => {
     const {
       params: { applicantId },
-      body: { guide, interviewDate }
+      body: { location, interviewDate }
     } = schema
 
     const applicant = await this.prismaService.client.applicant.findUnique({
@@ -307,7 +317,12 @@ export class ApplicantService {
         id: applicantId
       },
       include: {
-        testSession: true
+        testSession: true,
+        jobDetail: {
+          select: {
+            job: true
+          }
+        }
       }
     })
 
@@ -328,12 +343,20 @@ export class ApplicantService {
         status: 'Interviewing',
         interviewSession: {
           create: {
-            guide,
+            location,
             interviewDate,
             status: 'Processing'
           }
         }
       }
+    })
+
+    await this.emailService.sendEmailInterviewSession({
+      to: applicant.email,
+      appliedJob: applicant.jobDetail.job.name,
+      candidate: applicant.fullName,
+      location,
+      interviewDate
     })
   }
 

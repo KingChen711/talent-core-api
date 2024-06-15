@@ -100,7 +100,7 @@ model InterviewSession {
   applicantId   String          @unique @db.ObjectId
   interviewDate DateTime
   status        InterviewStatus @default(Processing)
-  guide         String
+  location      String
 
   applicant            Applicant             @relation(fields: [applicantId], references: [id])
   interviewSessionWish InterviewSessionWish?
@@ -131,7 +131,7 @@ model TestSession {
   id           String            @id @default(auto()) @map("_id") @db.ObjectId
   applicantId  String            @unique @db.ObjectId
   testExamCode String
-  point        Int?
+  point        Float?
   status       TestSessionStatus @default(Processing)
   testDate     DateTime
   // method        Method            @default(Offline)
