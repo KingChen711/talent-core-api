@@ -12,6 +12,8 @@
 
   "importOrder": [
     "dotenv/config",
+    "reflect-metadata",
+    "express-async-errors",
     "<THIRD_PARTY_MODULES>",
     "interface",
     "(?=content|api)",

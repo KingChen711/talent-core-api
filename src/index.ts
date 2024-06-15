@@ -1,5 +1,9 @@
 import 'dotenv/config'
 
+import 'reflect-metadata'
+
+import 'express-async-errors'
+
 import corsMiddleware from './middleware/cors.middleware'
 import errorHandlingMiddleware from './middleware/error-handling.middleware'
 import multerErrorHandlingMiddleware from './middleware/multer-error-handling.middleware'
@@ -12,10 +16,8 @@ import { testExamRoute } from './modules/test-exam/test-exam.route'
 import { userRoute } from './modules/user/user.route'
 import bodyParser from 'body-parser'
 import express from 'express'
-import 'express-async-errors'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import 'reflect-metadata'
 
 import { container } from './config/inversify.config'
 
