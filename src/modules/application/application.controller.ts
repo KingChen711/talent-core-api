@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { ApplicationService } from './application.service'
 import { noContent, ok } from '../../helpers/utils'
 import { Request, Response } from 'express'
-import { ResponseWithUser } from '../types'
+import { ResponseWithUser } from '../../types'
 
 @injectable()
 export class ApplicationController {
