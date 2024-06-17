@@ -13,6 +13,7 @@ import {
   notifySaveApplicationTemplate,
   receivedApplicationTemplate
 } from '../../constants/email-templates'
+import { Method } from '@prisma/client'
 
 type TSendEmailReceivedApplication = {
   to: string
@@ -28,6 +29,7 @@ type TSendEmailInterviewSession = {
   interviewDate: Date
   location: string
   point: number
+  method: Method
 }
 
 type TSendEmailApproveApplication = {
@@ -72,13 +74,14 @@ export class EmailService {
   public sendMail = async (to: string, subject: string, html: string) => {
     const mailOptions = this.buildMailOptions(to, subject, html)
 
-    this.transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log('Error:', error)
-      } else {
-        console.log('Email sent:', info.response)
-      }
-    })
+    //TODO:enable this comment
+    // this.transporter.sendMail(mailOptions, function (error, info) {
+    //   if (error) {
+    //     console.log('Error:', error)
+    //   } else {
+    //     console.log('Email sent:', info.response)
+    //   }
+    // })
   }
 
   public sendEmailReceivedApplication = async ({
@@ -98,14 +101,16 @@ export class EmailService {
     interviewDate,
     location,
     to,
-    point
+    point,
+    method
   }: TSendEmailInterviewSession) => {
     const html = replacePlaceholders(notifyInterviewSessionTemplate, {
       appliedJob,
       candidate,
       location,
       point: point.toString(),
-      interviewDate: toDateTime(interviewDate)
+      interviewDate: toDateTime(interviewDate),
+      method
     })
 
     await this.sendMail(to, `Interview Invitation for ${appliedJob} at Talent Core Corporation`, html)

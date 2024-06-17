@@ -2,6 +2,8 @@ import { ApplicationController } from './application.controller'
 import {
   approveApplicationSchema,
   completedInterviewSchema,
+  confirmHiredSchema,
+  editTestDateSchema,
   getApplicationDetailSchema,
   getMyApplicationsSchemaSchema,
   rejectApplicationSchema,
@@ -36,6 +38,22 @@ router.get(
   authorize([Role.EMPLOYEE]),
   validateRequestData(getApplicationDetailSchema),
   applicationController.getApplicationDetail
+)
+
+router.patch(
+  '/:applicationId/edit-test-date',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(editTestDateSchema)
+  // applicationController.editTestDate
+)
+
+router.patch(
+  '/:applicationId/confirm-hired',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(confirmHiredSchema),
+  applicationController.confirmHired
 )
 
 router.patch(

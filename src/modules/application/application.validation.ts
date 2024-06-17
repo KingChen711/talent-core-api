@@ -16,9 +16,9 @@ export const scheduleTestExamSchema = z.object({
   body: z.object({
     testDate: z.coerce.date().refine((data) => {
       const now = new Date()
-      const threeDaysLater = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3)
-      return data.getTime() >= threeDaysLater.getTime()
-    }, 'Test date must be after today at least 3 day'),
+      const oneDaysLater = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+      return data.getTime() >= oneDaysLater.getTime()
+    }, 'Test date must be after today at least 1 day'),
     testExamCode: z.string()
   })
 })
@@ -32,10 +32,11 @@ export const scheduleInterviewSchema = z.object({
   body: z.object({
     interviewDate: z.coerce.date().refine((data) => {
       const now = new Date()
-      const threeDaysLater = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3)
-      return data.getTime() >= threeDaysLater.getTime()
-    }, 'Interview date must be after today at least 3 day'),
-    location: z.string()
+      const oneDaysLater = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+      return data.getTime() >= oneDaysLater.getTime()
+    }, 'Interview date must be after today at least 1 day'),
+    location: z.string(),
+    method: z.enum(['Online', 'Offline'])
   })
 })
 
@@ -48,6 +49,22 @@ export const completedInterviewSchema = z.object({
 })
 
 export type TCompletedInterviewSchema = z.infer<typeof completedInterviewSchema>
+
+export const editTestDateSchema = z.object({
+  params: z.object({
+    applicationId: z.string()
+  })
+})
+
+export type TEditTestDateSchema = z.infer<typeof editTestDateSchema>
+
+export const confirmHiredSchema = z.object({
+  params: z.object({
+    applicationId: z.string()
+  })
+})
+
+export type TConfirmHiredSchema = z.infer<typeof confirmHiredSchema>
 
 export const saveApplicationSchema = z.object({
   params: z.object({
@@ -90,9 +107,9 @@ export const approveApplicationSchema = z.object({
   body: z.object({
     receiveJobDate: z.coerce.date().refine((data) => {
       const now = new Date()
-      const threeDaysLater = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3)
-      return data.getTime() >= threeDaysLater.getTime()
-    }, 'Interview date must be after today at least 3 day'),
+      const oneDaysLater = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+      return data.getTime() >= oneDaysLater.getTime()
+    }, 'Interview date must be after today at least 1 day'),
     location: z.string()
   })
 })

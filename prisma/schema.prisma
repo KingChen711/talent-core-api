@@ -69,12 +69,10 @@ model Candidate {
 }
 
 model Application {
-  id             String            @id @default(auto()) @map("_id") @db.ObjectId
-  candidateId    String            @db.ObjectId
-  jobDetailId    String            @db.ObjectId
-  status         ApplicationStatus @default(Screening)
-  receiveJobDate DateTime?
-
+  id                   String            @id @default(auto()) @map("_id") @db.ObjectId
+  candidateId          String            @db.ObjectId
+  jobDetailId          String            @db.ObjectId
+  status               ApplicationStatus @default(Screening)
   //Trong bảng application, fullName, gender, bornYear, phone có thể khác với trong bảng User. Bảng User có mục đích lưu trữ thông tin ứng viên để hệ thống có thể generate sẵn thông tin của ứng viên để có thể ứng tuyển nhanh chóng. Sau đó, ứng viên có thể thay đổi lại các trường thông tin này tùy ý để có thể tạo applition. Riêng trường email (unique và đại diện cho user) sẽ không đổi, nhưng vẫn cho vào bảng application để tiện cho việc query thông tin ứng tuyển
   email                String
   fullName             String
@@ -84,15 +82,26 @@ model Application {
   cv                   String
   personalIntroduction String?
 
-  candidate        Candidate         @relation(fields: [candidateId], references: [id], onDelete: Restrict)
-  jobDetail        JobDetail         @relation(fields: [jobDetailId], references: [id], onDelete: Restrict)
-  testSession      TestSession?
-  interviewSession InterviewSession?
-  receiveJobWish   ReceiveJobWish?
+  candidate         Candidate          @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  jobDetail         JobDetail          @relation(fields: [jobDetailId], references: [id], onDelete: Restrict)
+  testSession       TestSession?
+  interviewSession  InterviewSession?
+  receiveJobSession ReceiveJobSession?
 
   createdAt DateTime @default(now())
 
   @@unique([candidateId, jobDetailId])
+}
+
+model ReceiveJobSession {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  applicationId  String   @unique @db.ObjectId
+  receiveJobDate DateTime
+  isConfirmed    Boolean
+  location       String
+
+  application    Application     @relation(fields: [applicationId], references: [id])
+  receiveJobWish ReceiveJobWish?
 }
 
 model InterviewSession {
@@ -101,20 +110,10 @@ model InterviewSession {
   interviewDate DateTime
   status        InterviewStatus @default(Processing)
   location      String
+  method        Method
 
   application          Application           @relation(fields: [applicationId], references: [id])
   interviewSessionWish InterviewSessionWish?
-}
-
-model ReceiveJobWish {
-  id            String             @id @default(auto()) @map("_id") @db.ObjectId
-  applicationId String             @unique @db.ObjectId
-  content       String?
-  status        WishStatus
-  wishTime      DateTime?
-  type          ReceiveJobWishType
-
-  application Application @relation(fields: [applicationId], references: [id])
 }
 
 enum ReceiveJobWishType {
@@ -134,11 +133,15 @@ model TestSession {
   point         Float?
   status        TestSessionStatus @default(Processing)
   testDate      DateTime
-  // method        Method            @default(Offline)
 
   application     Application      @relation(fields: [applicationId], references: [id])
   testExam        TestExam         @relation(fields: [testExamCode], references: [code], onDelete: Restrict)
   testSessionWish TestSessionWish?
+}
+
+enum Method {
+  Offline
+  Online
 }
 
 model InterviewSessionWish {
@@ -149,6 +152,17 @@ model InterviewSessionWish {
   wishTime           DateTime
 
   interviewSession InterviewSession @relation(fields: [interviewSessionId], references: [id])
+}
+
+model ReceiveJobWish {
+  id                  String             @id @default(auto()) @map("_id") @db.ObjectId
+  receiveJobSessionId String             @unique @db.ObjectId
+  content             String?
+  status              WishStatus
+  wishTime            DateTime?
+  type                ReceiveJobWishType
+
+  receiveJobSession ReceiveJobSession @relation(fields: [receiveJobSessionId], references: [id])
 }
 
 model TestSessionWish {

@@ -12,6 +12,7 @@ import { FileService } from '../aws-s3/file.service'
 import {
   TApproveApplicationSchema,
   TCompletedInterviewSchema,
+  TConfirmHiredSchema,
   TGetApplicationDetailSchema,
   TGetMyApplicationsSchemaSchema,
   TRejectApplicationSchema,
@@ -22,6 +23,7 @@ import {
 import RequestValidationException from '../../helpers/errors/request-validation.exception'
 import { EmailService } from '../email/email.service'
 import { UserWithRole } from 'src/types'
+import { ppid } from 'process'
 
 @injectable()
 export class ApplicationService {
@@ -269,14 +271,44 @@ export class ApplicationService {
             quantity: true
           }
         },
-        testSession: true,
-        interviewSession: true
+        testSession: {
+          include: {
+            testExam: {
+              include: {
+                _count: {
+                  select: {
+                    questions: true
+                  }
+                }
+              }
+            }
+          }
+        },
+        interviewSession: true,
+        receiveJobSession: true,
+        candidate: {
+          select: {
+            user: true
+          }
+        }
       }
     })
 
     if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    return application
+    const mappedApplication = {
+      ...application,
+      testSession: {
+        ...application.testSession,
+        testExam: {
+          ...application.testSession?.testExam,
+          countQuestions: application.testSession?.testExam._count.questions,
+          _count: undefined
+        }
+      }
+    }
+
+    return mappedApplication
   }
 
   public scheduleTestExam = async (schema: TScheduleTestExamSchema) => {
@@ -325,7 +357,7 @@ export class ApplicationService {
   public scheduleInterview = async (schema: TScheduleInterviewSchema) => {
     const {
       params: { applicationId },
-      body: { location, interviewDate }
+      body: { location, interviewDate, method }
     } = schema
 
     const application = await this.prismaService.client.application.findUnique({
@@ -359,6 +391,7 @@ export class ApplicationService {
         interviewSession: {
           create: {
             location,
+            method,
             interviewDate,
             status: 'Processing'
           }
@@ -372,6 +405,7 @@ export class ApplicationService {
       candidate: application.fullName,
       location,
       interviewDate,
+      method,
       point: application.testSession.point!
     })
   }
@@ -491,7 +525,13 @@ export class ApplicationService {
       },
       data: {
         status: 'Approve',
-        receiveJobDate
+        receiveJobSession: {
+          create: {
+            receiveJobDate,
+            isConfirmed: false,
+            location
+          }
+        }
       }
     })
 
@@ -535,6 +575,39 @@ export class ApplicationService {
       },
       data: {
         status: 'Completed'
+      }
+    })
+  }
+
+  public confirmHired = async (schema: TConfirmHiredSchema) => {
+    const {
+      params: { applicationId }
+    } = schema
+
+    const application = await this.prismaService.client.application.findUnique({
+      where: {
+        id: applicationId
+      },
+      include: {
+        receiveJobSession: true
+      }
+    })
+
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
+
+    if (application.status !== 'Approve')
+      throw new BadRequestException('Only confirm hired for application with status Approve')
+
+    //isConfirmed can be undefined, so check equal with true
+    if (application.receiveJobSession?.isConfirmed === true)
+      throw new BadRequestException('This applications is already confirmed')
+
+    await this.prismaService.client.receiveJobSession.update({
+      where: {
+        applicationId
+      },
+      data: {
+        isConfirmed: true
       }
     })
   }
