@@ -2,6 +2,7 @@ import { inject, injectable } from 'inversify'
 import { ApplicationService } from './application.service'
 import { noContent, ok } from '../../helpers/utils'
 import { Request, Response } from 'express'
+import { ResponseWithUser } from 'src/types'
 
 @injectable()
 export class ApplicationController {
@@ -40,5 +41,12 @@ export class ApplicationController {
   public saveApplication = async (req: Request, res: Response) => {
     await this.applicationService.saveApplication(res.locals.requestData)
     return noContent(res)
+  }
+
+  public getMyApplications = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    const applications = await this.applicationService.getMyApplications(user, res.locals.requestData)
+    res.setHeader('X-Pagination', JSON.stringify(applications.metaData))
+    return ok(res, applications)
   }
 }

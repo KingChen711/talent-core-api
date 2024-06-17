@@ -249,12 +249,7 @@ export class JobService {
 
   public createJob = async (file: Express.Multer.File | undefined, schema: TCreateJobSchema) => {
     const {
-      body: {
-        code,
-        color,
-        name,
-        description
-      }
+      body: { code, color, name, description }
     } = schema
 
     if (await this.getJobByCode(code)) {

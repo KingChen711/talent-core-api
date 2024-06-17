@@ -3,6 +3,7 @@ import {
   approveApplicationSchema,
   completedInterviewSchema,
   getApplicationDetailSchema,
+  getMyApplicationsSchemaSchema,
   rejectApplicationSchema,
   saveApplicationSchema,
   scheduleInterviewSchema,
@@ -20,6 +21,14 @@ import { Role } from '../../types'
 const router = express.Router()
 
 const applicationController = container.get(ApplicationController)
+
+router.get(
+  '/my-applications',
+  ClerkExpressWithAuth(),
+  authorize([Role.CANDIDATE]),
+  validateRequestData(getMyApplicationsSchemaSchema),
+  applicationController.getMyApplications
+)
 
 router.get(
   '/:applicationId',

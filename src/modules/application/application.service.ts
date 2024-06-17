@@ -13,6 +13,7 @@ import {
   TApproveApplicationSchema,
   TCompletedInterviewSchema,
   TGetApplicationDetailSchema,
+  TGetMyApplicationsSchemaSchema,
   TRejectApplicationSchema,
   TSaveApplicationSchema,
   TScheduleInterviewSchema,
@@ -20,6 +21,7 @@ import {
 } from './application.validation'
 import RequestValidationException from '../../helpers/errors/request-validation.exception'
 import { EmailService } from '../email/email.service'
+import { UserWithRole } from 'src/types'
 
 @injectable()
 export class ApplicationService {
@@ -48,6 +50,20 @@ export class ApplicationService {
     '-appliedJob': {
       jobDetail: {
         job: {
+          name: 'desc'
+        }
+      }
+    },
+    recruitmentDrive: {
+      jobDetail: {
+        recruitmentDrive: {
+          name: 'asc'
+        }
+      }
+    },
+    '-recruitmentDrive': {
+      jobDetail: {
+        recruitmentDrive: {
           name: 'desc'
         }
       }
@@ -521,5 +537,93 @@ export class ApplicationService {
         status: 'Completed'
       }
     })
+  }
+
+  public getMyApplications = async (user: UserWithRole, schema: TGetMyApplicationsSchemaSchema) => {
+    const {
+      query: { pageNumber, pageSize, sort, status, search }
+    } = schema
+
+    let statusQuery: Prisma.ApplicationWhereInput = {}
+    if (status !== 'All') {
+      statusQuery = {
+        status
+      }
+    }
+
+    let searchQuery: Prisma.ApplicationWhereInput = {}
+
+    if (search) {
+      searchQuery = {
+        OR: [
+          {
+            jobDetail: {
+              job: {
+                name: {
+                  contains: search,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          },
+          {
+            jobDetail: {
+              recruitmentDrive: {
+                name: {
+                  contains: search,
+                  mode: 'insensitive'
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+
+    const query: Prisma.ApplicationFindManyArgs = {
+      where: {
+        AND: [
+          {
+            candidate: {
+              user: {
+                id: user.id
+              }
+            }
+          },
+          searchQuery,
+          statusQuery
+        ]
+      }
+    }
+
+    const totalCount = await this.prismaService.client.application.count(query as Prisma.ApplicationCountArgs)
+
+    if (sort && sort in this.sortMapping) {
+      query.orderBy = this.sortMapping[sort]
+    }
+
+    query.skip = pageSize * (pageNumber - 1)
+    query.take = pageSize
+
+    const applications = await this.prismaService.client.application.findMany({
+      ...query,
+      include: {
+        jobDetail: {
+          select: {
+            job: true,
+            recruitmentDrive: true
+          }
+        }
+      }
+    })
+
+    const imageUrls = await this.fileService.getFileUrls(applications.map((a) => a.jobDetail.job.icon))
+
+    const mappedApplications = applications.map((application, i) => {
+      application.jobDetail.job.icon = imageUrls[i]
+      return application
+    })
+
+    return new PagedList<Application>(mappedApplications, totalCount, pageNumber, pageSize)
   }
 }

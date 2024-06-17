@@ -1,3 +1,4 @@
+import { ApplicationStatus } from '@prisma/client'
 import z from 'zod'
 
 export const getApplicationDetailSchema = z.object({
@@ -63,6 +64,24 @@ export const rejectApplicationSchema = z.object({
 })
 
 export type TRejectApplicationSchema = z.infer<typeof rejectApplicationSchema>
+
+export const getMyApplicationsSchemaSchema = z.object({
+  query: z.object({
+    pageNumber: z.coerce.number().default(1),
+    pageSize: z.coerce
+      .number()
+      .default(10)
+      .transform((data) => Math.min(data, 50)),
+    search: z.coerce.string().trim().optional(),
+    status: z.enum(['All', 'Screening', 'Testing', 'Interviewing', 'Saved', 'Approve', 'Reject']).catch('All'),
+    sort: z
+      .enum(['createdAt', '-createdAt', 'appliedJob', '-appliedJob', 'recruitmentDrive', '-recruitmentDrive'])
+      .optional()
+      .default('-createdAt')
+  })
+})
+
+export type TGetMyApplicationsSchemaSchema = z.infer<typeof getMyApplicationsSchemaSchema>
 
 export const approveApplicationSchema = z.object({
   params: z.object({
