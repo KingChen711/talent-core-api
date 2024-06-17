@@ -4,11 +4,11 @@ import { RecruitmentDriveController } from './recruitment-drive.controller'
 import {
   addJobSchema,
   closeJobSchema,
-  createApplicantSchema,
+  createApplicationSchema,
   createRecruitmentDriveSchema,
   deleteRecruitmentDriveSchema,
   getAddableJobsSchema,
-  getApplicantsByRecruitmentDriveSchema,
+  getApplicationsByRecruitmentDriveSchema,
   getRecruitmentDriveDetailSchema,
   getRecruitmentDriveSchema,
   getRecruitmentDrivesSchema,
@@ -47,12 +47,12 @@ router.post(
 )
 
 router.post(
-  '/:recruitmentDriveCode/jobs/:jobCode/applicants',
+  '/:recruitmentDriveCode/jobs/:jobCode/applications',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
   cvMulterMiddleware,
-  validateRequestData(createApplicantSchema),
-  recruitmentDriveController.createApplicant
+  validateRequestData(createApplicationSchema),
+  recruitmentDriveController.createApplication
 )
 
 router.post(
@@ -65,11 +65,11 @@ router.post(
 )
 
 router.get(
-  '/:recruitmentDriveCode/applicants',
+  '/:recruitmentDriveCode/applications',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(getApplicantsByRecruitmentDriveSchema),
-  recruitmentDriveController.getApplicantsByRecruitmentDrive
+  validateRequestData(getApplicationsByRecruitmentDriveSchema),
+  recruitmentDriveController.getApplicationsByRecruitmentDrive
 )
 
 router.get(

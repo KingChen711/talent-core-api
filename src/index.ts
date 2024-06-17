@@ -7,7 +7,7 @@ import 'express-async-errors'
 import corsMiddleware from './middleware/cors.middleware'
 import errorHandlingMiddleware from './middleware/error-handling.middleware'
 import multerErrorHandlingMiddleware from './middleware/multer-error-handling.middleware'
-import { applicantRoute } from './modules/applicant/applicant.route'
+import { applicationRoute } from './modules/application/application.route'
 import { clerkRoute } from './modules/clerk/clerk.route'
 import { EmailService } from './modules/email/email.service'
 import { jobRoute } from './modules/job/job.route'
@@ -47,7 +47,7 @@ app.use('/api/users', userRoute)
 app.use('/api/jobs', jobRoute)
 app.use('/api/test-exams', testExamRoute)
 app.use('/api/recruitment-drives', recruitmentDriveRoute)
-app.use('/api/applicants', applicantRoute)
+app.use('/api/applications', applicationRoute)
 app.post('/api/email', async (req, res) => {
   const emailService = container.get(EmailService)
 

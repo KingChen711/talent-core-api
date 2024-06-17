@@ -1,14 +1,14 @@
 import { inject, injectable } from 'inversify'
 import { RecruitmentDriveService } from './recruitment-drive.service'
 import { Request, Response } from 'express'
-import { ApplicantService } from '../applicant/applicant.service'
+import { ApplicationService } from '../application/application.service'
 import { created, noContent, ok } from '../../helpers/utils'
 
 @injectable()
 export class RecruitmentDriveController {
   constructor(
     @inject(RecruitmentDriveService) private readonly recruitmentDriveService: RecruitmentDriveService,
-    @inject(ApplicantService) private readonly applicantService: ApplicantService
+    @inject(ApplicationService) private readonly applicationService: ApplicationService
   ) {}
 
   public getRecruitmentDrives = async (req: Request, res: Response) => {
@@ -63,14 +63,14 @@ export class RecruitmentDriveController {
     return noContent(res)
   }
 
-  public createApplicant = async (req: Request, res: Response) => {
-    await this.applicantService.createApplicant(req.file, res.locals.requestData)
+  public createApplication = async (req: Request, res: Response) => {
+    await this.applicationService.createApplication(req.file, res.locals.requestData)
     return noContent(res)
   }
 
-  public getApplicantsByRecruitmentDrive = async (req: Request, res: Response) => {
-    const applicants = await this.applicantService.getCandidateByRecruitmentDrive(res.locals.requestData)
-    res.setHeader('X-Pagination', JSON.stringify(applicants.metaData))
-    return ok(res, applicants)
+  public getApplicationsByRecruitmentDrive = async (req: Request, res: Response) => {
+    const applications = await this.applicationService.getCandidateByRecruitmentDrive(res.locals.requestData)
+    res.setHeader('X-Pagination', JSON.stringify(applications.metaData))
+    return ok(res, applications)
   }
 }

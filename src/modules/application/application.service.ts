@@ -1,35 +1,35 @@
 import { inject, injectable } from 'inversify'
 import { PrismaService } from '../prisma/prisma.service'
 import {
-  TCreateApplicantSchema,
-  TGetApplicantsByRecruitmentDriveSchema
+  TCreateApplicationSchema,
+  TGetApplicationsByRecruitmentDriveSchema
 } from '../recruitment-drive/recruitment-drive.validation'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
-import { Applicant, Prisma } from '@prisma/client'
+import { Application, Prisma } from '@prisma/client'
 import { PagedList } from '../../helpers/paged-list'
 import { FileService } from '../aws-s3/file.service'
 import {
-  TApproveApplicantSchema,
+  TApproveApplicationSchema,
   TCompletedInterviewSchema,
-  TGetApplicantDetailSchema,
-  TRejectApplicantSchema,
-  TSaveApplicantSchema,
+  TGetApplicationDetailSchema,
+  TRejectApplicationSchema,
+  TSaveApplicationSchema,
   TScheduleInterviewSchema,
   TScheduleTestExamSchema
-} from './applicant.validation'
+} from './application.validation'
 import RequestValidationException from '../../helpers/errors/request-validation.exception'
 import { EmailService } from '../email/email.service'
 
 @injectable()
-export class ApplicantService {
+export class ApplicationService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
     @inject(FileService) private readonly fileService: FileService,
     @inject(EmailService) private readonly emailService: EmailService
   ) {}
 
-  private sortMapping: Record<string, Prisma.ApplicantOrderByWithRelationInput> = {
+  private sortMapping: Record<string, Prisma.ApplicationOrderByWithRelationInput> = {
     createdAt: { createdAt: 'asc' },
     '-createdAt': { createdAt: 'desc' },
     candidateName: {
@@ -54,7 +54,7 @@ export class ApplicantService {
     }
   } as const
 
-  public createApplicant = async (file: Express.Multer.File | undefined, schema: TCreateApplicantSchema) => {
+  public createApplication = async (file: Express.Multer.File | undefined, schema: TCreateApplicationSchema) => {
     const {
       params: { jobCode, recruitmentDriveCode },
       body: { bornYear, email, fullName, gender, phone, personalIntroduction }
@@ -86,9 +86,9 @@ export class ApplicantService {
       },
       include: {
         _count: {
-          //only count approved applicants
+          //only count approved applications
           select: {
-            applicants: {
+            applications: {
               where: {
                 status: 'Approve'
               }
@@ -101,10 +101,10 @@ export class ApplicantService {
 
     if (!jobDetail) throw new NotFoundException(`Not found job with code: ${jobCode} in this recruitment drive`)
 
-    if (jobDetail._count.applicants >= jobDetail.quantity)
+    if (jobDetail._count.applications >= jobDetail.quantity)
       throw new BadRequestException(`This job position has reached its capacity.`)
 
-    const hasAlreadyApply = !!(await this.prismaService.client.applicant.findFirst({
+    const hasAlreadyApply = !!(await this.prismaService.client.application.findFirst({
       where: {
         candidate: {
           user: { email }
@@ -126,7 +126,7 @@ export class ApplicantService {
         phone,
         candidate: {
           update: {
-            applicants: {
+            applications: {
               create: {
                 jobDetailId: jobDetail.id,
                 bornYear,
@@ -143,7 +143,7 @@ export class ApplicantService {
       }
     })
 
-    await this.emailService.sendEmailReceivedApplicant({
+    await this.emailService.sendEmailReceivedApplication({
       to: email,
       candidate: fullName,
       appliedJob: jobDetail.job.name,
@@ -153,20 +153,20 @@ export class ApplicantService {
     return
   }
 
-  public getCandidateByRecruitmentDrive = async (schema: TGetApplicantsByRecruitmentDriveSchema) => {
+  public getCandidateByRecruitmentDrive = async (schema: TGetApplicationsByRecruitmentDriveSchema) => {
     const {
       params: { recruitmentDriveCode },
       query: { pageNumber, pageSize, sort, status, search }
     } = schema
 
-    let statusQuery: Prisma.ApplicantWhereInput = {}
+    let statusQuery: Prisma.ApplicationWhereInput = {}
     if (status !== 'All') {
       statusQuery = {
         status
       }
     }
 
-    let searchQuery: Prisma.ApplicantWhereInput = {}
+    let searchQuery: Prisma.ApplicationWhereInput = {}
     if (search) {
       searchQuery = {
         OR: [
@@ -190,7 +190,7 @@ export class ApplicantService {
       }
     }
 
-    const query: Prisma.ApplicantFindManyArgs = {
+    const query: Prisma.ApplicationFindManyArgs = {
       where: {
         AND: [
           {
@@ -204,7 +204,7 @@ export class ApplicantService {
       }
     }
 
-    const totalCount = await this.prismaService.client.applicant.count(query as Prisma.ApplicantCountArgs)
+    const totalCount = await this.prismaService.client.application.count(query as Prisma.ApplicationCountArgs)
 
     if (sort && sort in this.sortMapping) {
       query.orderBy = this.sortMapping[sort]
@@ -213,7 +213,7 @@ export class ApplicantService {
     query.skip = pageSize * (pageNumber - 1)
     query.take = pageSize
 
-    const applicants = await this.prismaService.client.applicant.findMany({
+    const applications = await this.prismaService.client.application.findMany({
       ...query,
       include: {
         jobDetail: {
@@ -225,25 +225,25 @@ export class ApplicantService {
     })
 
     const imageUrls = await Promise.all(
-      applicants.map((applicant) => this.fileService.getFileUrl(applicant.jobDetail.job.icon))
+      applications.map((application) => this.fileService.getFileUrl(application.jobDetail.job.icon))
     )
 
-    const mappedApplicants = applicants.map((a, index) => {
+    const mappedApplications = applications.map((a, index) => {
       a.jobDetail.job.icon = imageUrls[index]
       return a
     })
 
-    return new PagedList<Applicant>(mappedApplicants, totalCount, pageNumber, pageSize)
+    return new PagedList<Application>(mappedApplications, totalCount, pageNumber, pageSize)
   }
 
-  public getApplicantDetail = async (schema: TGetApplicantDetailSchema) => {
+  public getApplicationDetail = async (schema: TGetApplicationDetailSchema) => {
     const {
-      params: { applicantId }
+      params: { applicationId }
     } = schema
 
-    const applicant = await this.prismaService.client.applicant.findUnique({
+    const application = await this.prismaService.client.application.findUnique({
       where: {
-        id: applicantId
+        id: applicationId
       },
       include: {
         jobDetail: {
@@ -258,27 +258,27 @@ export class ApplicantService {
       }
     })
 
-    if (!applicant) throw new NotFoundException(`Not found applicant with id: ${applicantId}`)
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    return applicant
+    return application
   }
 
   public scheduleTestExam = async (schema: TScheduleTestExamSchema) => {
     const {
-      params: { applicantId },
+      params: { applicationId },
       body: { testDate, testExamCode }
     } = schema
 
-    const applicant = await this.prismaService.client.applicant.findUnique({
+    const application = await this.prismaService.client.application.findUnique({
       where: {
-        id: applicantId
+        id: applicationId
       }
     })
 
-    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    if (applicant.status !== 'Screening')
-      throw new BadRequestException('Only schedule test exam for applicant with status Screening')
+    if (application.status !== 'Screening')
+      throw new BadRequestException('Only schedule test exam for application with status Screening')
 
     const testExam = await this.prismaService.client.testExam.findUnique({
       where: {
@@ -289,9 +289,9 @@ export class ApplicantService {
     if (!testExam) throw new NotFoundException(`Not found application with code: ${testExamCode}`)
 
     //TODO: set background task handle test session
-    await this.prismaService.client.applicant.update({
+    await this.prismaService.client.application.update({
       where: {
-        id: applicantId
+        id: applicationId
       },
       data: {
         status: 'Testing',
@@ -308,13 +308,13 @@ export class ApplicantService {
 
   public scheduleInterview = async (schema: TScheduleInterviewSchema) => {
     const {
-      params: { applicantId },
+      params: { applicationId },
       body: { location, interviewDate }
     } = schema
 
-    const applicant = await this.prismaService.client.applicant.findUnique({
+    const application = await this.prismaService.client.application.findUnique({
       where: {
-        id: applicantId
+        id: applicationId
       },
       include: {
         testSession: true,
@@ -326,17 +326,17 @@ export class ApplicantService {
       }
     })
 
-    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    if (applicant.status !== 'Testing')
-      throw new BadRequestException('Only schedule interview for applicant with status Testing')
+    if (application.status !== 'Testing')
+      throw new BadRequestException('Only schedule interview for application with status Testing')
 
-    if (applicant.testSession?.status !== 'Pass')
+    if (application.testSession?.status !== 'Pass')
       throw new BadRequestException('Candidate must pass the test before schedule a interview')
 
-    await this.prismaService.client.applicant.update({
+    await this.prismaService.client.application.update({
       where: {
-        id: applicantId
+        id: applicationId
       },
       data: {
         status: 'Interviewing',
@@ -351,23 +351,23 @@ export class ApplicantService {
     })
 
     await this.emailService.sendEmailInterviewSession({
-      to: applicant.email,
-      appliedJob: applicant.jobDetail.job.name,
-      candidate: applicant.fullName,
+      to: application.email,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.fullName,
       location,
       interviewDate,
-      point: applicant.testSession.point!
+      point: application.testSession.point!
     })
   }
 
-  public rejectApplicant = async (schema: TRejectApplicantSchema) => {
+  public rejectApplication = async (schema: TRejectApplicationSchema) => {
     const {
-      params: { applicantId }
+      params: { applicationId }
     } = schema
 
-    const applicant = await this.prismaService.client.applicant.findUnique({
+    const application = await this.prismaService.client.application.findUnique({
       where: {
-        id: applicantId
+        id: applicationId
       },
       include: {
         jobDetail: {
@@ -378,35 +378,35 @@ export class ApplicantService {
       }
     })
 
-    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    if (applicant.status !== 'Approve')
-      throw new BadRequestException('Only reject applicant for applicant with status Approve')
+    if (application.status !== 'Approve')
+      throw new BadRequestException('Only reject application for application with status Approve')
 
-    await this.prismaService.client.applicant.update({
+    await this.prismaService.client.application.update({
       where: {
-        id: applicantId
+        id: applicationId
       },
       data: {
         status: 'Reject'
       }
     })
 
-    await this.emailService.sendEmailRejectApplicant({
-      to: applicant.email,
-      appliedJob: applicant.jobDetail.job.name,
-      candidate: applicant.fullName
+    await this.emailService.sendEmailRejectApplication({
+      to: application.email,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.fullName
     })
   }
 
-  public saveApplicant = async (schema: TSaveApplicantSchema) => {
+  public saveApplication = async (schema: TSaveApplicationSchema) => {
     const {
-      params: { applicantId }
+      params: { applicationId }
     } = schema
 
-    const applicant = await this.prismaService.client.applicant.findUnique({
+    const application = await this.prismaService.client.application.findUnique({
       where: {
-        id: applicantId
+        id: applicationId
       },
       include: {
         interviewSession: true,
@@ -418,38 +418,38 @@ export class ApplicantService {
       }
     })
 
-    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    if (applicant.status !== 'Screening' && applicant.status !== 'Interviewing')
-      throw new BadRequestException('Only save applicant for applicant with status Screening or Interviewing')
+    if (application.status !== 'Screening' && application.status !== 'Interviewing')
+      throw new BadRequestException('Only save application for application with status Screening or Interviewing')
 
-    if (applicant.status === 'Interviewing' && applicant.interviewSession?.status !== 'Completed')
-      throw new BadRequestException('Only save applicant for applicant with interview status is Completed')
+    if (application.status === 'Interviewing' && application.interviewSession?.status !== 'Completed')
+      throw new BadRequestException('Only save application for application with interview status is Completed')
 
-    await this.prismaService.client.applicant.update({
+    await this.prismaService.client.application.update({
       where: {
-        id: applicantId
+        id: applicationId
       },
       data: {
         status: 'Saved'
       }
     })
 
-    await this.emailService.sendEmailSaveApplicant({
-      to: applicant.email,
-      appliedJob: applicant.jobDetail.job.name,
-      candidate: applicant.fullName
+    await this.emailService.sendEmailSaveApplication({
+      to: application.email,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.fullName
     })
   }
-  public approveApplicant = async (schema: TApproveApplicantSchema) => {
+  public approveApplication = async (schema: TApproveApplicationSchema) => {
     const {
-      params: { applicantId },
+      params: { applicationId },
       body: { location, receiveJobDate }
     } = schema
 
-    const applicant = await this.prismaService.client.applicant.findUnique({
+    const application = await this.prismaService.client.application.findUnique({
       where: {
-        id: applicantId
+        id: applicationId
       },
       include: {
         interviewSession: true,
@@ -461,17 +461,17 @@ export class ApplicantService {
       }
     })
 
-    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    if (applicant.status !== 'Interviewing')
-      throw new BadRequestException('Only approve applicant for applicant with status Interviewing')
+    if (application.status !== 'Interviewing')
+      throw new BadRequestException('Only approve application for application with status Interviewing')
 
-    if (applicant.interviewSession?.status !== 'Completed')
-      throw new BadRequestException('Only approve applicant for applicant with interview status is Completed')
+    if (application.interviewSession?.status !== 'Completed')
+      throw new BadRequestException('Only approve application for application with interview status is Completed')
 
-    await this.prismaService.client.applicant.update({
+    await this.prismaService.client.application.update({
       where: {
-        id: applicantId
+        id: applicationId
       },
       data: {
         status: 'Approve',
@@ -479,10 +479,10 @@ export class ApplicantService {
       }
     })
 
-    await this.emailService.sendEmailApproveApplicant({
-      to: applicant.email,
-      appliedJob: applicant.jobDetail.job.name,
-      candidate: applicant.fullName,
+    await this.emailService.sendEmailApproveApplication({
+      to: application.email,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.fullName,
       location,
       receiveJobDate
     })
@@ -490,32 +490,32 @@ export class ApplicantService {
 
   public completedInterview = async (schema: TCompletedInterviewSchema) => {
     const {
-      params: { applicantId }
+      params: { applicationId }
     } = schema
 
-    const applicant = await this.prismaService.client.applicant.findUnique({
+    const application = await this.prismaService.client.application.findUnique({
       where: {
-        id: applicantId
+        id: applicationId
       },
       include: {
         interviewSession: true
       }
     })
 
-    if (!applicant) throw new NotFoundException(`Not found application with id: ${applicantId}`)
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
-    if (applicant.status !== 'Interviewing')
-      throw new BadRequestException('Only completed interview for applicant with status Interviewing')
+    if (application.status !== 'Interviewing')
+      throw new BadRequestException('Only completed interview for application with status Interviewing')
 
-    if (applicant.interviewSession?.status !== 'Processing')
+    if (application.interviewSession?.status !== 'Processing')
       throw new BadRequestException('Only completed interview with status Processing')
 
-    if (applicant.interviewSession?.interviewDate.getTime() >= Date.now())
+    if (application.interviewSession?.interviewDate.getTime() >= Date.now())
       throw new BadRequestException('The interview has not been taken')
 
     await this.prismaService.client.interviewSession.update({
       where: {
-        applicantId
+        applicationId
       },
       data: {
         status: 'Completed'

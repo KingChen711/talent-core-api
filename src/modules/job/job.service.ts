@@ -253,9 +253,7 @@ export class JobService {
         code,
         color,
         name,
-        // openInCurrentRecruitment,
         description
-        // quantityInCurrentRecruitment
       }
     } = schema
 
@@ -272,8 +270,6 @@ export class JobService {
     const job = await this.prismaService.client.job.create({
       data: { code, color, icon: imageName, name, description }
     })
-
-    //TODO:handle add to CurrentRecruitment
 
     return job
   }

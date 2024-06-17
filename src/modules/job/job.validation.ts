@@ -82,45 +82,28 @@ export const getJobsSchema = z.object({
 export type TGetJobsSchema = z.infer<typeof getJobsSchema>
 
 export const createJobSchema = z.object({
-  body: z
-    .object({
-      code: z
-        .string()
-        .min(2)
-        .max(50)
-        .refine((value) => !/\s/.test(value), {
-          message: 'Code must not contain any whitespace'
-        }),
-      name: z.string().min(2).max(50),
-      description: z.string().optional(),
-      color: z
-        .string()
-        .optional()
-        .default('#29c5ee')
-        .refine((data) => {
-          return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^$/.test(data)
-        }, 'Invalid color')
-        .transform((data) => {
-          if (data === '') return '#29c5ee'
-          return data
-        }),
-      openInCurrentRecruitment: z.string().transform((data) => data === 'true'),
-      quantityInCurrentRecruitment: z.coerce.number().int().optional()
-    })
-    .refine(
-      (data) => {
-        return (
-          !data.openInCurrentRecruitment ||
-          (data.quantityInCurrentRecruitment &&
-            Number.isInteger(data.quantityInCurrentRecruitment) &&
-            data.quantityInCurrentRecruitment > 0)
-        )
-      },
-      {
-        path: ['quantityInCurrentRecruitment'],
-        message: 'Number of candidates needed must be a number a greater than 0'
-      }
-    )
+  body: z.object({
+    code: z
+      .string()
+      .min(2)
+      .max(50)
+      .refine((value) => !/\s/.test(value), {
+        message: 'Code must not contain any whitespace'
+      }),
+    name: z.string().min(2).max(50),
+    description: z.string().optional(),
+    color: z
+      .string()
+      .optional()
+      .default('#29c5ee')
+      .refine((data) => {
+        return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^$/.test(data)
+      }, 'Invalid color')
+      .transform((data) => {
+        if (data === '') return '#29c5ee'
+        return data
+      })
+  })
 })
 
 export type TCreateJobSchema = z.infer<typeof createJobSchema>

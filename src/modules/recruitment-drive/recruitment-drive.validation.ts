@@ -1,4 +1,4 @@
-import { ApplicantStatus, Gender } from '@prisma/client'
+import { ApplicationStatus, Gender } from '@prisma/client'
 import z from 'zod'
 
 export const getRecruitmentDrivesSchema = z.object({
@@ -105,7 +105,7 @@ export const getRecruitmentDriveDetailSchema = z.object({
 
 export type TGetRecruitmentDriveDetailSchema = z.infer<typeof getRecruitmentDriveDetailSchema>
 
-export const getApplicantsByRecruitmentDriveSchema = z.object({
+export const getApplicationsByRecruitmentDriveSchema = z.object({
   params: z.object({
     recruitmentDriveCode: z.string()
   }),
@@ -116,7 +116,7 @@ export const getApplicantsByRecruitmentDriveSchema = z.object({
       .default(10)
       .transform((data) => Math.min(data, 50)),
     search: z.coerce.string().trim().optional(),
-    status: z.enum(['All', ...Object.values(ApplicantStatus)]).catch('All'),
+    status: z.enum(['All', ...Object.values(ApplicationStatus)]).catch('All'),
     sort: z
       .enum(['createdAt', '-createdAt', 'candidateName', '-candidateName', 'appliedJob', '-appliedJob'])
       .optional()
@@ -124,7 +124,7 @@ export const getApplicantsByRecruitmentDriveSchema = z.object({
   })
 })
 
-export type TGetApplicantsByRecruitmentDriveSchema = z.infer<typeof getApplicantsByRecruitmentDriveSchema>
+export type TGetApplicationsByRecruitmentDriveSchema = z.infer<typeof getApplicationsByRecruitmentDriveSchema>
 
 export const deleteRecruitmentDriveSchema = z.object({
   params: z.object({
@@ -181,7 +181,7 @@ export const addJobSchema = z.object({
 
 export type TAddJobSchema = z.infer<typeof addJobSchema>
 
-export const createApplicantSchema = z.object({
+export const createApplicationSchema = z.object({
   params: z.object({
     jobCode: z.string(),
     recruitmentDriveCode: z.string()
@@ -196,4 +196,4 @@ export const createApplicantSchema = z.object({
   })
 })
 
-export type TCreateApplicantSchema = z.infer<typeof createApplicantSchema>
+export type TCreateApplicationSchema = z.infer<typeof createApplicationSchema>

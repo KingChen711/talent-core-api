@@ -7,14 +7,14 @@ import mailTransporter from './mail-transporter'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { replacePlaceholders, toDateTime } from '../../helpers/utils'
 import {
-  notifyApproveApplicantTemplate,
+  notifyApproveApplicationTemplate,
   notifyInterviewSessionTemplate,
-  notifyRejectApplicantTemplate,
-  notifySaveApplicantTemplate,
-  receivedApplicantTemplate
+  notifyRejectApplicationTemplate,
+  notifySaveApplicationTemplate,
+  receivedApplicationTemplate
 } from '../../constants/email-templates'
 
-type TSendEmailReceivedApplicant = {
+type TSendEmailReceivedApplication = {
   to: string
   candidate: string
   appliedJob: string
@@ -30,7 +30,7 @@ type TSendEmailInterviewSession = {
   point: number
 }
 
-type TSendEmailApproveApplicant = {
+type TSendEmailApproveApplication = {
   to: string
   candidate: string
   appliedJob: string
@@ -38,13 +38,13 @@ type TSendEmailApproveApplicant = {
   location: string
 }
 
-type TSendEmailSaveApplicant = {
+type TSendEmailSaveApplication = {
   to: string
   candidate: string
   appliedJob: string
 }
 
-type TSendEmailRejectApplicant = {
+type TSendEmailRejectApplication = {
   to: string
   candidate: string
   appliedJob: string
@@ -81,13 +81,13 @@ export class EmailService {
     })
   }
 
-  public sendEmailReceivedApplicant = async ({
+  public sendEmailReceivedApplication = async ({
     appliedJob,
     candidate,
     recruitmentDrive,
     to
-  }: TSendEmailReceivedApplicant) => {
-    const html = replacePlaceholders(receivedApplicantTemplate, { appliedJob, candidate, recruitmentDrive })
+  }: TSendEmailReceivedApplication) => {
+    const html = replacePlaceholders(receivedApplicationTemplate, { appliedJob, candidate, recruitmentDrive })
 
     await this.sendMail(to, `Your Application for ${appliedJob} at Talent Core Corporation`, html)
   }
@@ -111,14 +111,14 @@ export class EmailService {
     await this.sendMail(to, `Interview Invitation for ${appliedJob} at Talent Core Corporation`, html)
   }
 
-  public sendEmailApproveApplicant = async ({
+  public sendEmailApproveApplication = async ({
     appliedJob,
     candidate,
     receiveJobDate,
     location,
     to
-  }: TSendEmailApproveApplicant) => {
-    const html = replacePlaceholders(notifyApproveApplicantTemplate, {
+  }: TSendEmailApproveApplication) => {
+    const html = replacePlaceholders(notifyApproveApplicationTemplate, {
       appliedJob,
       candidate,
       location,
@@ -128,13 +128,13 @@ export class EmailService {
     await this.sendMail(to, `Job Offer for ${appliedJob} at Talent Core Corporation`, html)
   }
 
-  public sendEmailSaveApplicant = async ({
+  public sendEmailSaveApplication = async ({
     appliedJob,
     candidate,
 
     to
-  }: TSendEmailSaveApplicant) => {
-    const html = replacePlaceholders(notifySaveApplicantTemplate, {
+  }: TSendEmailSaveApplication) => {
+    const html = replacePlaceholders(notifySaveApplicationTemplate, {
       appliedJob,
       candidate
     })
@@ -142,13 +142,13 @@ export class EmailService {
     await this.sendMail(to, `Update on Your Application for ${appliedJob} at Talent Core Corporation`, html)
   }
 
-  public sendEmailRejectApplicant = async ({
+  public sendEmailRejectApplication = async ({
     appliedJob,
     candidate,
 
     to
-  }: TSendEmailRejectApplicant) => {
-    const html = replacePlaceholders(notifyRejectApplicantTemplate, {
+  }: TSendEmailRejectApplication) => {
+    const html = replacePlaceholders(notifyRejectApplicationTemplate, {
       appliedJob,
       candidate
     })

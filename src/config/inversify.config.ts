@@ -1,7 +1,7 @@
 import { Container } from 'inversify'
 
-import { ApplicantController } from '../modules/applicant/applicant.controller'
-import { ApplicantService } from '../modules/applicant/applicant.service'
+import { ApplicationController } from '../modules/application/application.controller'
+import { ApplicationService } from '../modules/application/application.service'
 import { FileService } from '../modules/aws-s3/file.service'
 import { ClerkController } from '../modules/clerk/clerk.controller'
 import { EmailService } from '../modules/email/email.service'
@@ -31,8 +31,8 @@ container.bind(JobController).toSelf().inRequestScope()
 container.bind(TestExamService).toSelf().inRequestScope()
 container.bind(TestExamController).toSelf().inRequestScope()
 
-container.bind(ApplicantService).toSelf().inRequestScope()
-container.bind(ApplicantController).toSelf().inRequestScope()
+container.bind(ApplicationService).toSelf().inRequestScope()
+container.bind(ApplicationController).toSelf().inRequestScope()
 
 container.bind(RecruitmentDriveService).toSelf().inRequestScope()
 container.bind(RecruitmentDriveController).toSelf().inRequestScope()

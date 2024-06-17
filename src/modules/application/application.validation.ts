@@ -1,16 +1,16 @@
 import z from 'zod'
 
-export const getApplicantDetailSchema = z.object({
+export const getApplicationDetailSchema = z.object({
   params: z.object({
-    applicantId: z.string()
+    applicationId: z.string()
   })
 })
 
-export type TGetApplicantDetailSchema = z.infer<typeof getApplicantDetailSchema>
+export type TGetApplicationDetailSchema = z.infer<typeof getApplicationDetailSchema>
 
 export const scheduleTestExamSchema = z.object({
   params: z.object({
-    applicantId: z.string()
+    applicationId: z.string()
   }),
   body: z.object({
     testDate: z.coerce.date().refine((data) => {
@@ -26,7 +26,7 @@ export type TScheduleTestExamSchema = z.infer<typeof scheduleTestExamSchema>
 
 export const scheduleInterviewSchema = z.object({
   params: z.object({
-    applicantId: z.string()
+    applicationId: z.string()
   }),
   body: z.object({
     interviewDate: z.coerce.date().refine((data) => {
@@ -42,31 +42,31 @@ export type TScheduleInterviewSchema = z.infer<typeof scheduleInterviewSchema>
 
 export const completedInterviewSchema = z.object({
   params: z.object({
-    applicantId: z.string()
+    applicationId: z.string()
   })
 })
 
 export type TCompletedInterviewSchema = z.infer<typeof completedInterviewSchema>
 
-export const saveApplicantSchema = z.object({
+export const saveApplicationSchema = z.object({
   params: z.object({
-    applicantId: z.string()
+    applicationId: z.string()
   })
 })
 
-export type TSaveApplicantSchema = z.infer<typeof saveApplicantSchema>
+export type TSaveApplicationSchema = z.infer<typeof saveApplicationSchema>
 
-export const rejectApplicantSchema = z.object({
+export const rejectApplicationSchema = z.object({
   params: z.object({
-    applicantId: z.string()
+    applicationId: z.string()
   })
 })
 
-export type TRejectApplicantSchema = z.infer<typeof rejectApplicantSchema>
+export type TRejectApplicationSchema = z.infer<typeof rejectApplicationSchema>
 
-export const approveApplicantSchema = z.object({
+export const approveApplicationSchema = z.object({
   params: z.object({
-    applicantId: z.string()
+    applicationId: z.string()
   }),
   body: z.object({
     receiveJobDate: z.coerce.date().refine((data) => {
@@ -78,4 +78,4 @@ export const approveApplicantSchema = z.object({
   })
 })
 
-export type TApproveApplicantSchema = z.infer<typeof approveApplicantSchema>
+export type TApproveApplicationSchema = z.infer<typeof approveApplicationSchema>

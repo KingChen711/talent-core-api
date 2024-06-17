@@ -26,7 +26,7 @@ export const noContent = (res: Response) => {
 export const isPdfFile = (file: Express.Multer.File): boolean => {
   // Check the MIME type
   const mimeType = file.mimetype
-  if (mimeType !== 'applicant/pdf') {
+  if (mimeType !== 'application/pdf') {
     return false
   }
 

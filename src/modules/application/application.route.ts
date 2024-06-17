@@ -1,13 +1,13 @@
-import { ApplicantController } from './applicant.controller'
+import { ApplicationController } from './application.controller'
 import {
-  approveApplicantSchema,
+  approveApplicationSchema,
   completedInterviewSchema,
-  getApplicantDetailSchema,
-  rejectApplicantSchema,
-  saveApplicantSchema,
+  getApplicationDetailSchema,
+  rejectApplicationSchema,
+  saveApplicationSchema,
   scheduleInterviewSchema,
   scheduleTestExamSchema
-} from './applicant.validation'
+} from './application.validation'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
 import express from 'express'
 
@@ -19,62 +19,62 @@ import { Role } from '../../types'
 
 const router = express.Router()
 
-const applicantController = container.get(ApplicantController)
+const applicationController = container.get(ApplicationController)
 
 router.get(
-  '/:applicantId',
+  '/:applicationId',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(getApplicantDetailSchema),
-  applicantController.getApplicantDetail
+  validateRequestData(getApplicationDetailSchema),
+  applicationController.getApplicationDetail
 )
 
 router.patch(
-  '/:applicantId/schedule-test-exam',
+  '/:applicationId/schedule-test-exam',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
   validateRequestData(scheduleTestExamSchema),
-  applicantController.scheduleTestExam
+  applicationController.scheduleTestExam
 )
 
 router.patch(
-  '/:applicantId/schedule-interview',
+  '/:applicationId/schedule-interview',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
   validateRequestData(scheduleInterviewSchema),
-  applicantController.scheduleInterview
+  applicationController.scheduleInterview
 )
 
 router.patch(
-  '/:applicantId/complete-interview',
+  '/:applicationId/complete-interview',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
   validateRequestData(completedInterviewSchema),
-  applicantController.completedInterview
+  applicationController.completedInterview
 )
 
 router.patch(
-  '/:applicantId/approve',
+  '/:applicationId/approve',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(approveApplicantSchema),
-  applicantController.approveApplicant
+  validateRequestData(approveApplicationSchema),
+  applicationController.approveApplication
 )
 
 router.patch(
-  '/:applicantId/reject',
+  '/:applicationId/reject',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(rejectApplicantSchema),
-  applicantController.rejectApplicant
+  validateRequestData(rejectApplicationSchema),
+  applicationController.rejectApplication
 )
 
 router.patch(
-  '/:applicantId/save',
+  '/:applicationId/save',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(saveApplicantSchema),
-  applicantController.saveApplicant
+  validateRequestData(saveApplicationSchema),
+  applicationController.saveApplication
 )
 
-export { router as applicantRoute }
+export { router as applicationRoute }

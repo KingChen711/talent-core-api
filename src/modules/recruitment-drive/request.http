@@ -1,5 +1,5 @@
-POST http://localhost:5000/api/recruitment-drives/Summer2024/jobs/Fr_React_DEV/applicants
-Content-Type: applicant/json
+POST http://localhost:5000/api/recruitment-drives/Summer2024/jobs/Fr_React_DEV/applications
+Content-Type: application/json
 
 {
   "createCandidate": true,
