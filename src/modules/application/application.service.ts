@@ -22,8 +22,7 @@ import {
 } from './application.validation'
 import RequestValidationException from '../../helpers/errors/request-validation.exception'
 import { EmailService } from '../email/email.service'
-import { UserWithRole } from 'src/types'
-import { ppid } from 'process'
+import { UserWithRole } from '../../types'
 
 @injectable()
 export class ApplicationService {
@@ -334,9 +333,10 @@ export class ApplicationService {
       }
     })
 
-    if (!testExam) throw new NotFoundException(`Not found application with code: ${testExamCode}`)
+    if (!testExam) throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
 
     //TODO: set background task handle test session
+    //TODO: email
     await this.prismaService.client.application.update({
       where: {
         id: applicationId
@@ -345,6 +345,62 @@ export class ApplicationService {
         status: 'Testing',
         testSession: {
           create: {
+            testDate,
+            testExamCode,
+            status: 'Processing'
+          }
+        }
+      }
+    })
+  }
+
+  public editTestSession = async (schema: TScheduleTestExamSchema) => {
+    const {
+      params: { applicationId },
+      body: { testDate, testExamCode }
+    } = schema
+
+    const application = await this.prismaService.client.application.findUnique({
+      where: {
+        id: applicationId
+      },
+      include: {
+        testSession: true
+      }
+    })
+
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
+
+    if (application.status !== 'Testing')
+      throw new BadRequestException('Only edit test session for application with status Testing')
+
+    if (application.testSession?.status !== 'Processing')
+      throw new BadRequestException('Only edit test session with status Processing')
+
+    const invalidTimeToEdit =
+      application.testSession?.testDate && new Date(application.testSession.testDate).getTime() < Date.now()
+    if (invalidTimeToEdit) {
+      throw new BadRequestException('Cannot edit test session is taking or has done')
+    }
+
+    const testExam = await this.prismaService.client.testExam.findUnique({
+      where: {
+        code: testExamCode
+      }
+    })
+
+    if (!testExam) throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
+
+    //TODO: set background task handle test session
+    //TODO: email
+    await this.prismaService.client.application.update({
+      where: {
+        id: applicationId
+      },
+      data: {
+        status: 'Testing',
+        testSession: {
+          update: {
             testDate,
             testExamCode,
             status: 'Processing'
@@ -407,6 +463,70 @@ export class ApplicationService {
       interviewDate,
       method,
       point: application.testSession.point!
+    })
+  }
+
+  public editInterviewSession = async (schema: TScheduleInterviewSchema) => {
+    const {
+      params: { applicationId },
+      body: { location, interviewDate, method }
+    } = schema
+
+    const application = await this.prismaService.client.application.findUnique({
+      where: {
+        id: applicationId
+      },
+      include: {
+        testSession: true,
+        interviewSession: true,
+        jobDetail: {
+          select: {
+            job: true
+          }
+        }
+      }
+    })
+
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
+
+    if (application.status !== 'Interviewing')
+      throw new BadRequestException('Only edit interview session for application with status Interviewing')
+
+    if (application.interviewSession?.status !== 'Processing')
+      throw new BadRequestException('Only edit interview session with status Processing')
+
+    const invalidTimeToEdit =
+      application.interviewSession?.interviewDate &&
+      new Date(application.interviewSession.interviewDate).getTime() < Date.now()
+    if (invalidTimeToEdit) {
+      throw new BadRequestException('Cannot edit interview session is taking or has done')
+    }
+
+    await this.prismaService.client.application.update({
+      where: {
+        id: applicationId
+      },
+      data: {
+        status: 'Interviewing',
+        interviewSession: {
+          update: {
+            location,
+            method,
+            interviewDate,
+            status: 'Processing'
+          }
+        }
+      }
+    })
+
+    await this.emailService.sendEmailInterviewSession({
+      to: application.email,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.fullName,
+      location,
+      interviewDate,
+      method,
+      point: application.testSession!.point!
     })
   }
 
@@ -527,6 +647,66 @@ export class ApplicationService {
         status: 'Approve',
         receiveJobSession: {
           create: {
+            receiveJobDate,
+            isConfirmed: false,
+            location
+          }
+        }
+      }
+    })
+
+    await this.emailService.sendEmailApproveApplication({
+      to: application.email,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.fullName,
+      location,
+      receiveJobDate
+    })
+  }
+
+  public editReceiveJobSession = async (schema: TApproveApplicationSchema) => {
+    const {
+      params: { applicationId },
+      body: { location, receiveJobDate }
+    } = schema
+
+    const application = await this.prismaService.client.application.findUnique({
+      where: {
+        id: applicationId
+      },
+      include: {
+        receiveJobSession: true,
+        jobDetail: {
+          select: {
+            job: true
+          }
+        }
+      }
+    })
+
+    if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
+
+    if (application.status !== 'Approve')
+      throw new BadRequestException('Only edit receive job session for application with status Approve')
+
+    if (application.receiveJobSession?.isConfirmed === true)
+      throw new BadRequestException('Only edit receive job session for application has not confirmed hired yet')
+
+    const invalidTimeToEdit =
+      application.receiveJobSession?.receiveJobDate &&
+      new Date(application.receiveJobSession.receiveJobDate).getTime() < Date.now()
+    if (invalidTimeToEdit) {
+      throw new BadRequestException('Cannot edit receive job session is taking or has done')
+    }
+
+    await this.prismaService.client.application.update({
+      where: {
+        id: applicationId
+      },
+      data: {
+        status: 'Approve',
+        receiveJobSession: {
+          update: {
             receiveJobDate,
             isConfirmed: false,
             location

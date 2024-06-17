@@ -3,7 +3,6 @@ import {
   approveApplicationSchema,
   completedInterviewSchema,
   confirmHiredSchema,
-  editTestDateSchema,
   getApplicationDetailSchema,
   getMyApplicationsSchemaSchema,
   rejectApplicationSchema,
@@ -41,11 +40,27 @@ router.get(
 )
 
 router.patch(
-  '/:applicationId/edit-test-date',
+  '/:applicationId/edit-test-session',
   ClerkExpressWithAuth(),
   authorize([Role.EMPLOYEE]),
-  validateRequestData(editTestDateSchema)
-  // applicationController.editTestDate
+  validateRequestData(scheduleTestExamSchema),
+  applicationController.editTestSession
+)
+
+router.patch(
+  '/:applicationId/edit-interview-session',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(scheduleInterviewSchema),
+  applicationController.editInterviewSession
+)
+
+router.patch(
+  '/:applicationId/edit-receive-job-session',
+  ClerkExpressWithAuth(),
+  authorize([Role.EMPLOYEE]),
+  validateRequestData(approveApplicationSchema),
+  applicationController.editReceiveJobSession
 )
 
 router.patch(

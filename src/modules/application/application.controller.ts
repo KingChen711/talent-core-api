@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { ApplicationService } from './application.service'
 import { noContent, ok } from '../../helpers/utils'
 import { Request, Response } from 'express'
-import { ResponseWithUser } from 'src/types'
+import { ResponseWithUser } from '../types'
 
 @injectable()
 export class ApplicationController {
@@ -18,8 +18,18 @@ export class ApplicationController {
     return noContent(res)
   }
 
+  public editTestSession = async (req: Request, res: Response) => {
+    await this.applicationService.editTestSession(res.locals.requestData)
+    return noContent(res)
+  }
+
   public scheduleInterview = async (req: Request, res: Response) => {
     await this.applicationService.scheduleInterview(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public editInterviewSession = async (req: Request, res: Response) => {
+    await this.applicationService.editInterviewSession(res.locals.requestData)
     return noContent(res)
   }
 
@@ -30,6 +40,11 @@ export class ApplicationController {
 
   public approveApplication = async (req: Request, res: Response) => {
     await this.applicationService.approveApplication(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public editReceiveJobSession = async (req: Request, res: Response) => {
+    await this.applicationService.editReceiveJobSession(res.locals.requestData)
     return noContent(res)
   }
 

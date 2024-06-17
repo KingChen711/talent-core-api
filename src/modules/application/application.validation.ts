@@ -1,4 +1,3 @@
-import { ApplicationStatus } from '@prisma/client'
 import z from 'zod'
 
 export const getApplicationDetailSchema = z.object({
@@ -49,14 +48,6 @@ export const completedInterviewSchema = z.object({
 })
 
 export type TCompletedInterviewSchema = z.infer<typeof completedInterviewSchema>
-
-export const editTestDateSchema = z.object({
-  params: z.object({
-    applicationId: z.string()
-  })
-})
-
-export type TEditTestDateSchema = z.infer<typeof editTestDateSchema>
 
 export const confirmHiredSchema = z.object({
   params: z.object({

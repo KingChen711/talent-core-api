@@ -1,4 +1,4 @@
-import { ApplicationStatus, Gender } from '@prisma/client'
+import { Gender } from '@prisma/client'
 import z from 'zod'
 
 export const getRecruitmentDrivesSchema = z.object({
