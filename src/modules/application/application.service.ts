@@ -295,8 +295,11 @@ export class ApplicationService {
 
     if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
+    const cvUrl = await this.fileService.getFileUrl(application.cv)
+
     const mappedApplication = {
       ...application,
+      cv: cvUrl,
       testSession: {
         ...application.testSession,
         testExam: {
@@ -611,6 +614,7 @@ export class ApplicationService {
       candidate: application.fullName
     })
   }
+
   public approveApplication = async (schema: TApproveApplicationSchema) => {
     const {
       params: { applicationId },

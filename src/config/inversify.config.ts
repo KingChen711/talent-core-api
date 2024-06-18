@@ -14,6 +14,7 @@ import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { UserController } from '../modules/user/user.controller'
 import { UserService } from '../modules/user/user.service'
+import { EmailController } from 'src/modules/email/email.controller'
 
 const container = new Container()
 
@@ -38,5 +39,6 @@ container.bind(RecruitmentDriveService).toSelf().inRequestScope()
 container.bind(RecruitmentDriveController).toSelf().inRequestScope()
 
 container.bind(EmailService).toSelf().inRequestScope()
+container.bind(EmailController).toSelf().inRequestScope()
 
 export { container }

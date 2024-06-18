@@ -9,7 +9,6 @@ import errorHandlingMiddleware from './middleware/error-handling.middleware'
 import multerErrorHandlingMiddleware from './middleware/multer-error-handling.middleware'
 import { applicationRoute } from './modules/application/application.route'
 import { clerkRoute } from './modules/clerk/clerk.route'
-import { EmailService } from './modules/email/email.service'
 import { jobRoute } from './modules/job/job.route'
 import { recruitmentDriveRoute } from './modules/recruitment-drive/recruitment-drive.route'
 import { testExamRoute } from './modules/test-exam/test-exam.route'
@@ -19,10 +18,9 @@ import express from 'express'
 import helmet from 'helmet'
 import morgan from 'morgan'
 
-import { container } from './config/inversify.config'
-
 import NotFoundException from './helpers/errors/not-found.exception'
 import { ok } from './helpers/utils'
+import { emailRoute } from './modules/email/email.route'
 
 //!Just for development
 const DELAY = 0
@@ -48,13 +46,7 @@ app.use('/api/jobs', jobRoute)
 app.use('/api/test-exams', testExamRoute)
 app.use('/api/recruitment-drives', recruitmentDriveRoute)
 app.use('/api/applications', applicationRoute)
-app.post('/api/email', async (req, res) => {
-  const emailService = container.get(EmailService)
-
-  await emailService.sendMail('vanttse170128@fpt.edu.vn', '[TALENT_CORE][SCHEDULE_TEST_EXAM]', "Let's do test exam")
-
-  return res.status(200).json()
-})
+app.use('/api/email', emailRoute)
 
 app.get('/', (req, res) => {
   return ok(res, { message: 'hello world' })
