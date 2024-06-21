@@ -10,6 +10,12 @@ import {
   scheduleInterviewSchema,
   scheduleTestExamSchema
 } from './application.validation'
+import {
+  requestChangeInterviewDateSchema,
+  requestChangeReceiveJobDateSchema,
+  requestChangeTestDateSchema,
+  updateWishSchema
+} from './wish.validation'
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
 import express from 'express'
 
@@ -18,12 +24,6 @@ import { container } from '../../config/inversify.config'
 import { authorize } from '../../middleware/authorize.middleware'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import { Role } from '../../types'
-import {
-  requestChangeInterviewDateSchema,
-  requestChangeReceiveJobDateSchema,
-  requestChangeTestDateSchema,
-  updateWishSchema
-} from './wish.validation'
 
 const router = express.Router()
 
@@ -136,7 +136,7 @@ router.patch(
 router.patch(
   '/:applicationId/reject',
   ClerkExpressWithAuth(),
-  authorize([Role.EMPLOYEE]),
+  authorize(),
   validateRequestData(rejectApplicationSchema),
   applicationController.rejectApplication
 )

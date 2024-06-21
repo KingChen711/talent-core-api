@@ -23,7 +23,7 @@ import {
 import RequestValidationException from '../../helpers/errors/request-validation.exception'
 import { EmailService } from '../email/email.service'
 import { Role, UserWithRole } from '../../types'
-import ForbiddenException from 'src/helpers/errors/forbidden-exception'
+import ForbiddenException from '../../helpers/errors/forbidden-exception'
 
 @injectable()
 export class ApplicationService {
@@ -292,7 +292,7 @@ export class ApplicationService {
         },
         receiveJobSession: {
           include: {
-            receiveJobWish: true
+            receiveJobSessionWish: true
           }
         },
         candidate: {
@@ -559,7 +559,7 @@ export class ApplicationService {
     })
   }
 
-  public rejectApplication = async (schema: TRejectApplicationSchema) => {
+  public rejectApplication = async (user: UserWithRole, schema: TRejectApplicationSchema) => {
     const {
       params: { applicationId }
     } = schema
@@ -573,11 +573,24 @@ export class ApplicationService {
           select: {
             job: true
           }
+        },
+        candidate: {
+          include: {
+            user: true
+          }
         }
       }
     })
 
     if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
+
+    const isEmployee = user.role.roleName === Role.EMPLOYEE
+    const isCandidateAndOwnApplication =
+      user.role.roleName === Role.CANDIDATE && application.candidate.user.id === user.id
+
+    if (!isEmployee && !isCandidateAndOwnApplication) {
+      throw new ForbiddenException()
+    }
 
     if (application.status !== 'Approve')
       throw new BadRequestException('Only reject application for application with status Approve')

@@ -55,7 +55,7 @@ export const updateWishSchema = z.object({
   }),
   body: z.object({
     isApprove: z.coerce.boolean(),
-    type: z.enum(['TestSessionWish', 'InterviewSessionWish', 'ReceiveJobWish'])
+    type: z.enum(['TestSessionWish', 'InterviewSessionWish', 'ReceiveJobSessionWish'])
   })
 })
 

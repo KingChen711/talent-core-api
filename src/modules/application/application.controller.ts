@@ -54,8 +54,9 @@ export class ApplicationController {
     return noContent(res)
   }
 
-  public rejectApplication = async (req: Request, res: Response) => {
-    await this.applicationService.rejectApplication(res.locals.requestData)
+  public rejectApplication = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    await this.applicationService.rejectApplication(user, res.locals.requestData)
     return noContent(res)
   }
 
@@ -80,7 +81,7 @@ export class ApplicationController {
   }
 
   public requestChangeReceiveJobDate = async (req: Request, res: Response) => {
-    await this.wishService.createReceiveJobWish(res.locals.requestData)
+    await this.wishService.createReceiveJobSessionWish(res.locals.requestData)
     return noContent(res)
   }
 

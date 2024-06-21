@@ -2,8 +2,10 @@ import { Container } from 'inversify'
 
 import { ApplicationController } from '../modules/application/application.controller'
 import { ApplicationService } from '../modules/application/application.service'
+import { WishService } from '../modules/application/wish.service'
 import { FileService } from '../modules/aws-s3/file.service'
 import { ClerkController } from '../modules/clerk/clerk.controller'
+import { EmailController } from '../modules/email/email.controller'
 import { EmailService } from '../modules/email/email.service'
 import { JobController } from '../modules/job/job.controller'
 import { JobService } from '../modules/job/job.service'
@@ -14,8 +16,6 @@ import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { UserController } from '../modules/user/user.controller'
 import { UserService } from '../modules/user/user.service'
-import { EmailController } from '../modules/email/email.controller'
-import { WishService } from '../modules/application/wish.service'
 
 const container = new Container()
 

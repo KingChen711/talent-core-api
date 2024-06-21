@@ -5,7 +5,7 @@ import { Role as ERole, UserWithRole } from '../../types'
 import { TGetProfileSchema } from './user.validation'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
-import ForbiddenException from 'src/helpers/errors/forbidden-exception'
+import ForbiddenException from '../../helpers/errors/forbidden-exception'
 
 @injectable()
 export class UserService {

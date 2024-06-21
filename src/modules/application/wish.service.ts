@@ -6,9 +6,9 @@ import {
   TRequestChangeTestDateSchema,
   TUpdateWishSchema
 } from './wish.validation'
-import NotFoundException from 'src/helpers/errors/not-found.exception'
-import BadRequestException from 'src/helpers/errors/bad-request.exception'
-import { InterviewSessionWish, ReceiveJobWish, TestSessionWish } from '@prisma/client'
+import NotFoundException from '../../helpers/errors/not-found.exception'
+import BadRequestException from '../../helpers/errors/bad-request.exception'
+import { InterviewSessionWish, ReceiveJobSessionWish, TestSessionWish } from '@prisma/client'
 
 @injectable()
 export class WishService {
@@ -133,7 +133,7 @@ export class WishService {
     })
   }
 
-  public createReceiveJobWish = async (schema: TRequestChangeReceiveJobDateSchema) => {
+  public createReceiveJobSessionWish = async (schema: TRequestChangeReceiveJobDateSchema) => {
     const {
       body: { reason, wishDate },
       params: { applicationId }
@@ -146,7 +146,7 @@ export class WishService {
       include: {
         receiveJobSession: {
           include: {
-            receiveJobWish: true
+            receiveJobSessionWish: true
           }
         }
       }
@@ -164,7 +164,7 @@ export class WishService {
       throw new BadRequestException(`Cannot request change receive job date if the receive job session is confirmed`)
     }
 
-    if (application.receiveJobSession.receiveJobWish) {
+    if (application.receiveJobSession.receiveJobSessionWish) {
       throw new BadRequestException('The request change receive job date is already exist')
     }
 
@@ -173,7 +173,7 @@ export class WishService {
         id: application.receiveJobSession.id
       },
       data: {
-        receiveJobWish: {
+        receiveJobSessionWish: {
           create: {
             content: reason,
             wishTime: wishDate
@@ -206,7 +206,7 @@ export class WishService {
         },
         receiveJobSession: {
           include: {
-            receiveJobWish: true
+            receiveJobSessionWish: true
           }
         }
       }
@@ -226,8 +226,8 @@ export class WishService {
       return
     }
 
-    if (type === 'ReceiveJobWish') {
-      this.updateReceiveJobWish(application.receiveJobSession?.receiveJobWish, isApprove)
+    if (type === 'ReceiveJobSessionWish') {
+      this.updateReceiveJobSessionWish(application.receiveJobSession?.receiveJobSessionWish, isApprove)
       return
     }
   }
@@ -273,18 +273,21 @@ export class WishService {
     })
   }
 
-  private updateReceiveJobWish = async (receiveJobWish: ReceiveJobWish | null | undefined, isApprove: boolean) => {
-    if (!receiveJobWish) {
+  private updateReceiveJobSessionWish = async (
+    receiveJobSessionWish: ReceiveJobSessionWish | null | undefined,
+    isApprove: boolean
+  ) => {
+    if (!receiveJobSessionWish) {
       throw new NotFoundException(`Not found request change receive job date`)
     }
 
-    if (receiveJobWish.status !== 'Processing') {
+    if (receiveJobSessionWish.status !== 'Processing') {
       throw new BadRequestException(`Request change receive job date is already approved/rejected`)
     }
 
-    await this.prismaService.client.receiveJobWish.update({
+    await this.prismaService.client.receiveJobSessionWish.update({
       where: {
-        id: receiveJobWish.id
+        id: receiveJobSessionWish.id
       },
       data: {
         status: isApprove ? 'Approve' : 'Reject'

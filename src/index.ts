@@ -9,6 +9,7 @@ import errorHandlingMiddleware from './middleware/error-handling.middleware'
 import multerErrorHandlingMiddleware from './middleware/multer-error-handling.middleware'
 import { applicationRoute } from './modules/application/application.route'
 import { clerkRoute } from './modules/clerk/clerk.route'
+import { emailRoute } from './modules/email/email.route'
 import { jobRoute } from './modules/job/job.route'
 import { recruitmentDriveRoute } from './modules/recruitment-drive/recruitment-drive.route'
 import { testExamRoute } from './modules/test-exam/test-exam.route'
@@ -20,7 +21,6 @@ import morgan from 'morgan'
 
 import NotFoundException from './helpers/errors/not-found.exception'
 import { ok } from './helpers/utils'
-import { emailRoute } from './modules/email/email.route'
 
 //!Just for development
 const DELAY = 0

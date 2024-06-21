@@ -100,8 +100,8 @@ model ReceiveJobSession {
   isConfirmed    Boolean
   location       String
 
-  application    Application     @relation(fields: [applicationId], references: [id])
-  receiveJobWish ReceiveJobWish?
+  application           Application            @relation(fields: [applicationId], references: [id])
+  receiveJobSessionWish ReceiveJobSessionWish?
 }
 
 model InterviewSession {
@@ -150,7 +150,7 @@ model InterviewSessionWish {
   interviewSession InterviewSession @relation(fields: [interviewSessionId], references: [id])
 }
 
-model ReceiveJobWish {
+model ReceiveJobSessionWish {
   id                  String     @id @default(auto()) @map("_id") @db.ObjectId
   receiveJobSessionId String     @unique @db.ObjectId
   content             String
