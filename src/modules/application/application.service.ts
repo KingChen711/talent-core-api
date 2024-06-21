@@ -22,7 +22,8 @@ import {
 } from './application.validation'
 import RequestValidationException from '../../helpers/errors/request-validation.exception'
 import { EmailService } from '../email/email.service'
-import { UserWithRole } from '../../types'
+import { Role, UserWithRole } from '../../types'
+import ForbiddenException from 'src/helpers/errors/forbidden-exception'
 
 @injectable()
 export class ApplicationService {
@@ -253,7 +254,7 @@ export class ApplicationService {
     return new PagedList<Application>(mappedApplications, totalCount, pageNumber, pageSize)
   }
 
-  public getApplicationDetail = async (schema: TGetApplicationDetailSchema) => {
+  public getApplicationDetail = async (user: UserWithRole, schema: TGetApplicationDetailSchema) => {
     const {
       params: { applicationId }
     } = schema
@@ -280,7 +281,8 @@ export class ApplicationService {
                   }
                 }
               }
-            }
+            },
+            testSessionWish: true
           }
         },
         interviewSession: true,
@@ -295,9 +297,17 @@ export class ApplicationService {
 
     if (!application) throw new NotFoundException(`Not found application with id: ${applicationId}`)
 
+    const isEmployee = user.role.roleName === Role.EMPLOYEE
+    const isCandidateAndOwnApplication =
+      user.role.roleName === Role.CANDIDATE && application.candidate.user.id === user.id
+
+    if (!isEmployee && !isCandidateAndOwnApplication) {
+      throw new ForbiddenException()
+    }
+
     const cvUrl = await this.fileService.getFileUrl(application.cv)
 
-    const mappedApplication = {
+    const mappedApplication: any = {
       ...application,
       cv: cvUrl,
       testSession: {
@@ -308,6 +318,14 @@ export class ApplicationService {
           _count: undefined
         }
       }
+    }
+
+    const hasPermissionViewFullTestSession =
+      isEmployee || (application.testSession?.status && application.testSession.status !== 'Processing')
+
+    if (!hasPermissionViewFullTestSession) {
+      mappedApplication.testSession.testExam = undefined
+      mappedApplication.testSession.testExamCode = undefined
     }
 
     return mappedApplication

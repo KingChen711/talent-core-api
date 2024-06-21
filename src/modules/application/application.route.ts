@@ -18,6 +18,7 @@ import { container } from '../../config/inversify.config'
 import { authorize } from '../../middleware/authorize.middleware'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import { Role } from '../../types'
+import { requestChangeTestDateSchema } from './wish.validation'
 
 const router = express.Router()
 
@@ -31,12 +32,12 @@ router.get(
   applicationController.getMyApplications
 )
 
-router.get(
-  '/:applicationId',
+router.post(
+  '/:applicationId/request-change-test-date',
   ClerkExpressWithAuth(),
-  authorize([Role.EMPLOYEE]),
-  validateRequestData(getApplicationDetailSchema),
-  applicationController.getApplicationDetail
+  authorize([Role.CANDIDATE]),
+  validateRequestData(requestChangeTestDateSchema),
+  applicationController.requestChangeTestDate
 )
 
 router.patch(
@@ -117,6 +118,14 @@ router.patch(
   authorize([Role.EMPLOYEE]),
   validateRequestData(saveApplicationSchema),
   applicationController.saveApplication
+)
+
+router.get(
+  '/:applicationId',
+  ClerkExpressWithAuth(),
+  authorize(),
+  validateRequestData(getApplicationDetailSchema),
+  applicationController.getApplicationDetail
 )
 
 export { router as applicationRoute }

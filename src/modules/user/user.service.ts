@@ -5,6 +5,7 @@ import { Role as ERole, UserWithRole } from '../../types'
 import { TGetProfileSchema } from './user.validation'
 import NotFoundException from '../../helpers/errors/not-found.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
+import ForbiddenException from 'src/helpers/errors/forbidden-exception'
 
 @injectable()
 export class UserService {
@@ -64,8 +65,7 @@ export class UserService {
     }
 
     if (sender.role.roleName === ERole.CANDIDATE && sender.id !== user.id) {
-      //actually forbidden403, but return notfound404 will be better security, it will make the sender do not know that this user is exist or not exist in the system
-      throw new NotFoundException(`Not found user with email: ${email}`)
+      throw new ForbiddenException()
     }
 
     if (user.role.roleName !== ERole.CANDIDATE) {

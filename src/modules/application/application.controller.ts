@@ -3,13 +3,19 @@ import { ApplicationService } from './application.service'
 import { noContent, ok } from '../../helpers/utils'
 import { Request, Response } from 'express'
 import { ResponseWithUser } from '../../types'
+import { WishService } from './wish.service'
 
 @injectable()
 export class ApplicationController {
-  constructor(@inject(ApplicationService) private readonly applicationService: ApplicationService) {}
+  constructor(
+    @inject(ApplicationService) private readonly applicationService: ApplicationService,
+    @inject(WishService) private readonly wishService: WishService
+  ) {}
 
-  public getApplicationDetail = async (req: Request, res: Response) => {
-    const application = await this.applicationService.getApplicationDetail(res.locals.requestData)
+  public getApplicationDetail = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    const application = await this.applicationService.getApplicationDetail(user, res.locals.requestData)
+
     return ok(res, application)
   }
 
@@ -60,6 +66,11 @@ export class ApplicationController {
 
   public confirmHired = async (req: Request, res: Response) => {
     await this.applicationService.confirmHired(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public requestChangeTestDate = async (req: Request, res: Response) => {
+    await this.wishService.createTestSessionWish(res.locals.requestData)
     return noContent(res)
   }
 

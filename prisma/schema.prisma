@@ -157,7 +157,7 @@ model InterviewSessionWish {
 model ReceiveJobWish {
   id                  String             @id @default(auto()) @map("_id") @db.ObjectId
   receiveJobSessionId String             @unique @db.ObjectId
-  content             String?
+  content             String
   status              WishStatus
   wishTime            DateTime?
   type                ReceiveJobWishType
@@ -168,7 +168,7 @@ model ReceiveJobWish {
 model TestSessionWish {
   id             String     @id @default(auto()) @map("_id") @db.ObjectId
   testSessionId  String     @unique @db.ObjectId
-  content        String?
+  content        String
   wishedTestTime DateTime
   status         WishStatus @default(Processing)
 

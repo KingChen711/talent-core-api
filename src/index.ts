@@ -35,7 +35,7 @@ app.use(helmet())
 app.use(morgan('dev'))
 app.use(express.static('public'))
 
-//!Must place before app.use(bodyParser.), do not move it.
+//!Must place before app.use(bodyParser.json()), do not move it.
 app.use('/api/webhook/clerk', clerkRoute)
 
 app.use(bodyParser.json())

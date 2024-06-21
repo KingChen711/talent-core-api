@@ -14,7 +14,8 @@ import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { UserController } from '../modules/user/user.controller'
 import { UserService } from '../modules/user/user.service'
-import { EmailController } from 'src/modules/email/email.controller'
+import { EmailController } from '../modules/email/email.controller'
+import { WishService } from '../modules/application/wish.service'
 
 const container = new Container()
 
@@ -33,6 +34,7 @@ container.bind(TestExamService).toSelf().inRequestScope()
 container.bind(TestExamController).toSelf().inRequestScope()
 
 container.bind(ApplicationService).toSelf().inRequestScope()
+container.bind(WishService).toSelf().inRequestScope()
 container.bind(ApplicationController).toSelf().inRequestScope()
 
 container.bind(RecruitmentDriveService).toSelf().inRequestScope()
