@@ -74,6 +74,16 @@ export class ApplicationController {
     return noContent(res)
   }
 
+  public requestChangeInterviewDate = async (req: Request, res: Response) => {
+    await this.wishService.createInterviewSessionWish(res.locals.requestData)
+    return noContent(res)
+  }
+
+  public updateWish = async (req: Request, res: Response) => {
+    await this.wishService.updateWish(res.locals.requestData)
+    return noContent(res)
+  }
+
   public getMyApplications = async (req: Request, res: ResponseWithUser) => {
     const user = res.locals.user
     const applications = await this.applicationService.getMyApplications(user, res.locals.requestData)

@@ -148,7 +148,8 @@ model InterviewSessionWish {
   id                 String     @id @default(auto()) @map("_id") @db.ObjectId
   interviewSessionId String     @unique @db.ObjectId
   content            String
-  status             WishStatus
+  status             WishStatus @default(Processing)
+  method             Method
   wishTime           DateTime
 
   interviewSession InterviewSession @relation(fields: [interviewSessionId], references: [id])
@@ -158,7 +159,7 @@ model ReceiveJobWish {
   id                  String             @id @default(auto()) @map("_id") @db.ObjectId
   receiveJobSessionId String             @unique @db.ObjectId
   content             String
-  status              WishStatus
+  status              WishStatus         @default(Processing)
   wishTime            DateTime?
   type                ReceiveJobWishType
 

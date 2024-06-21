@@ -285,7 +285,11 @@ export class ApplicationService {
             testSessionWish: true
           }
         },
-        interviewSession: true,
+        interviewSession: {
+          include: {
+            interviewSessionWish: true
+          }
+        },
         receiveJobSession: true,
         candidate: {
           select: {
