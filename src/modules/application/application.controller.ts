@@ -79,6 +79,11 @@ export class ApplicationController {
     return noContent(res)
   }
 
+  public requestChangeReceiveJobDate = async (req: Request, res: Response) => {
+    await this.wishService.createReceiveJobWish(res.locals.requestData)
+    return noContent(res)
+  }
+
   public updateWish = async (req: Request, res: Response) => {
     await this.wishService.updateWish(res.locals.requestData)
     return noContent(res)

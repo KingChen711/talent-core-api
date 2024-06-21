@@ -18,7 +18,12 @@ import { container } from '../../config/inversify.config'
 import { authorize } from '../../middleware/authorize.middleware'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import { Role } from '../../types'
-import { requestChangeInterviewDateSchema, requestChangeTestDateSchema, updateWishSchema } from './wish.validation'
+import {
+  requestChangeInterviewDateSchema,
+  requestChangeReceiveJobDateSchema,
+  requestChangeTestDateSchema,
+  updateWishSchema
+} from './wish.validation'
 
 const router = express.Router()
 
@@ -46,6 +51,14 @@ router.post(
   authorize([Role.CANDIDATE]),
   validateRequestData(requestChangeInterviewDateSchema),
   applicationController.requestChangeInterviewDate
+)
+
+router.post(
+  '/:applicationId/request-change-receive-job-date',
+  ClerkExpressWithAuth(),
+  authorize([Role.CANDIDATE]),
+  validateRequestData(requestChangeReceiveJobDateSchema),
+  applicationController.requestChangeReceiveJobDate
 )
 
 router.patch(

@@ -290,7 +290,11 @@ export class ApplicationService {
             interviewSessionWish: true
           }
         },
-        receiveJobSession: true,
+        receiveJobSession: {
+          include: {
+            receiveJobWish: true
+          }
+        },
         candidate: {
           select: {
             user: true

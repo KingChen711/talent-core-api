@@ -116,11 +116,6 @@ model InterviewSession {
   interviewSessionWish InterviewSessionWish?
 }
 
-enum ReceiveJobWishType {
-  RejectJob
-  ChanegReceiJonTime
-}
-
 enum InterviewStatus {
   Processing
   Completed
@@ -156,12 +151,11 @@ model InterviewSessionWish {
 }
 
 model ReceiveJobWish {
-  id                  String             @id @default(auto()) @map("_id") @db.ObjectId
-  receiveJobSessionId String             @unique @db.ObjectId
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  receiveJobSessionId String     @unique @db.ObjectId
   content             String
-  status              WishStatus         @default(Processing)
-  wishTime            DateTime?
-  type                ReceiveJobWishType
+  status              WishStatus @default(Processing)
+  wishTime            DateTime
 
   receiveJobSession ReceiveJobSession @relation(fields: [receiveJobSessionId], references: [id])
 }
