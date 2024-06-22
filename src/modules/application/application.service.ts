@@ -78,8 +78,6 @@ export class ApplicationService {
       body: { bornYear, email, fullName, gender, phone, personalIntroduction }
     } = schema
 
-    console.log({ file })
-
     if (!file) {
       throw new RequestValidationException({ cv: 'CV is required' })
     }

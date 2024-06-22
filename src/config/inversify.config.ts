@@ -16,6 +16,7 @@ import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { UserController } from '../modules/user/user.controller'
 import { UserService } from '../modules/user/user.service'
+import { TestService } from '../modules/application/test.service'
 
 const container = new Container()
 
@@ -33,8 +34,9 @@ container.bind(JobController).toSelf().inRequestScope()
 container.bind(TestExamService).toSelf().inRequestScope()
 container.bind(TestExamController).toSelf().inRequestScope()
 
-container.bind(ApplicationService).toSelf().inRequestScope()
+container.bind(TestService).toSelf().inRequestScope()
 container.bind(WishService).toSelf().inRequestScope()
+container.bind(ApplicationService).toSelf().inRequestScope()
 container.bind(ApplicationController).toSelf().inRequestScope()
 
 container.bind(RecruitmentDriveService).toSelf().inRequestScope()

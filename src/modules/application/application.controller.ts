@@ -4,12 +4,14 @@ import { noContent, ok } from '../../helpers/utils'
 import { Request, Response } from 'express'
 import { ResponseWithUser } from '../../types'
 import { WishService } from './wish.service'
+import { TestService } from './test.service'
 
 @injectable()
 export class ApplicationController {
   constructor(
     @inject(ApplicationService) private readonly applicationService: ApplicationService,
-    @inject(WishService) private readonly wishService: WishService
+    @inject(WishService) private readonly wishService: WishService,
+    @inject(TestService) private readonly testService: TestService
   ) {}
 
   public getApplicationDetail = async (req: Request, res: ResponseWithUser) => {
@@ -88,6 +90,12 @@ export class ApplicationController {
   public updateWish = async (req: Request, res: Response) => {
     await this.wishService.updateWish(res.locals.requestData)
     return noContent(res)
+  }
+
+  public takeTest = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    const test = await this.testService.takeTest(user, res.locals.requestData)
+    return ok(res, test)
   }
 
   public getMyApplications = async (req: Request, res: ResponseWithUser) => {
