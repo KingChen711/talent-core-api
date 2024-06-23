@@ -349,6 +349,18 @@ export class ApplicationService {
     const application = await this.prismaService.client.application.findUnique({
       where: {
         id: applicationId
+      },
+      include: {
+        jobDetail: {
+          include: {
+            job: true
+          }
+        },
+        candidate: {
+          include: {
+            user: true
+          }
+        }
       }
     })
 
@@ -365,7 +377,6 @@ export class ApplicationService {
 
     if (!testExam) throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
 
-    //TODO: email
     const { testSession } = await this.prismaService.client.application.update({
       where: {
         id: applicationId
@@ -401,6 +412,14 @@ export class ApplicationService {
 
     schedule.scheduleJob(expiredTestDate, submitTestBackgroundTask)
     console.log('Submit test task has scheduled')
+
+    await this.emailService.sendEmailTakeTest({
+      applicationId,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.candidate.user.fullName,
+      testDate,
+      to: application.candidate.user.email
+    })
   }
 
   public editTestSession = async (user: UserWithRole, schema: TScheduleTestExamSchema) => {
@@ -414,7 +433,17 @@ export class ApplicationService {
         id: applicationId
       },
       include: {
-        testSession: true
+        testSession: true,
+        jobDetail: {
+          include: {
+            job: true
+          }
+        },
+        candidate: {
+          include: {
+            user: true
+          }
+        }
       }
     })
 
@@ -440,7 +469,6 @@ export class ApplicationService {
 
     if (!testExam) throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
 
-    //TODO: email
     const { testSession } = await this.prismaService.client.application.update({
       where: {
         id: applicationId
@@ -476,6 +504,14 @@ export class ApplicationService {
 
     schedule.scheduleJob(expiredTestDate, submitTestBackgroundTask)
     console.log('submit test has scheduled')
+
+    await this.emailService.sendEmailTakeTest({
+      applicationId,
+      appliedJob: application.jobDetail.job.name,
+      candidate: application.candidate.user.fullName,
+      testDate,
+      to: application.candidate.user.email
+    })
   }
 
   public scheduleInterview = async (schema: TScheduleInterviewSchema) => {

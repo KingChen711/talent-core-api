@@ -11,6 +11,7 @@ import {
   notifyInterviewSessionTemplate,
   notifyRejectApplicationTemplate,
   notifySaveApplicationTemplate,
+  notifyTakeTestTemplate,
   receivedApplicationTemplate
 } from '../../constants/email-templates'
 import { Method } from '@prisma/client'
@@ -52,6 +53,14 @@ type TSendEmailRejectApplication = {
   appliedJob: string
 }
 
+type TSendEmailTakeTest = {
+  to: string
+  candidate: string
+  appliedJob: string
+  applicationId: string
+  testDate: Date
+}
+
 @injectable()
 export class EmailService {
   private transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>
@@ -75,7 +84,7 @@ export class EmailService {
     const mailOptions = this.buildMailOptions(to, subject, html)
     console.log(mailOptions)
 
-    //TODO:enable this comment
+    // TODO:enable this comment
     // this.transporter.sendMail(mailOptions, function (error, info) {
     //   if (error) {
     //     console.log('Error:', error)
@@ -148,15 +157,23 @@ export class EmailService {
     await this.sendMail(to, `Update on Your Application for ${appliedJob} at Talent Core Corporation`, html)
   }
 
-  public sendEmailRejectApplication = async ({
-    appliedJob,
-    candidate,
-
-    to
-  }: TSendEmailRejectApplication) => {
+  public sendEmailRejectApplication = async ({ appliedJob, candidate, to }: TSendEmailRejectApplication) => {
     const html = replacePlaceholders(notifyRejectApplicationTemplate, {
       appliedJob,
       candidate
+    })
+
+    await this.sendMail(to, `Update on Your Application for ${appliedJob} at Talent Core Corporation`, html)
+  }
+
+  public sendEmailTakeTest = async ({ appliedJob, candidate, to, applicationId, testDate }: TSendEmailTakeTest) => {
+    const html = replacePlaceholders(notifyTakeTestTemplate, {
+      appliedJob,
+      candidate,
+      testDate: toDateTime(testDate),
+      to,
+      signUpLink: `${process.env.CLIENT_URL}/sign-up`,
+      linkToTakeTest: `${process.env.CLIENT_URL}/my-applications/${applicationId}`
     })
 
     await this.sendMail(to, `Update on Your Application for ${appliedJob} at Talent Core Corporation`, html)

@@ -6,10 +6,14 @@ import BadRequestException from 'src/helpers/errors/bad-request.exception'
 import { UserWithRole } from 'src/types'
 import ForbiddenException from 'src/helpers/errors/forbidden-exception'
 import { TestSessionStatus } from '@prisma/client'
+import { EmailService } from '../email/email.service'
 
 @injectable()
 export class TestService {
-  constructor(@inject(PrismaService) private readonly prismaService: PrismaService) {}
+  constructor(
+    @inject(PrismaService) private readonly prismaService: PrismaService,
+    @inject(EmailService) private readonly emailService: EmailService
+  ) {}
 
   public takeTest = async (user: UserWithRole, schema: TTakeTestSchema) => {
     const {
@@ -137,8 +141,6 @@ export class TestService {
     const point = +(correctAnswers / testSession.testExam.questions.length).toFixed(2) * 10
     const status: TestSessionStatus = point >= testSession.testExam.conditionPoint ? 'Pass' : 'Fail'
 
-    //TODO:send email
-
     await this.prismaService.client.testSession.update({
       where: {
         id: testSession.id
@@ -150,13 +152,31 @@ export class TestService {
     })
 
     if (status === 'Fail') {
-      await this.prismaService.client.application.update({
+      const application = await this.prismaService.client.application.update({
         where: {
           id: applicationId
         },
         data: {
           status: 'Saved'
+        },
+        include: {
+          candidate: {
+            include: {
+              user: true
+            }
+          },
+          jobDetail: {
+            include: {
+              job: true
+            }
+          }
         }
+      })
+
+      await this.emailService.sendEmailSaveApplication({
+        to: application.candidate.user.email,
+        candidate: application.candidate.user.fullName,
+        appliedJob: application.jobDetail.job.name
       })
     }
   }
