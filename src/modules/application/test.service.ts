@@ -75,7 +75,7 @@ export class TestService {
     return mappedTestSession
   }
 
-  public submitTest = async (user: UserWithRole, schema: TSubmitTestSchema) => {
+  public submitTest = async (user: UserWithRole, schema: TSubmitTestSchema, ignorePermission = false) => {
     const {
       params: { applicationId },
       body: { answers }
@@ -107,7 +107,7 @@ export class TestService {
       throw new NotFoundException('Not found test session')
     }
 
-    if (testSession.application.candidate.user.id !== user.id) {
+    if (!ignorePermission && testSession.application.candidate.user.id !== user.id) {
       throw new ForbiddenException()
     }
 
@@ -135,7 +135,7 @@ export class TestService {
     })
 
     const point = +(correctAnswers / testSession.testExam.questions.length).toFixed(2) * 10
-    const status: TestSessionStatus = point > testSession.testExam.conditionPoint ? 'Pass' : 'Fail'
+    const status: TestSessionStatus = point >= testSession.testExam.conditionPoint ? 'Pass' : 'Fail'
 
     //TODO:send email
 
@@ -148,5 +148,16 @@ export class TestService {
         status
       }
     })
+
+    if (status === 'Fail') {
+      await this.prismaService.client.application.update({
+        where: {
+          id: applicationId
+        },
+        data: {
+          status: 'Saved'
+        }
+      })
+    }
   }
 }

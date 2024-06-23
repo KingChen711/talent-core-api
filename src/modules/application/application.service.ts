@@ -24,13 +24,16 @@ import RequestValidationException from '../../helpers/errors/request-validation.
 import { EmailService } from '../email/email.service'
 import { Role, UserWithRole } from '../../types'
 import ForbiddenException from '../../helpers/errors/forbidden-exception'
+import { TestService } from './test.service'
+import schedule from 'node-schedule'
 
 @injectable()
 export class ApplicationService {
   constructor(
     @inject(PrismaService) private readonly prismaService: PrismaService,
     @inject(FileService) private readonly fileService: FileService,
-    @inject(EmailService) private readonly emailService: EmailService
+    @inject(EmailService) private readonly emailService: EmailService,
+    @inject(TestService) private readonly testService: TestService
   ) {}
 
   private sortMapping: Record<string, Prisma.ApplicationOrderByWithRelationInput> = {
@@ -337,7 +340,7 @@ export class ApplicationService {
     return mappedApplication
   }
 
-  public scheduleTestExam = async (schema: TScheduleTestExamSchema) => {
+  public scheduleTestExam = async (user: UserWithRole, schema: TScheduleTestExamSchema) => {
     const {
       params: { applicationId },
       body: { testDate, testExamCode }
@@ -362,9 +365,8 @@ export class ApplicationService {
 
     if (!testExam) throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
 
-    //TODO: set background task handle test session
     //TODO: email
-    await this.prismaService.client.application.update({
+    const { testSession } = await this.prismaService.client.application.update({
       where: {
         id: applicationId
       },
@@ -377,11 +379,31 @@ export class ApplicationService {
             status: 'Processing'
           }
         }
+      },
+      include: {
+        testSession: {
+          include: {
+            testExam: true
+          }
+        }
       }
     })
+
+    const submitTestBackgroundTask = async () => {
+      try {
+        await this.testService.submitTest(user, { params: { applicationId }, body: { answers: {} } }, true)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const expiredTestDate = new Date(testDate).getTime() + testSession!.testExam.duration * 1000 * 60 + 1000 * 30
+
+    schedule.scheduleJob(expiredTestDate, submitTestBackgroundTask)
+    console.log('Submit test task has scheduled')
   }
 
-  public editTestSession = async (schema: TScheduleTestExamSchema) => {
+  public editTestSession = async (user: UserWithRole, schema: TScheduleTestExamSchema) => {
     const {
       params: { applicationId },
       body: { testDate, testExamCode }
@@ -418,9 +440,8 @@ export class ApplicationService {
 
     if (!testExam) throw new NotFoundException(`Not found test exam with code: ${testExamCode}`)
 
-    //TODO: set background task handle test session
     //TODO: email
-    await this.prismaService.client.application.update({
+    const { testSession } = await this.prismaService.client.application.update({
       where: {
         id: applicationId
       },
@@ -433,8 +454,28 @@ export class ApplicationService {
             status: 'Processing'
           }
         }
+      },
+      include: {
+        testSession: {
+          include: {
+            testExam: true
+          }
+        }
       }
     })
+
+    const submitTestBackgroundTask = async () => {
+      try {
+        await this.testService.submitTest(user, { params: { applicationId }, body: { answers: {} } }, true)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    const expiredTestDate = new Date(testDate).getTime() + testSession!.testExam.duration * 1000 * 60 + 1000 * 30
+
+    schedule.scheduleJob(expiredTestDate, submitTestBackgroundTask)
+    console.log('submit test has scheduled')
   }
 
   public scheduleInterview = async (schema: TScheduleInterviewSchema) => {

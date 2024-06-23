@@ -21,13 +21,15 @@ export class ApplicationController {
     return ok(res, application)
   }
 
-  public scheduleTestExam = async (req: Request, res: Response) => {
-    await this.applicationService.scheduleTestExam(res.locals.requestData)
+  public scheduleTestExam = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    await this.applicationService.scheduleTestExam(user, res.locals.requestData)
     return noContent(res)
   }
 
-  public editTestSession = async (req: Request, res: Response) => {
-    await this.applicationService.editTestSession(res.locals.requestData)
+  public editTestSession = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    await this.applicationService.editTestSession(user, res.locals.requestData)
     return noContent(res)
   }
 

@@ -183,7 +183,7 @@ export class TestExamService {
             data: questions
           }
         },
-        conditionPoint,
+        conditionPoint: Number(conditionPoint.toFixed(2)),
         description
       }
     })
