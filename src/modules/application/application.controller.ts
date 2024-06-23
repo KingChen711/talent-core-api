@@ -92,6 +92,12 @@ export class ApplicationController {
     return noContent(res)
   }
 
+  public submitTest = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    await this.testService.submitTest(user, res.locals.requestData)
+    return noContent(res)
+  }
+
   public takeTest = async (req: Request, res: ResponseWithUser) => {
     const user = res.locals.user
     const test = await this.testService.takeTest(user, res.locals.requestData)

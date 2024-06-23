@@ -24,7 +24,7 @@ import { container } from '../../config/inversify.config'
 import { authorize } from '../../middleware/authorize.middleware'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import { Role } from '../../types'
-import { takeTestSchema } from './test.validation'
+import { submitTestSchema, takeTestSchema } from './test.validation'
 
 const router = express.Router()
 
@@ -44,6 +44,14 @@ router.get(
   authorize([Role.CANDIDATE]),
   validateRequestData(takeTestSchema),
   applicationController.takeTest
+)
+
+router.post(
+  '/:applicationId/submit-test',
+  ClerkExpressWithAuth(),
+  authorize([Role.CANDIDATE]),
+  validateRequestData(submitTestSchema),
+  applicationController.submitTest
 )
 
 router.post(

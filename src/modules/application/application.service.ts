@@ -330,7 +330,7 @@ export class ApplicationService {
       isEmployee || (application.testSession?.status && application.testSession.status !== 'Processing')
 
     if (!hasPermissionViewFullTestSession) {
-      mappedApplication.testSession.testExam = undefined
+      mappedApplication.testSession.testExam = { duration: mappedApplication.testSession.testExam.duration }
       mappedApplication.testSession.testExamCode = undefined
     }
 
