@@ -1,11 +1,13 @@
 import 'dotenv/config'
 
-import sharp from 'sharp'
-import { injectable } from 'inversify'
-import { bucketName, s3 } from '../../config/s3.config'
-import { randomFileName } from '../../helpers/utils'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { injectable } from 'inversify'
+import sharp from 'sharp'
+
+import { bucketName, s3 } from '../../config/s3.config'
+
+import { randomFileName } from '../../helpers/utils'
 
 @injectable()
 export class FileService {

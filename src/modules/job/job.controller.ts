@@ -1,6 +1,7 @@
-import { inject, injectable } from 'inversify'
 import { JobService } from './job.service'
 import { Request, Response } from 'express'
+import { inject, injectable } from 'inversify'
+
 import { created, noContent, ok } from '../../helpers/utils'
 
 @injectable()

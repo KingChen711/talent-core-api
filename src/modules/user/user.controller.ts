@@ -1,8 +1,10 @@
-import { inject, injectable } from 'inversify'
 import { UserService } from './user.service'
 import { Request } from 'express'
-import { ResponseWithUser } from '../../types'
+import { inject, injectable } from 'inversify'
+
 import { ok } from '../../helpers/utils'
+
+import { ResponseWithUser } from '../../types'
 
 @injectable()
 export class UserController {

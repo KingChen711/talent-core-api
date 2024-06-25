@@ -1,8 +1,9 @@
-import { inject, injectable } from 'inversify'
 import { EmailService } from './email.service'
-import { Request, Response } from 'express'
-import { ok } from '../../helpers/utils'
 import { TSendMailSchema } from './email.validation'
+import { Request, Response } from 'express'
+import { inject, injectable } from 'inversify'
+
+import { ok } from '../../helpers/utils'
 
 @injectable()
 export class EmailController {

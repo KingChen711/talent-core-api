@@ -1,12 +1,14 @@
-import { inject, injectable } from 'inversify'
-import { PrismaService } from '../prisma/prisma.service'
 import { TSubmitTestSchema, TTakeTestSchema } from './test.validation'
-import NotFoundException from 'src/helpers/errors/not-found.exception'
-import BadRequestException from 'src/helpers/errors/bad-request.exception'
-import { UserWithRole } from 'src/types'
-import ForbiddenException from 'src/helpers/errors/forbidden-exception'
 import { TestSessionStatus } from '@prisma/client'
+import { inject, injectable } from 'inversify'
+
+import BadRequestException from '../../helpers/errors/bad-request.exception'
+import ForbiddenException from '../../helpers/errors/forbidden-exception'
+import NotFoundException from '../../helpers/errors/not-found.exception'
+
+import { UserWithRole } from '../../types'
 import { EmailService } from '../email/email.service'
+import { PrismaService } from '../prisma/prisma.service'
 
 @injectable()
 export class TestService {

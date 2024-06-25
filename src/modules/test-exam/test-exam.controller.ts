@@ -1,9 +1,11 @@
-import { inject, injectable } from 'inversify'
 import { TestExamService } from './test-exam.service'
-import { Request, Response } from 'express'
-import { JobService } from '../job/job.service'
 import { TGetAddableJobsSchema } from './test-exam.validation'
+import { Request, Response } from 'express'
+import { inject, injectable } from 'inversify'
+
 import { created, noContent, ok } from '../../helpers/utils'
+
+import { JobService } from '../job/job.service'
 
 @injectable()
 export class TestExamController {

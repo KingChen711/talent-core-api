@@ -1,24 +1,28 @@
 import 'dotenv/config'
-import { inject, injectable } from 'inversify'
-import { PrismaService } from '../prisma/prisma.service'
+
 import {
+  TAddOrRemoveTestExamsSchema,
   TCreateJobSchema,
   TDeleteJobSchema,
   TGetAddableTestExamsSchema,
   TGetJobSchema,
   TGetJobTestExamsSchema,
   TGetJobsSchema,
-  TAddOrRemoveTestExamsSchema,
   TUpdateJobSchema
 } from './job.validation'
 import { Job, Prisma } from '@prisma/client'
-import { FileService } from '../aws-s3/file.service'
-import { defaultImageName, systemImageJobs } from '../../constants/index'
-import { TestExamService } from '../test-exam/test-exam.service'
-import { PagedList } from '../../helpers/paged-list'
-import NotFoundException from '../../helpers/errors/not-found.exception'
+import { inject, injectable } from 'inversify'
+
 import AlreadyUsedCodeException from '../../helpers/errors/already-used-code.exception'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
+import NotFoundException from '../../helpers/errors/not-found.exception'
+import { PagedList } from '../../helpers/paged-list'
+
+import { defaultImageName, systemImageJobs } from '../../constants/index'
+
+import { FileService } from '../aws-s3/file.service'
+import { PrismaService } from '../prisma/prisma.service'
+import { TestExamService } from '../test-exam/test-exam.service'
 
 @injectable()
 export class JobService {

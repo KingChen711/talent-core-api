@@ -1,11 +1,13 @@
 import 'dotenv/config'
 
-import nodemailer from 'nodemailer'
-import { inject, injectable } from 'inversify'
-import { PrismaService } from '../prisma/prisma.service'
 import mailTransporter from './mail-transporter'
+import { Method } from '@prisma/client'
+import { inject, injectable } from 'inversify'
+import nodemailer from 'nodemailer'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
+
 import { replacePlaceholders, toDateTime } from '../../helpers/utils'
+
 import {
   notifyApproveApplicationTemplate,
   notifyInterviewSessionTemplate,
@@ -14,7 +16,7 @@ import {
   notifyTakeTestTemplate,
   receivedApplicationTemplate
 } from '../../constants/email-templates'
-import { Method } from '@prisma/client'
+import { PrismaService } from '../prisma/prisma.service'
 
 type TSendEmailReceivedApplication = {
   to: string

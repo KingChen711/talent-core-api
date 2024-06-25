@@ -1,14 +1,3 @@
-import { inject, injectable } from 'inversify'
-import { PrismaService } from '../prisma/prisma.service'
-import {
-  TCreateApplicationSchema,
-  TGetApplicationsByRecruitmentDriveSchema
-} from '../recruitment-drive/recruitment-drive.validation'
-import NotFoundException from '../../helpers/errors/not-found.exception'
-import BadRequestException from '../../helpers/errors/bad-request.exception'
-import { Application, Prisma } from '@prisma/client'
-import { PagedList } from '../../helpers/paged-list'
-import { FileService } from '../aws-s3/file.service'
 import {
   TApproveApplicationSchema,
   TCompletedInterviewSchema,
@@ -20,12 +9,25 @@ import {
   TScheduleInterviewSchema,
   TScheduleTestExamSchema
 } from './application.validation'
-import RequestValidationException from '../../helpers/errors/request-validation.exception'
-import { EmailService } from '../email/email.service'
-import { Role, UserWithRole } from '../../types'
-import ForbiddenException from '../../helpers/errors/forbidden-exception'
 import { TestService } from './test.service'
+import { Application, Prisma } from '@prisma/client'
+import { inject, injectable } from 'inversify'
 import schedule from 'node-schedule'
+
+import BadRequestException from '../../helpers/errors/bad-request.exception'
+import ForbiddenException from '../../helpers/errors/forbidden-exception'
+import NotFoundException from '../../helpers/errors/not-found.exception'
+import RequestValidationException from '../../helpers/errors/request-validation.exception'
+import { PagedList } from '../../helpers/paged-list'
+
+import { Role, UserWithRole } from '../../types'
+import { FileService } from '../aws-s3/file.service'
+import { EmailService } from '../email/email.service'
+import { PrismaService } from '../prisma/prisma.service'
+import {
+  TCreateApplicationSchema,
+  TGetApplicationsByRecruitmentDriveSchema
+} from '../recruitment-drive/recruitment-drive.validation'
 
 @injectable()
 export class ApplicationService {

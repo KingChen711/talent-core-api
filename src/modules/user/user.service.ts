@@ -1,11 +1,13 @@
+import { TGetProfileSchema } from './user.validation'
 import { Prisma, Role, User } from '@prisma/client'
 import { inject, injectable } from 'inversify'
-import { PrismaService } from '../prisma/prisma.service'
-import { Role as ERole, UserWithRole } from '../../types'
-import { TGetProfileSchema } from './user.validation'
-import NotFoundException from '../../helpers/errors/not-found.exception'
+
 import BadRequestException from '../../helpers/errors/bad-request.exception'
 import ForbiddenException from '../../helpers/errors/forbidden-exception'
+import NotFoundException from '../../helpers/errors/not-found.exception'
+
+import { Role as ERole, UserWithRole } from '../../types'
+import { PrismaService } from '../prisma/prisma.service'
 
 @injectable()
 export class UserService {

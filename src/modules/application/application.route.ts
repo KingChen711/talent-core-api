@@ -10,6 +10,7 @@ import {
   scheduleInterviewSchema,
   scheduleTestExamSchema
 } from './application.validation'
+import { submitTestSchema, takeTestSchema } from './test.validation'
 import {
   requestChangeInterviewDateSchema,
   requestChangeReceiveJobDateSchema,
@@ -24,7 +25,6 @@ import { container } from '../../config/inversify.config'
 import { authorize } from '../../middleware/authorize.middleware'
 import { validateRequestData } from '../../middleware/validate-request-data.middleware'
 import { Role } from '../../types'
-import { submitTestSchema, takeTestSchema } from './test.validation'
 
 const router = express.Router()
 

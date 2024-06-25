@@ -1,8 +1,10 @@
-import { inject, injectable } from 'inversify'
 import { RecruitmentDriveService } from './recruitment-drive.service'
 import { Request, Response } from 'express'
-import { ApplicationService } from '../application/application.service'
+import { inject, injectable } from 'inversify'
+
 import { created, noContent, ok } from '../../helpers/utils'
+
+import { ApplicationService } from '../application/application.service'
 
 @injectable()
 export class RecruitmentDriveController {

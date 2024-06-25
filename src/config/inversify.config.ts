@@ -2,6 +2,7 @@ import { Container } from 'inversify'
 
 import { ApplicationController } from '../modules/application/application.controller'
 import { ApplicationService } from '../modules/application/application.service'
+import { TestService } from '../modules/application/test.service'
 import { WishService } from '../modules/application/wish.service'
 import { FileService } from '../modules/aws-s3/file.service'
 import { ClerkController } from '../modules/clerk/clerk.controller'
@@ -16,7 +17,6 @@ import { TestExamController } from '../modules/test-exam/test-exam.controller'
 import { TestExamService } from '../modules/test-exam/test-exam.service'
 import { UserController } from '../modules/user/user.controller'
 import { UserService } from '../modules/user/user.service'
-import { TestService } from '../modules/application/test.service'
 
 const container = new Container()
 

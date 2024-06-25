@@ -1,10 +1,12 @@
-import { inject, injectable } from 'inversify'
 import { ApplicationService } from './application.service'
-import { noContent, ok } from '../../helpers/utils'
-import { Request, Response } from 'express'
-import { ResponseWithUser } from '../../types'
-import { WishService } from './wish.service'
 import { TestService } from './test.service'
+import { WishService } from './wish.service'
+import { Request, Response } from 'express'
+import { inject, injectable } from 'inversify'
+
+import { noContent, ok } from '../../helpers/utils'
+
+import { ResponseWithUser } from '../../types'
 
 @injectable()
 export class ApplicationController {

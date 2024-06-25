@@ -1,6 +1,6 @@
-import { injectable } from 'inversify'
-import { PrismaClient } from '@prisma/client'
 import prisma from './prisma'
+import { PrismaClient } from '@prisma/client'
+import { injectable } from 'inversify'
 
 @injectable()
 export class PrismaService {

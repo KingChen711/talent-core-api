@@ -1,4 +1,5 @@
 {
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
   "arrowParens": "always",
   "semi": false,
   "trailingComma": "none",
@@ -8,7 +9,7 @@
   "singleQuote": true,
   "printWidth": 120,
   "jsxSingleQuote": true,
-
+  "importOrderParserPlugins": ["typescript", "decorators-legacy"],
   "importOrder": [
     "dotenv/config",
     "reflect-metadata",
