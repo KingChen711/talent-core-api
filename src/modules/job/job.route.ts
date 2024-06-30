@@ -26,6 +26,8 @@ const router = express.Router()
 
 const jobController = container.get(JobController)
 
+router.get('/opening-jobs', jobController.getOpeningJobs)
+
 router.get(
   '/:jobCode/addable-test-exams',
   ClerkExpressWithAuth(),

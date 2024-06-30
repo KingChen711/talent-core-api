@@ -394,11 +394,7 @@ export class JobService {
       where: { code: jobCode }
     })
 
-    console.log(2)
-
     if (!job) throw new NotFoundException(`Not found job with code: ${jobCode}`)
-
-    console.log(3)
 
     const testExams = await this.prismaService.client.testExam.findMany({
       where: {
@@ -408,20 +404,12 @@ export class JobService {
       }
     })
 
-    console.log(4)
-
-    console.log({ testExamIds })
-
-    console.log({ testExams })
-
     if (testExams.length !== testExamIds.length) throw new BadRequestException(`Some test exams are not found`)
 
     const hasSomeTestExamAlreadyAdded =
       new Set([...testExamIds, ...job.testExamIds]).size < testExamIds.length + job.testExamIds.length
 
     if (hasSomeTestExamAlreadyAdded) throw new BadRequestException(`Some test exams have already added`)
-
-    console.log(5)
 
     const updateJobPromises = testExamIds.map((testExamId) =>
       this.prismaService.client.job.update({
@@ -436,11 +424,7 @@ export class JobService {
       })
     )
 
-    console.log(6)
-
     await Promise.all(updateJobPromises)
-
-    console.log(7)
   }
 
   public removeTestExams = async (schema: TAddOrRemoveTestExamsSchema) => {
@@ -473,5 +457,32 @@ export class JobService {
     )
 
     await Promise.all(updateJobPromises)
+  }
+
+  public getOpeningJobs = async () => {
+    const recruitmentDrive = await this.prismaService.client.recruitmentDrive.findFirst({
+      where: {
+        status: 'Open'
+      },
+      include: {
+        jobDetails: {
+          include: {
+            job: true
+          }
+        }
+      }
+    })
+
+    if (!recruitmentDrive) return []
+
+    const iconUrls = await this.fileService.getFileUrls(recruitmentDrive.jobDetails.map((jd) => jd.job.icon))
+
+    return recruitmentDrive.jobDetails.map((jd, i) => ({
+      ...jd,
+      job: {
+        ...jd.job,
+        icon: iconUrls[i]
+      }
+    }))
   }
 }

@@ -413,7 +413,6 @@ export class ApplicationService {
     const expiredTestDate = new Date(testDate).getTime() + testSession!.testExam.duration * 1000 * 60 + 1000 * 30
 
     schedule.scheduleJob(expiredTestDate, submitTestBackgroundTask)
-    console.log('Submit test task has scheduled')
 
     await this.emailService.sendEmailTakeTest({
       applicationId,
@@ -505,7 +504,6 @@ export class ApplicationService {
     const expiredTestDate = new Date(testDate).getTime() + testSession!.testExam.duration * 1000 * 60 + 1000 * 30
 
     schedule.scheduleJob(expiredTestDate, submitTestBackgroundTask)
-    console.log('submit test has scheduled')
 
     await this.emailService.sendEmailTakeTest({
       applicationId,

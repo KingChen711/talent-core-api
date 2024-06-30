@@ -40,6 +40,12 @@ export class JobController {
     return ok(res, testExams)
   }
 
+  public getOpeningJobs = async (req: Request, res: Response) => {
+    const openingJobs = await this.jobService.getOpeningJobs()
+
+    return ok(res, openingJobs)
+  }
+
   public getAddableTestExams = async (req: Request, res: Response) => {
     const addableTestExams = await this.jobService.getAddableTestExams(res.locals.requestData)
     res.setHeader('X-Pagination', JSON.stringify(addableTestExams.metaData))
