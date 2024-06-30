@@ -77,11 +77,17 @@ export class ApplicationService {
     }
   } as const
 
-  public createApplication = async (file: Express.Multer.File | undefined, schema: TCreateApplicationSchema) => {
+  public createApplication = async (
+    user: UserWithRole,
+    file: Express.Multer.File | undefined,
+    schema: TCreateApplicationSchema
+  ) => {
     const {
       params: { jobCode, recruitmentDriveCode },
-      body: { bornYear, email, fullName, gender, phone, personalIntroduction }
+      body: { bornYear, fullName, gender, phone, personalIntroduction }
     } = schema
+
+    const email = user.role.roleName === Role.CANDIDATE ? user.email : schema.body.email
 
     if (!file) {
       throw new RequestValidationException({ cv: 'CV is required' })
@@ -171,7 +177,16 @@ export class ApplicationService {
       recruitmentDrive: recruitmentDrive.name
     })
 
-    return
+    const newApplication = await this.prismaService.client.application.findFirst({
+      where: {
+        candidate: {
+          user: { email }
+        },
+        jobDetailId: jobDetail.id
+      }
+    })
+
+    return newApplication!.id
   }
 
   public getCandidateByRecruitmentDrive = async (schema: TGetApplicationsByRecruitmentDriveSchema) => {

@@ -23,7 +23,7 @@ import NotFoundException from './helpers/errors/not-found.exception'
 import { ok } from './helpers/utils'
 
 //!Just for development
-const DELAY = 1000
+const DELAY = 0
 
 const app = express()
 

@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify'
 
 import { created, noContent, ok } from '../../helpers/utils'
 
+import { ResponseWithUser } from '../../types'
 import { ApplicationService } from '../application/application.service'
 
 @injectable()
@@ -65,9 +66,10 @@ export class RecruitmentDriveController {
     return noContent(res)
   }
 
-  public createApplication = async (req: Request, res: Response) => {
-    await this.applicationService.createApplication(req.file, res.locals.requestData)
-    return noContent(res)
+  public createApplication = async (req: Request, res: ResponseWithUser) => {
+    const user = res.locals.user
+    const applicationId = await this.applicationService.createApplication(user, req.file, res.locals.requestData)
+    return created(res, applicationId)
   }
 
   public getApplicationsByRecruitmentDrive = async (req: Request, res: Response) => {

@@ -49,7 +49,7 @@ router.post(
 router.post(
   '/:recruitmentDriveCode/jobs/:jobCode/applications',
   ClerkExpressWithAuth(),
-  authorize([Role.EMPLOYEE]),
+  authorize(),
   cvMulterMiddleware,
   validateRequestData(createApplicationSchema),
   recruitmentDriveController.createApplication
