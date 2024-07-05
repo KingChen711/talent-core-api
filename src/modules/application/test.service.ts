@@ -140,7 +140,7 @@ export class TestService {
       }
     })
 
-    const point = +(correctAnswers / testSession.testExam.questions.length).toFixed(2) * 10
+    const point = +((correctAnswers / testSession.testExam.questions.length) * 10).toFixed(2)
     const status: TestSessionStatus = point >= testSession.testExam.conditionPoint ? 'Pass' : 'Fail'
 
     await this.prismaService.client.testSession.update({

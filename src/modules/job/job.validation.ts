@@ -132,12 +132,6 @@ export const updateJobSchema = z.object({
       .transform((data) => {
         if (data === '') return '#29c5ee'
         return data
-      }),
-    testExamIds: z
-      .string()
-      .transform((data) => JSON.parse(data) as string[])
-      .refine((data) => {
-        return data.every((v) => typeof v === 'string')
       })
   })
 })

@@ -276,7 +276,7 @@ export class JobService {
   public updateJob = async (file: Express.Multer.File | undefined, schema: TUpdateJobSchema) => {
     const {
       params: { jobId },
-      body: { code, color, name, testExamIds, description }
+      body: { code, color, name, description }
     } = schema
 
     const jobByCode = await this.getJobByCode(code)
@@ -304,7 +304,7 @@ export class JobService {
       where: {
         id: jobId
       },
-      data: { code, color, icon: imageName, name, description, testExamIds }
+      data: { code, color, icon: imageName, name, description }
     })
   }
 

@@ -74,7 +74,8 @@ export const updateRecruitmentDriveSchema = z.object({
       name: z.string().min(2).max(50),
       startDate: z.coerce.date(),
       endDate: z.coerce.date(),
-      description: z.string().optional()
+      description: z.string().optional(),
+      status: z.enum(['Open', 'Closed', 'Upcoming']).catch('Upcoming')
     })
     .refine(
       (data) => {

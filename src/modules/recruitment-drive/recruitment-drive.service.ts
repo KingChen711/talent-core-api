@@ -147,22 +147,37 @@ export class RecruitmentDriveService {
   public updateRecruitmentDrive = async (schema: TUpdateRecruitmentDriveSchema) => {
     const {
       params: { recruitmentDriveId },
-      body: { endDate, name, startDate, description, code }
+      body: { endDate, name, startDate, description, code, status }
     } = schema
 
     const recruitmentDriveByCode = await this.prismaService.client.recruitmentDrive.findUnique({
       where: { code }
     })
 
-    if (recruitmentDriveByCode && recruitmentDriveByCode.id !== recruitmentDriveId) {
+    if (!recruitmentDriveByCode) {
+      throw new NotFoundException(`Not found recruitment drive with code: ${code}`)
+    }
+
+    if (recruitmentDriveByCode.id !== recruitmentDriveId) {
       throw new AlreadyUsedCodeException()
+    }
+
+    if (recruitmentDriveByCode.status === 'Closed') {
+      throw new BadRequestException('Cannot update a closed recruitment drive')
+    }
+
+    if (status === 'Open') {
+      const currentRecruitmentDrive = await this.getCurrentRecruitmentDrive()
+      if (currentRecruitmentDrive && currentRecruitmentDrive.code !== code) {
+        throw new BadRequestException('Already have a opening recruitment drive')
+      }
     }
 
     return await this.prismaService.client.recruitmentDrive.update({
       where: {
         id: recruitmentDriveId
       },
-      data: { endDate, name, code, startDate, description }
+      data: { endDate, name, code, startDate, description, status }
     })
   }
 
