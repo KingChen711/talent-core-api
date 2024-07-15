@@ -84,16 +84,14 @@ export class EmailService {
 
   public sendMail = async (to: string, subject: string, html: string) => {
     const mailOptions = this.buildMailOptions(to, subject, html)
-    console.log(mailOptions)
 
-    // TODO:enable this comment
-    // this.transporter.sendMail(mailOptions, function (error, info) {
-    //   if (error) {
-    //     console.log('Error:', error)
-    //   } else {
-    //     console.log('Email sent:', info.response)
-    //   }
-    // })
+    this.transporter.sendMail(mailOptions, function (error, info) {
+      if (error) {
+        console.log('Error:', error)
+      } else {
+        console.log('Email sent:', info.response)
+      }
+    })
   }
 
   public sendEmailReceivedApplication = async ({
