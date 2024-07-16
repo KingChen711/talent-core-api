@@ -5,7 +5,7 @@ import { inject, injectable } from 'inversify'
 import BadRequestException from '../../helpers/errors/bad-request.exception'
 import ForbiddenException from '../../helpers/errors/forbidden-exception'
 import NotFoundException from '../../helpers/errors/not-found.exception'
-import { PagedList } from 'src/helpers/paged-list'
+import { PagedList } from '../../helpers/paged-list'
 
 import { Role as ERole, UserWithRole } from '../../types'
 import { PrismaService } from '../prisma/prisma.service'
