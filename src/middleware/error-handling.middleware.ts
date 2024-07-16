@@ -9,7 +9,7 @@ import RequestValidationException, { ValidationErrors } from '../helpers/errors/
 const errorHandlingMiddleware = (err: ApiError, req: Request, res: Response, next: NextFunction) => {
   if (!err?.statusCode) err.statusCode = StatusCodes.INTERNAL_SERVER_ERROR
 
-  console.log(err.data)
+  console.log(err)
 
   const responseError = err.data || {
     // stack: err.stack
