@@ -11,7 +11,7 @@ import { randomFileName } from '../../helpers/utils'
 
 @injectable()
 export class FileService {
-  upLoadImage = async (
+  public upLoadImage = async (
     file: Express.Multer.File,
     height: number,
     width: number,
@@ -34,7 +34,7 @@ export class FileService {
     return key
   }
 
-  upLoadPortfolio = async (file: Express.Multer.File, fileName?: string): Promise<string> => {
+  public upLoadPortfolio = async (file: Express.Multer.File, fileName?: string): Promise<string> => {
     const buffer = file.buffer
     const key = fileName || randomFileName()
 
@@ -52,7 +52,7 @@ export class FileService {
     return key
   }
 
-  getFileUrl = async (imageName: string): Promise<string> => {
+  public getFileUrl = async (imageName: string): Promise<string> => {
     const params = {
       Bucket: bucketName,
       Key: imageName
@@ -64,7 +64,7 @@ export class FileService {
     return url
   }
 
-  getFileUrls = async (imageNames: string[]): Promise<string[]> => {
+  public getFileUrls = async (imageNames: string[]): Promise<string[]> => {
     const urlsData = imageNames.map((imageName) => {
       const params = {
         Bucket: bucketName,
@@ -77,7 +77,7 @@ export class FileService {
     return await Promise.all(urlsData)
   }
 
-  deleteFile = async (imageName: string): Promise<void> => {
+  public deleteFile = async (imageName: string): Promise<void> => {
     const params = {
       Bucket: bucketName,
       Key: imageName

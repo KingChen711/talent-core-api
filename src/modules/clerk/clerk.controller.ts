@@ -16,7 +16,7 @@ import { UserService } from '../user/user.service'
 export class ClerkController {
   constructor(@inject(UserService) private readonly userService: UserService) {}
 
-  webhookHandler = async (req: Request, res: Response) => {
+  public webhookHandler = async (req: Request, res: Response) => {
     const CLERK_WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET
 
     if (!CLERK_WEBHOOK_SECRET)

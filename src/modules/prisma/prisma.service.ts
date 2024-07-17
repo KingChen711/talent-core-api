@@ -10,7 +10,7 @@ export class PrismaService {
     this._prisma = prisma
   }
 
-  get client(): PrismaClient {
+  public get client(): PrismaClient {
     return this._prisma
   }
 }
