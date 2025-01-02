@@ -65,7 +65,7 @@ export class ClerkController {
           clerkId: id,
           avatar: image_url
         })
-        return created(res, user)
+        return ok(res, user)
       }
 
       const user = await this.userService.createUser({
