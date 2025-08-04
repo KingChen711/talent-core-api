@@ -18,8 +18,8 @@ const emailController = container.get(EmailController)
 
 router.post(
   '/',
-  ClerkExpressWithAuth(),
-  authorize([Role.EMPLOYEE]),
+  // ClerkExpressWithAuth(),
+  // authorize([Role.EMPLOYEE]),
   validateRequestData(sendMailSchema),
   emailController.sendMail
 )

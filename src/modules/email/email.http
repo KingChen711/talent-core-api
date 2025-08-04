@@ -1,0 +1,9 @@
+### Gửi yêu cầu POST với JSON body
+POST http://localhost:5000/api/email
+Content-Type: application/json
+
+{
+    "to": "vanttse170128@fpt.edu.vn",
+    "subject": "[TEST] Test",
+    "html": "<div>Hello World!</div>"
+}

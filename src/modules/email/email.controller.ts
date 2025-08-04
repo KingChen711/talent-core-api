@@ -14,7 +14,7 @@ export class EmailController {
       body: { html, subject, to }
     } = res.locals.requestData as TSendMailSchema
 
-    await this.emailService.sendMail(to, subject, html)
-    return ok(res)
+    const result = await this.emailService.sendMail(to, subject, html)
+    return ok(res, result)
   }
 }

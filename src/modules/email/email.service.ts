@@ -85,13 +85,9 @@ export class EmailService {
   public sendMail = async (to: string, subject: string, html: string) => {
     const mailOptions = this.buildMailOptions(to, subject, html)
 
-    this.transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log('Error:', error)
-      } else {
-        console.log('Email sent:', info.response)
-      }
-    })
+    const res = await this.transporter.sendMail(mailOptions)
+
+    return res
   }
 
   public sendEmailReceivedApplication = async ({
